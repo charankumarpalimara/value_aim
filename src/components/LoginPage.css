@@ -1,0 +1,214 @@
+/* ===== Login Page Styles ===== */
+.login-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #E5E5E5;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-content {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(32, 31, 71, 0.1);
+}
+
+.login-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #201F47;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #201F47;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.social-btn:hover {
+  background: #f8f8f8;
+  border-color: #ccc;
+}
+
+.social-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.social-icon svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Phone icon color */
+.phone-btn .social-icon {
+  color: #25D366;
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 24px 0;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider span {
+  background: #fff;
+  padding: 0 16px;
+  color: #666;
+  font-size: 14px;
+}
+
+.email-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  /* background-color: #ffffff; */
+}
+
+.email-input {
+  padding: 14px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: transparent;
+  color: #201F47;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.email-input:focus {
+  border-color: #201F47;
+}
+
+.email-input::placeholder {
+  color: #999;
+}
+
+.continue-btn {
+  padding: 14px 16px;
+  background: #201F47;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.continue-btn:hover {
+  background: #15143a;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 1024px) {
+  .login-content {
+    padding: 24px;
+  }
+
+  .login-card {
+    padding: 32px;
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-page {
+    padding-top: 84px; /* Space for fixed header */
+  }
+
+  .login-content {
+    padding: 16px;
+  }
+
+  .login-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+
+  .social-btn {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page {
+    padding-top: 70px; /* Space for fixed header */
+  }
+
+  .login-content {
+    padding: 12px;
+  }
+
+  .login-card {
+    padding: 16px;
+  }
+
+  .login-title {
+    font-size: 20px;
+  }
+
+  .social-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
