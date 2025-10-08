@@ -10,7 +10,8 @@ function ResultsPage() {
   const [expandedSections, setExpandedSections] = useState({
     today: true,
     yesterday: true,
-    previous: true
+    previous: true,
+    organization: true
   });
 
   const opportunities = [
@@ -122,8 +123,29 @@ function ResultsPage() {
                   </svg>
                 </div>
                 <div className={`nav-items ${expandedSections.today ? 'expanded' : ''}`}>
-                  <a href="#" className="nav-item active">B2B Sales Analysis</a>
-                  <a href="#" className="nav-item">Market Research</a>
+                  {/* Nested Organization Dropdown */}
+                  <div className="nav-subsection">
+                    <div className="nav-subtitle" onClick={() => toggleSection('organization')}>
+                      <span>Organization Name</span>
+                      <svg 
+                        className={`chevron ${expandedSections.organization ? 'expanded' : ''}`} 
+                        width="12" 
+                        height="12" 
+                        viewBox="0 0 12 12" 
+                        fill="none"
+                      >
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className={`nav-subitems ${expandedSections.organization ? 'expanded' : ''}`}>
+                      <a href="#" className="nav-item active">Insights</a>
+                      <a href="#" className="nav-item">Account Play book</a>
+                      <a href="#" className="nav-item">Meet coach</a>
+                      <a href="#" className="nav-item">Churn Prediction</a>
+                      <a href="#" className="nav-item">Revenue leak</a>
+                      <a href="#" className="nav-item">Notes</a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
