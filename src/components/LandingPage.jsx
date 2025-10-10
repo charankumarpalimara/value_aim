@@ -17,11 +17,11 @@ function LandingPage({ onNavigate }) {
       <Header onNavigate={onNavigate} />
       
       <div className="landing-content">
-        <h1 className="main-heading">B2B SALES ADVISOR</h1>
+        <h1 className="main-heading">Research your customer</h1>
         <div className="input-section">
           <input
             type="text"
-            placeholder="Customer's Website"
+            placeholder="Your Customer's website"
             value={website}
             onChange={(e) => setWebsite(e.target.value)}
             className="main-input"
