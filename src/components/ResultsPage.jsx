@@ -23,6 +23,7 @@ function ResultsPage() {
     aig: false
   });
   const [activeTab, setActiveTab] = useState('Journey Matrix');
+  const [activeSidebarOption, setActiveSidebarOption] = useState('Insights');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [isTablet, setIsTablet] = useState(window.innerWidth <= 1024 && window.innerWidth > 768);
   const [conversations, setConversations] = useState([]);
@@ -201,12 +202,12 @@ function ResultsPage() {
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.bankOfAmerica ? 'expanded' : ''}`}>
-                      <a href="#" className={`nav-item ${['Insights', 'Journey Matrix', 'Business Opportunity', 'Partnership', 'Business Value', 'Competitor', 'Business Review'].includes(activeTab) ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Journey Matrix'); }}>Insights</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Account Playbook'); }}>Account Playbook</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Meet Coach'); }}>Meet Coach</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Churn Prediction'); }}>Churn Prediction</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Revenue Leak'); }}>Revenue Leak</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Notes'); }}>Notes</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Insights' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Insights'); }}>Insights</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Account Playbook'); }}>Account Playbook</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Meet Coach'); }}>Meet Coach</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Churn Prediction'); }}>Churn Prediction</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Revenue Leak'); }}>Revenue Leak</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Notes'); }}>Notes</a>
                     </div>
                   </div>
 
@@ -225,12 +226,12 @@ function ResultsPage() {
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.cisco ? 'expanded' : ''}`}>
-                      <a href="#" className={`nav-item ${['Insights', 'Journey Matrix', 'Business Opportunity', 'Partnership', 'Business Value', 'Competitor', 'Business Review'].includes(activeTab) ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Journey Matrix'); }}>Insights</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Account Playbook'); }}>Account Playbook</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Meet Coach'); }}>Meet Coach</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Churn Prediction'); }}>Churn Prediction</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Revenue Leak'); }}>Revenue Leak</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Notes'); }}>Notes</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Insights' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Insights'); }}>Insights</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Account Playbook'); }}>Account Playbook</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Meet Coach'); }}>Meet Coach</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Churn Prediction'); }}>Churn Prediction</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Revenue Leak'); }}>Revenue Leak</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Notes'); }}>Notes</a>
                     </div>
                   </div>
 
@@ -249,12 +250,12 @@ function ResultsPage() {
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.aig ? 'expanded' : ''}`}>
-                      <a href="#" className={`nav-item ${['Insights', 'Journey Matrix', 'Business Opportunity', 'Partnership', 'Business Value', 'Competitor', 'Business Review'].includes(activeTab) ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Journey Matrix'); }}>Insights</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Account Playbook'); }}>Account Playbook</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Meet Coach'); }}>Meet Coach</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Churn Prediction'); }}>Churn Prediction</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Revenue Leak'); }}>Revenue Leak</a>
-                      <a href="#" className={`nav-item ${activeTab === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Notes'); }}>Notes</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Insights' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Insights'); }}>Insights</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Account Playbook' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Account Playbook'); }}>Account Playbook</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Meet Coach' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Meet Coach'); }}>Meet Coach</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Churn Prediction' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Churn Prediction'); }}>Churn Prediction</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Revenue Leak' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Revenue Leak'); }}>Revenue Leak</a>
+                      <a href="#" className={`nav-item ${activeSidebarOption === 'Notes' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveSidebarOption('Notes'); }}>Notes</a>
                     </div>
                   </div>
                 </div>
@@ -404,7 +405,7 @@ function ResultsPage() {
             <div className="search-box">
               <input
                 type="text"
-                placeholder="Enter Customer's Website or Ask a Question"
+                placeholder="You Customer's website"
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 onKeyPress={handleKeyPress}
