@@ -3,7 +3,7 @@ import './TabStyles.css';
 
 const BusinessOpportunityTab = ({ mobile, tablet }) => {
   return (
-    <div className="tab-content">
+    <div className="tab-content" style={{ fontFamily: 'Inter, sans-serif' }}>
       {/* Customer Revenue by Business Unit */}
       <div className="tab-section">
         <div className={`section-header ${mobile ? 'mobile' : ''}`}>

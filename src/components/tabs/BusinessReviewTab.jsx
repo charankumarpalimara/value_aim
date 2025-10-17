@@ -3,7 +3,7 @@ import './TabStyles.css';
 
 const BusinessReviewTab = ({ mobile, tablet }) => {
   return (
-    <div className="tab-content">
+    <div className="tab-content" style={{ fontFamily: 'Inter, sans-serif' }}>
       <div className="tab-section">
         {/* Outstanding Achievement Banner */}
         <div style={{

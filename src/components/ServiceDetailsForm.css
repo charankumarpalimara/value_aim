@@ -1,0 +1,135 @@
+.service-details-container {
+  padding: 40px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.service-details-header {
+  margin-bottom: 30px;
+}
+
+.service-details-header h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 10px 0;
+}
+
+.service-details-header p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.service-details-actions {
+  margin-bottom: 20px;
+}
+
+.service-details-footer {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+
+.editable-row {
+  cursor: pointer;
+}
+
+.editable-row:hover {
+  background-color: #f5f5f5;
+}
+
+/* Ant Design Table Customization */
+.ant-table {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 400px;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f5f5f5;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #201F47;
+  color: white;
+  font-weight: 600;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.ant-table-tbody > tr > td {
+  padding: 12px 16px;
+}
+
+.ant-btn-primary {
+  background-color: #201F47;
+  border-color: #201F47;
+}
+
+.ant-btn-primary:hover {
+  background-color: #3a3968;
+  border-color: #3a3968;
+}
+
+/* Tags styling */
+.ant-tag {
+  margin: 2px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Modal styling */
+.ant-modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.ant-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Form items in modal */
+.ant-form-item-label > label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Select dropdown */
+.ant-select-selector {
+  border-radius: 6px !important;
+}
+
+/* Input and TextArea */
+.ant-input,
+.ant-input-textarea {
+  border-radius: 6px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .service-details-container {
+    padding: 20px;
+  }
+
+  .service-details-header h2 {
+    font-size: 24px;
+  }
+
+  .service-details-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .service-details-footer button {
+    width: 100%;
+  }
+}

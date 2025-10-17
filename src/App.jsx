@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
-import CompanyDetailsPage from "./components/CompanyDetailsPage";
-import ResultsPage from "./components/ResultsPage";
+import FormFlow from "./components/FormFlow";
 import "./styles/global.css";
+import "antd/dist/reset.css";
 
 // Main App Component
 export default function App() {
@@ -20,9 +20,9 @@ export default function App() {
       case 'login':
         return <LoginPage onNavigate={navigateTo} />;
       case 'company-details':
-        return <CompanyDetailsPage onNavigate={navigateTo} />;
+        return <FormFlow />;
       case 'results':
-        return <ResultsPage />;
+        return <FormFlow />;
       default:
         return <LandingPage onNavigate={navigateTo} />;
     }

@@ -2,6 +2,7 @@
 .tab-content {
   padding: 0;
   width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .tab-section {
@@ -27,12 +28,14 @@
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px 0;
+  font-family: 'Inter', sans-serif;
 }
 
 .section-subtitle {
   font-size: 14px;
   color: #666666;
   margin: 0;
+  font-family: 'Inter', sans-serif;
 }
 
 .subsection-title {
@@ -40,6 +43,7 @@
   font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 16px 0;
+  font-family: 'Inter', sans-serif;
 }
 
 .section-actions {
@@ -573,6 +577,18 @@
     align-items: flex-start;
   }
 
+  .section-title {
+    font-size: 16px;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+  }
+
+  .subsection-title {
+    font-size: 14px;
+  }
+
   .section-actions {
     width: 100%;
     flex-direction: column;
@@ -582,6 +598,8 @@
   .btn-secondary {
     width: 100%;
     justify-content: center;
+    padding: 8px 16px;
+    font-size: 13px;
   }
 
   .matrix-table th,
@@ -592,6 +610,86 @@
 
   .chart-legend {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
+
+  .donut-chart {
+    width: 200px;
+    height: 200px;
+  }
+
+  .donut-center {
+    width: 120px;
+    height: 120px;
+  }
+
+  .donut-value {
+    font-size: 16px;
+  }
+
+  .donut-label {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 14px;
+  }
+
+  .section-subtitle {
+    font-size: 12px;
+  }
+
+  .subsection-title {
+    font-size: 13px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .analysis-card {
+    padding: 16px;
+  }
+
+  .opportunity-card {
+    padding: 16px;
+  }
+
+  .donut-chart {
+    width: 180px;
+    height: 180px;
+  }
+
+  .donut-center {
+    width: 100px;
+    height: 100px;
+  }
+
+  .donut-value {
+    font-size: 14px;
   }
 }
 

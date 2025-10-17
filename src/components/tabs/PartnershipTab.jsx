@@ -3,7 +3,7 @@ import './TabStyles.css';
 
 const PartnershipTab = ({ mobile }) => {
   return (
-    <div className="tab-content">
+    <div className="tab-content" style={{ fontFamily: 'Inter, sans-serif' }}>
       <div className="tab-section">
         <div className={`section-header ${mobile ? 'mobile' : ''}`}>
           <div>
@@ -29,10 +29,11 @@ const PartnershipTab = ({ mobile }) => {
           <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', gap: '16px' }}>
             <select style={{
               flex: 1,
-              padding: '10px',
+              padding: mobile ? '8px' : '10px',
               borderRadius: '6px',
               border: '1px solid #d9d9d9',
-              fontSize: '14px'
+              fontSize: mobile ? '12px' : '14px',
+              fontFamily: 'inherit'
             }}>
               <option>All Partners</option>
               <option>TechCorp Solutions</option>
@@ -40,10 +41,11 @@ const PartnershipTab = ({ mobile }) => {
             </select>
             <select style={{
               flex: 1,
-              padding: '10px',
+              padding: mobile ? '8px' : '10px',
               borderRadius: '6px',
               border: '1px solid #d9d9d9',
-              fontSize: '14px'
+              fontSize: mobile ? '12px' : '14px',
+              fontFamily: 'inherit'
             }}>
               <option>Activity Type</option>
               <option>Meeting</option>
@@ -52,10 +54,11 @@ const PartnershipTab = ({ mobile }) => {
             </select>
             <select style={{
               flex: 1,
-              padding: '10px',
+              padding: mobile ? '8px' : '10px',
               borderRadius: '6px',
               border: '1px solid #d9d9d9',
-              fontSize: '14px'
+              fontSize: mobile ? '12px' : '14px',
+              fontFamily: 'inherit'
             }}>
               <option>All Status</option>
               <option>Completed</option>
