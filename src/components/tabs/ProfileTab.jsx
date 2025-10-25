@@ -363,29 +363,51 @@ const ProfileTab = () => {
       >
         <div className="profile-content-wrapper">
           <div className="profile-avatar-section">
-            <Avatar 
-              size={100} 
-              icon={<UserOutlined />}
-              src={
-                imagePreview 
-                  ? (imagePreview instanceof File ? URL.createObjectURL(imagePreview) : imagePreview)
-                  : (userProfile.picture || userProfile.avatar || null)
-              }
-              style={{ 
-                backgroundColor: '#201F47',
-                marginBottom: '12px'
-              }}
-              onError={(e) => {
-                console.error('Avatar image failed to load:', e.target.src);
-                console.error('Trying fallback to userProfile.avatar:', userProfile.avatar);
-                // Try to use avatar field if picture fails
-                if (userProfile.avatar && e.target.src !== userProfile.avatar) {
-                  e.target.src = userProfile.avatar;
-                }
-              }}
-            >
-              {!imagePreview && !userProfile.picture && !userProfile.avatar && userProfile.name?.charAt(0)?.toUpperCase()}
-            </Avatar>
+            <div style={{ position: 'relative', width: '100px', height: '100px' }}>
+              {imagePreview || userProfile.picture || userProfile.avatar ? (
+                <img
+                  src={
+                    imagePreview 
+                      ? (imagePreview instanceof File ? URL.createObjectURL(imagePreview) : imagePreview)
+                      : (userProfile.picture || userProfile.avatar || null)
+                  }
+                  alt="Profile"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    objectPosition: 'center center',
+                    backgroundColor: '#201F47'
+                  }}
+                  onError={(e) => {
+                    console.error('Avatar image failed to load:', e.target.src);
+                    console.error('Trying fallback to userProfile.avatar:', userProfile.avatar);
+                    // Try to use avatar field if picture fails
+                    if (userProfile.avatar && e.target.src !== userProfile.avatar) {
+                      e.target.src = userProfile.avatar;
+                    }
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    backgroundColor: '#201F47',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '40px',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {userProfile.name?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              )}
+            </div>
             {/* Debug info */}
             <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px' }}>
               Debug: imagePreview={imagePreview ? 'Yes' : 'No'}, picture={userProfile.picture || 'None'}, avatar={userProfile.avatar || 'None'}
