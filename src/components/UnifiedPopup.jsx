@@ -64,9 +64,9 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         <div style={{ 
           width: isMobile ? '100%' : '200px', 
           borderRight: isMobile ? 'none' : '1px solid #e8e8e8',
-          borderBottom: isMobile ? '1px solid #e8e8e8' : 'none',
+          borderBottom: isMobile ? 'none' : 'none',
           padding: isMobile ? '16px' : '16px 0',
-          backgroundColor: '#fafafa',
+          backgroundColor: isMobile ? 'transparent' : '#fafafa',
           maxHeight: isMobile ? 'auto' : 'none',
           overflow: 'visible',
           zIndex: 10,
@@ -85,20 +85,19 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                 style={{ 
                   padding: isMobile ? '8px 12px' : '12px 16px', 
                   cursor: 'pointer',
-                  backgroundColor: activeScreen === tab ? '#201F47' : (isMobile ? '#f0f0f0' : 'transparent'),
+                  backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
                   color: activeScreen === tab ? '#fff' : '#333',
                   borderRadius: isMobile ? '16px' : '0',
                   fontSize: isMobile ? '12px' : '14px',
-                  fontWeight: activeScreen === tab ? '600' : '400',
-                  border: isMobile ? (activeScreen === tab ? '2px solid #201F47' : '1px solid #d9d9d9') : 'none',
+                  fontWeight: activeScreen === tab ? '500' : '400',
+                  border: isMobile ? 'none' : 'none',
                   borderRight: isMobile ? 'none' : (activeScreen === tab ? '3px solid #1890ff' : 'none'),
                   transition: 'all 0.2s ease',
                   whiteSpace: 'nowrap',
                   minWidth: 'fit-content',
                   width: isMobile ? 'auto' : '100%',
                   textAlign: isMobile ? 'center' : 'left',
-                  marginBottom: isMobile ? '0' : '4px',
-                  boxShadow: activeScreen === tab && isMobile ? '0 2px 8px rgba(32, 31, 71, 0.2)' : 'none'
+                  marginBottom: isMobile ? '0' : '4px'
                 }}
                 onClick={() => onScreenChange(tab)}
                 onMouseEnter={(e) => {
