@@ -45,6 +45,11 @@ const ProfileTab = () => {
           console.log('User profile loaded from backend:', result);
           
           if (result.success && result.data) {
+            console.log('=== SETTING USER PROFILE ===');
+            console.log('Full result.data:', result.data);
+            console.log('result.data.picture:', result.data.picture);
+            console.log('result.data type:', typeof result.data);
+            
             setUserProfile(result.data);
             form.setFieldsValue({
               name: result.data.name,
@@ -55,6 +60,8 @@ const ProfileTab = () => {
             if (result.data.picture) {
               console.log('Setting image preview to:', result.data.picture);
               setImagePreview(result.data.picture);
+            } else {
+              console.log('No picture URL in result.data');
             }
             
             // Update localStorage with fresh data
@@ -106,6 +113,13 @@ const ProfileTab = () => {
       console.log('ImagePreview is a URL:', imagePreview);
     }
   }, [imagePreview]);
+
+  // Debug effect to monitor userProfile changes
+  useEffect(() => {
+    console.log('=== USERPROFILE CHANGED ===');
+    console.log('userProfile:', userProfile);
+    console.log('userProfile.picture:', userProfile.picture);
+  }, [userProfile]);
 
   const handleProfileUpdate = async (values) => {
     console.log('=== HANDLE PROFILE UPDATE CALLED ===');
@@ -361,13 +375,22 @@ const ProfileTab = () => {
                 backgroundColor: '#201F47',
                 marginBottom: '12px'
               }}
+              onError={(e) => {
+                console.error('Avatar image failed to load:', e.target.src);
+              }}
             >
               {!imagePreview && !userProfile.picture && userProfile.name?.charAt(0)?.toUpperCase()}
             </Avatar>
             {/* Debug info */}
             <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px' }}>
-              Debug: {imagePreview ? (imagePreview instanceof File ? 'File' : 'URL') : 'None'}
+              Debug: imagePreview={imagePreview ? 'Yes' : 'No'}, userProfile.picture={userProfile.picture || 'None'}
             </div>
+            {/* Debug picture URL */}
+            {userProfile.picture && (
+              <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px', wordBreak: 'break-all' }}>
+                URL: {userProfile.picture}
+              </div>
+            )}
             {imagePreview && (
               <div style={{ 
                 fontSize: '12px', 
