@@ -369,7 +369,7 @@ const ProfileTab = () => {
               src={
                 imagePreview 
                   ? (imagePreview instanceof File ? URL.createObjectURL(imagePreview) : imagePreview)
-                  : (userProfile.picture || null)
+                  : (userProfile.picture || userProfile.avatar || null)
               }
               style={{ 
                 backgroundColor: '#201F47',
@@ -377,20 +377,52 @@ const ProfileTab = () => {
               }}
               onError={(e) => {
                 console.error('Avatar image failed to load:', e.target.src);
+                console.error('Trying fallback to userProfile.avatar:', userProfile.avatar);
+                // Try to use avatar field if picture fails
+                if (userProfile.avatar && e.target.src !== userProfile.avatar) {
+                  e.target.src = userProfile.avatar;
+                }
               }}
             >
-              {!imagePreview && !userProfile.picture && userProfile.name?.charAt(0)?.toUpperCase()}
+              {!imagePreview && !userProfile.picture && !userProfile.avatar && userProfile.name?.charAt(0)?.toUpperCase()}
             </Avatar>
             {/* Debug info */}
             <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px' }}>
-              Debug: imagePreview={imagePreview ? 'Yes' : 'No'}, userProfile.picture={userProfile.picture || 'None'}
+              Debug: imagePreview={imagePreview ? 'Yes' : 'No'}, picture={userProfile.picture || 'None'}, avatar={userProfile.avatar || 'None'}
             </div>
             {/* Debug picture URL */}
             {userProfile.picture && (
               <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px', wordBreak: 'break-all' }}>
-                URL: {userProfile.picture}
+                Picture URL: {userProfile.picture}
               </div>
             )}
+            {userProfile.avatar && userProfile.avatar !== userProfile.picture && (
+              <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px', wordBreak: 'break-all' }}>
+                Avatar URL: {userProfile.avatar}
+              </div>
+            )}
+            {/* Test image loading */}
+            <div style={{ marginTop: '8px', padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#666', marginBottom: '4px' }}>Test Image Load:</div>
+              {userProfile.picture && (
+                <img 
+                  src={userProfile.picture} 
+                  alt="test" 
+                  style={{ maxWidth: '50px', maxHeight: '50px', border: '1px solid #ccc' }}
+                  onLoad={() => console.log('✅ Image loaded successfully:', userProfile.picture)}
+                  onError={() => console.error('❌ Image failed to load:', userProfile.picture)}
+                />
+              )}
+              {!userProfile.picture && userProfile.avatar && (
+                <img 
+                  src={userProfile.avatar} 
+                  alt="test" 
+                  style={{ maxWidth: '50px', maxHeight: '50px', border: '1px solid #ccc' }}
+                  onLoad={() => console.log('✅ Avatar image loaded successfully:', userProfile.avatar)}
+                  onError={() => console.error('❌ Avatar image failed to load:', userProfile.avatar)}
+                />
+              )}
+            </div>
             {imagePreview && (
               <div style={{ 
                 fontSize: '12px', 
