@@ -23,19 +23,78 @@ const ProfileTab = () => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
-    // Load user data from localStorage or API
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setUserProfile(user);
-      form.setFieldsValue({
-        name: user.name,
-        email: user.email
-      });
-      if (user.picture) {
-        setImagePreview(user.picture);
+    // Load user data from backend API
+    const loadUserProfile = async () => {
+      try {
+        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+        if (!token) {
+          console.log('No token found');
+          return;
+        }
+
+        console.log('Loading user profile from backend...');
+        const response = await fetch(`${API_BASE_URL}/user/profile`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('User profile loaded from backend:', result);
+          
+          if (result.success && result.data) {
+            setUserProfile(result.data);
+            form.setFieldsValue({
+              name: result.data.name,
+              email: result.data.email
+            });
+            
+            // Set image preview with the picture URL from backend
+            if (result.data.picture) {
+              console.log('Setting image preview to:', result.data.picture);
+              setImagePreview(result.data.picture);
+            }
+            
+            // Update localStorage with fresh data
+            localStorage.setItem('user', JSON.stringify(result.data));
+          }
+        } else {
+          console.error('Failed to load user profile');
+          // Fallback to localStorage if API fails
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            const user = JSON.parse(storedUser);
+            setUserProfile(user);
+            form.setFieldsValue({
+              name: user.name,
+              email: user.email
+            });
+            if (user.picture) {
+              setImagePreview(user.picture);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+        // Fallback to localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          setUserProfile(user);
+          form.setFieldsValue({
+            name: user.name,
+            email: user.email
+          });
+          if (user.picture) {
+            setImagePreview(user.picture);
+          }
+        }
       }
-    }
+    };
+
+    loadUserProfile();
   }, [form]);
 
   // Debug effect to monitor imagePreview changes
