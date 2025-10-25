@@ -60,54 +60,45 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       closable={true}
     >
       <div style={{ display: 'flex', height: '70vh', flexDirection: isMobile ? 'column' : 'row' }}>
-        {/* Sidebar */}
-        <div style={{ 
-          width: isMobile ? '100%' : '200px', 
-          borderRight: isMobile ? 'none' : '1px solid #e8e8e8',
-          borderBottom: isMobile ? 'none' : 'none',
-          padding: isMobile ? '16px' : '16px 0',
-          backgroundColor: isMobile ? 'transparent' : '#fafafa',
-          maxHeight: isMobile ? 'auto' : 'none',
-          overflow: 'visible',
-          zIndex: 10,
-          position: 'relative'
-        }}>
+        {/* Sidebar - Desktop Version */}
+        {!isMobile && (
           <div style={{ 
-            display: isMobile ? 'flex' : 'block',
-            flexWrap: isMobile ? 'wrap' : 'nowrap',
-            gap: isMobile ? '8px' : '0',
-            justifyContent: isMobile ? 'center' : 'flex-start'
+            width: '200px', 
+            borderRight: '1px solid #e8e8e8',
+            padding: '16px 0',
+            backgroundColor: '#fafafa',
+            overflow: 'visible',
+            zIndex: 10,
+            position: 'relative'
           }}>
-            {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => (
-              <div 
-                key={tab}
-                className={`popup-tab ${activeScreen === tab ? 'active' : ''}`}
-                style={{ 
-                  padding: isMobile ? '8px 12px' : '12px 16px', 
-                  cursor: 'pointer',
-                  backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
-                  color: activeScreen === tab ? '#fff' : '#333',
-                  borderRadius: isMobile ? '16px' : '0',
-                  fontSize: isMobile ? '12px' : '14px',
-                  fontWeight: activeScreen === tab ? '500' : '400',
-                  border: isMobile ? 'none' : 'none',
-                  borderRight: isMobile ? 'none' : (activeScreen === tab ? '3px solid #1890ff' : 'none'),
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  minWidth: 'fit-content',
-                  width: isMobile ? 'auto' : '100%',
-                  textAlign: isMobile ? 'center' : 'left',
-                  marginBottom: isMobile ? '0' : '4px'
-                }}
-                onClick={() => onScreenChange(tab)}
-                onMouseEnter={(e) => {
-                  if (!isMobile && activeScreen !== tab) {
-                    e.target.style.backgroundColor = '#f5f5f5';
-                    e.target.style.color = '#201F47';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMobile) {
+            <div style={{ 
+              display: 'block'
+            }}>
+              {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => (
+                <div 
+                  key={tab}
+                  className={`popup-tab ${activeScreen === tab ? 'active' : ''}`}
+                  style={{ 
+                    padding: '12px 16px', 
+                    cursor: 'pointer',
+                    backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
+                    color: activeScreen === tab ? '#fff' : '#333',
+                    fontWeight: activeScreen === tab ? '500' : '400',
+                    borderRight: activeScreen === tab ? '3px solid #1890ff' : 'none',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    width: '100%',
+                    textAlign: 'left',
+                    marginBottom: '4px'
+                  }}
+                  onClick={() => onScreenChange(tab)}
+                  onMouseEnter={(e) => {
+                    if (activeScreen !== tab) {
+                      e.target.style.backgroundColor = '#f5f5f5';
+                      e.target.style.color = '#201F47';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
                     if (activeScreen !== tab) {
                       e.target.style.backgroundColor = 'transparent';
                       e.target.style.color = '#333';
@@ -115,14 +106,56 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                       e.target.style.backgroundColor = '#201F47';
                       e.target.style.color = '#fff';
                     }
-                  }
-                }}
-              >
-                <span>{tab}</span>
-              </div>
-            ))}
+                  }}
+                >
+                  <span>{tab}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Sidebar - Mobile Version */}
+        {isMobile && (
+          <div style={{ 
+            width: '100%', 
+            borderBottom: '1px solid #e8e8e8',
+            padding: '16px',
+            backgroundColor: '#fafafa',
+            overflowX: 'auto',
+            overflowY: 'hidden'
+          }}>
+            <div style={{ 
+              display: 'flex',
+              flexWrap: 'nowrap',
+              gap: '8px',
+              justifyContent: 'flex-start',
+              minWidth: 'max-content'
+            }}>
+              {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => (
+                <div 
+                  key={tab}
+                  className={`popup-tab-mobile ${activeScreen === tab ? 'active-mobile' : ''}`}
+                  style={{ 
+                    padding: '8px 16px', 
+                    cursor: 'pointer',
+                    backgroundColor: activeScreen === tab ? '#201F47' : '#e8e8e8',
+                    color: activeScreen === tab ? '#fff' : '#333',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: activeScreen === tab ? '600' : '400',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                  onClick={() => onScreenChange(tab)}
+                >
+                  <span>{tab}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div style={{ 
