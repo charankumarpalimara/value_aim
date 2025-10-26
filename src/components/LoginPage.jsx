@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
-import { useMediaQuery } from 'react-responsive';
 import axios from 'axios';
 import { GOOGLE_CLIENT_ID, MICROSOFT_CONFIG, APPLE_CONFIG } from '../config';
 import { authAPI } from '../utils/api';
@@ -17,8 +16,6 @@ function LoginPage() {
   const [username, setUsername] = useState("");
   const [googleUserData, setGoogleUserData] = useState(null);
   const [loginProvider, setLoginProvider] = useState('');
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [signupData, setSignupData] = useState({
     name: "",
@@ -143,7 +140,7 @@ function LoginPage() {
           }
           return;
         }
-      } catch (loginError) {
+      } catch {
         console.log('User does not exist, proceeding with registration');
       }
 
@@ -359,15 +356,62 @@ function LoginPage() {
     }
   };
 
-  const handleContinue = () => {
-    // Navigate without validation - optional email
-    if (email.trim()) {
-      localStorage.setItem('user', JSON.stringify({
-        email: email,
-        provider: 'email'
-      }));
+  const handleContinue = async () => {
+    if (!email.trim()) {
+      alert('Please enter your email address');
+      return;
     }
-    navigate('/company-details');
+
+    // Validate email format
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    try {
+      console.log('Attempting email login with:', email);
+      
+      // Try to login with email
+      const loginResponse = await authAPI.login({
+        email: email.trim(),
+        provider: 'email'
+      });
+      
+      if (loginResponse.success) {
+        console.log('User logged in successfully:', loginResponse.data);
+        
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify({
+          name: loginResponse.data.name || email.split('@')[0],
+          email: email,
+          provider: 'email',
+          plan: loginResponse.data.plan || 'Free Plan'
+        }));
+        
+        // Store auth token
+        localStorage.setItem('token', loginResponse.data.token);
+        
+        // Check if user has completed onboarding
+        if (loginResponse.data.hasCompletedOnboarding) {
+          // Navigate to results page
+          navigate('/results');
+        } else if (loginResponse.data.companyDetailsCompleted) {
+          // Navigate to service details
+          navigate('/service-details');
+        } else {
+          // Navigate to company details
+          navigate('/company-details');
+        }
+      } else {
+        throw new Error(loginResponse.message || 'Login failed');
+      }
+    } catch {
+      console.log('Email not found in database, navigating to signup');
+      
+      // Email doesn't exist, show signup modal instead
+      setSignupData(prev => ({ ...prev, email: email.trim() }));
+      setShowSignupModal(true);
+    }
   };
 
   // Signup functions
