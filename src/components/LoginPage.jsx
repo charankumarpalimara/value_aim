@@ -767,18 +767,28 @@ function LoginPage() {
                   </div>
                   
                   <button 
-                    onClick={handlePasswordLogin}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handlePasswordLogin();
+                    }}
                     className="signup-submit-btn"
                     style={{ width: '100%' }}
+                    type="button"
                   >
                     Log In
                   </button>
                   
                   <div style={{ textAlign: 'center', marginTop: '16px' }}>
                     <button 
-                      onClick={() => setShowOtpOption(true)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowOtpOption(true);
+                      }}
                       className="signup-login-btn"
                       style={{ fontSize: '14px' }}
+                      type="button"
                     >
                       Try another way
                     </button>
@@ -791,10 +801,15 @@ function LoginPage() {
                       We'll send a verification code to your email
                     </p>
                     <button 
-                      onClick={handleSendOtp}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSendOtp();
+                      }}
                       className="signup-submit-btn"
                       disabled={isSendingOtp}
                       style={{ width: '100%' }}
+                      type="button"
                     >
                       {isSendingOtp ? 'Sending...' : 'Send OTP'}
                     </button>
@@ -802,9 +817,14 @@ function LoginPage() {
                   
                   <div style={{ textAlign: 'center', marginTop: '16px' }}>
                     <button 
-                      onClick={() => setShowOtpOption(false)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowOtpOption(false);
+                      }}
                       className="signup-login-btn"
                       style={{ fontSize: '14px' }}
+                      type="button"
                     >
                       Back to password
                     </button>
