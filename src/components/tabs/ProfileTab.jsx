@@ -157,7 +157,14 @@ const ProfileTab = () => {
         setHasNewImage(false);
         setSelectedFile(null);
         
-        message.success('Profile updated successfully');
+        // Show success notification
+        message.success({
+          content: 'Profile updated successfully!',
+          duration: 3,
+          style: {
+            marginTop: '60px',
+          },
+        });
       } else {
         console.log('=== BACKEND ERROR ===');
         console.log('Response status:', response.status);
@@ -201,7 +208,13 @@ const ProfileTab = () => {
       });
 
       if (response.ok) {
-        message.success('Password changed successfully');
+        message.success({
+          content: 'Password changed successfully!',
+          duration: 3,
+          style: {
+            marginTop: '60px',
+          },
+        });
         passwordForm.resetFields();
       } else {
         const errorData = await response.json();
