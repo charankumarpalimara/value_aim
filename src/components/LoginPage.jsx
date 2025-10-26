@@ -729,7 +729,13 @@ function LoginPage() {
 
       {/* Password Modal */}
       {showPasswordModal && (
-        <div className="signup-modal-overlay" onClick={() => { setShowPasswordModal(false); setPassword(''); setShowOtpOption(false); }}>
+        <div className="signup-modal-overlay" onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setShowPasswordModal(false);
+            setPassword('');
+            setShowOtpOption(false);
+          }
+        }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
               <h3>Enter Password</h3>
