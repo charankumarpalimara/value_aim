@@ -435,6 +435,14 @@ function LandingPage() {
                             document.getElementById(`signup-otp-${index - 1}`)?.focus();
                           }
                         }}
+                        onPaste={(e) => {
+                          e.preventDefault();
+                          const pastedData = e.clipboardData.getData('text').trim();
+                          if (/^\d{6}$/.test(pastedData)) {
+                            setSignupOtp(pastedData.split(''));
+                            document.getElementById('signup-otp-5')?.focus();
+                          }
+                        }}
                         className="signup-input"
                         style={{ width: '40px', height: '50px', textAlign: 'center', fontSize: '24px', padding: '0' }}
                       />
