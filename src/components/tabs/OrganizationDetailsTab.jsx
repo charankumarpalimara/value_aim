@@ -49,15 +49,28 @@ const OrganizationDetailsTab = () => {
           }
         });
 
+        console.log('Loading organization data, response status:', response.status);
+
         if (response.ok) {
           const result = await response.json();
-          if (result.company) {
-            form.setFieldsValue(result.company);
-            setFormData(result.company);
-            if (result.company.country) {
-              handleCountryChange(result.company.country);
+          console.log('Organization data loaded:', result);
+          
+          if (result.success && result.data) {
+            const companyData = result.data;
+            console.log('Setting form fields with:', companyData);
+            form.setFieldsValue(companyData);
+            setFormData(companyData);
+            
+            // Set available cities based on country
+            if (companyData.country) {
+              setAvailableCities(countriesWithCities[companyData.country] || []);
             }
           }
+        } else if (response.status === 404) {
+          console.log('No organization data found, showing empty form');
+        } else {
+          const errorData = await response.json();
+          console.error('Error loading organization data:', errorData);
         }
       } catch (error) {
         console.error('Error loading organization data:', error);
@@ -85,6 +98,9 @@ const OrganizationDetailsTab = () => {
         return;
       }
 
+      // Set loading state
+      setLoading(true);
+
       // Prepare data for backend
       const organizationData = {
         companyName: values.companyName,
@@ -107,9 +123,34 @@ const OrganizationDetailsTab = () => {
 
       if (response.ok) {
         const result = await response.json();
-        setFormData(values);
-        message.success('Organization details saved successfully');
         console.log('Backend response:', result);
+        
+        // Update form data with saved values
+        setFormData(values);
+        
+        // Reload the data to ensure we have the latest from backend
+        const reloadResponse = await fetch(`${API_BASE_URL}/company`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (reloadResponse.ok) {
+          const reloadResult = await reloadResponse.json();
+          if (reloadResult.success && reloadResult.data) {
+            form.setFieldsValue(reloadResult.data);
+            setFormData(reloadResult.data);
+          }
+        }
+        
+        message.success({
+          content: 'Organization details saved successfully!',
+          duration: 3,
+          style: {
+            marginTop: '60px',
+          },
+        });
       } else {
         const errorData = await response.json();
         message.error(errorData.message || 'Failed to save organization details');
@@ -117,6 +158,8 @@ const OrganizationDetailsTab = () => {
     } catch (error) {
       console.error('Error saving organization details:', error);
       message.error('Failed to save organization details. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
