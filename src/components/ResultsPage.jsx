@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
@@ -23,6 +24,7 @@ import UnifiedPopup from "./UnifiedPopup";
 import { userAPI } from "../utils/api";
 
 function ResultsPage() {
+  const navigate = useNavigate();
   const [website, setWebsite] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -58,20 +60,32 @@ function ResultsPage() {
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        // First check localStorage
+        // First check if user is authenticated
+        const token = localStorage.getItem('token');
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          console.log('User data from localStorage:', user);
-          const avatarUrl = user.picture || user.avatar || null;
-          console.log('Avatar URL:', avatarUrl);
+        
+        // If no token or user, reset to default
+        if (!token || !storedUser) {
           setUserProfile({
-            name: user.name || "John Doe",
-            email: user.email || "john.doe@company.com",
-            avatar: avatarUrl,
-            plan: user.plan || "Free Plan"
+            name: "John Doe",
+            email: "john.doe@company.com",
+            avatar: null,
+            plan: "Free Plan"
           });
+          return;
         }
+        
+        // Parse user data
+        const user = JSON.parse(storedUser);
+        console.log('User data from localStorage:', user);
+        const avatarUrl = user.picture || user.avatar || null;
+        console.log('Avatar URL:', avatarUrl);
+        setUserProfile({
+          name: user.name || "John Doe",
+          email: user.email || "john.doe@company.com",
+          avatar: avatarUrl,
+          plan: user.plan || "Free Plan"
+        });
 
         // Also fetch from API to get latest data
         const response = await userAPI.getProfile();
@@ -89,10 +103,59 @@ function ResultsPage() {
         }
       } catch (error) {
         console.error('Error loading user data:', error);
+        // On error, reset to default
+        setUserProfile({
+          name: "John Doe",
+          email: "john.doe@company.com",
+          avatar: null,
+          plan: "Free Plan"
+        });
       }
     };
 
     loadUserData();
+  }, []);
+
+  // Listen for storage changes (when localStorage is cleared in another tab/window)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'token' || e.key === 'user') {
+        // If token or user is removed, reset user profile
+        if (!localStorage.getItem('token') || !localStorage.getItem('user')) {
+          setUserProfile({
+            name: "John Doe",
+            email: "john.doe@company.com",
+            avatar: null,
+            plan: "Free Plan"
+          });
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom events (for same-tab logout)
+    const handleCustomStorageChange = () => {
+      const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
+      if (!token || !storedUser) {
+        setUserProfile({
+          name: "John Doe",
+          email: "john.doe@company.com",
+          avatar: null,
+          plan: "Free Plan"
+        });
+      }
+    };
+
+    // Custom event dispatched when localStorage is cleared
+    window.addEventListener('localStorageCleared', handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageCleared', handleCustomStorageChange);
+    };
   }, []);
 
   // Responsive design is now handled by react-responsive
@@ -239,8 +302,15 @@ function ResultsPage() {
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
+      // Clear both localStorage and sessionStorage
+      localStorage.clear();
       sessionStorage.clear();
-      window.location.href = '/';
+      
+      // Dispatch custom event to notify React components
+      window.dispatchEvent(new Event('localStorageCleared'));
+      
+      // Navigate to landing page using React Router
+      navigate('/', { replace: true });
     }
   };
 

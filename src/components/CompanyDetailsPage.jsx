@@ -96,6 +96,7 @@ function CompanyDetailsPage({ onNext }) {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const countryRef = useRef(null);
   const cityRef = useRef(null);
@@ -221,6 +222,7 @@ function CompanyDetailsPage({ onNext }) {
       return;
     }
     
+    setIsSubmitting(true);
     try {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
@@ -283,6 +285,8 @@ function CompanyDetailsPage({ onNext }) {
       } else {
         alert(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -534,8 +538,8 @@ function CompanyDetailsPage({ onNext }) {
             >
               Back
             </button> */}
-            <button className="save-btn" onClick={handleSave} style={{ flex: 1 }}>
-              Continue
+            <button className="save-btn" onClick={handleSave} disabled={isSubmitting} style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }}>
+              {isSubmitting ? 'Saving...' : 'Continue'}
             </button>
           </div>
         </div>

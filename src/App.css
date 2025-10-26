@@ -7,8 +7,9 @@
 }
 
 /* ===== Ant Design Notification Styles ===== */
+/* Notification should appear ABOVE modal popups */
 .ant-notification {
-  z-index: 9999 !important;
+  z-index: 2000 !important;
   position: fixed !important;
   top: 24px !important;
   right: 24px !important;
@@ -17,6 +18,15 @@
 .ant-notification-topRight {
   right: 24px !important;
   top: 24px !important;
+}
+
+/* Modal z-index */
+.ant-modal-wrap {
+  z-index: 1000 !important;
+}
+
+.ant-modal-mask {
+  z-index: 999 !important;
 }
 
 html, body {

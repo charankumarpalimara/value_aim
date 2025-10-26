@@ -67,6 +67,12 @@ export const authAPI = {
     return response.data;
   },
 
+  // Check if email exists
+  checkEmail: async (email) => {
+    const response = await api.post('/auth/check-email', { email });
+    return response.data;
+  },
+
   // Get current user
   getMe: async () => {
     const response = await api.get('/auth/me');

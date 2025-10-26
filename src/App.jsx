@@ -9,6 +9,20 @@ import { GOOGLE_CLIENT_ID } from './config';
 import "./styles/global.css";
 import "antd/dist/reset.css";
 
+// Protected Route Component - Checks if user is authenticated
+const ProtectedRoute = ({ children }) => {
+  // Check if user is authenticated
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  
+  if (!token || !user) {
+    // If not authenticated, redirect to login
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
+
 // Main App Component with React Router
 export default function App() {
   return (
@@ -19,9 +33,30 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/otp" element={<OTPScreen />} />
-            <Route path="/company-details" element={<FormFlow />} />
-            <Route path="/service-details" element={<FormFlow />} />
-            <Route path="/results" element={<FormFlow />} />
+            <Route 
+              path="/company-details" 
+              element={
+                <ProtectedRoute>
+                  <FormFlow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/service-details" 
+              element={
+                <ProtectedRoute>
+                  <FormFlow />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/results" 
+              element={
+                <ProtectedRoute>
+                  <FormFlow />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

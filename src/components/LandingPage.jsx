@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery } from 'react-responsive';
 import Header from "./Header";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { authAPI } from "../utils/api";
 import "./LandingPage.css";
 
@@ -12,16 +12,22 @@ function LandingPage() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [showSignupModal, setShowSignupModal] = useState(false);
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
-  const [signupData, setSignupData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
-  const [signupErrors, setSignupErrors] = useState({});
-  const [isSigningUp, setIsSigningUp] = useState(false);
+  
+  // Signup state
+  const [signupStep, setSignupStep] = useState(1); // 1: email/password, 2: OTP, 3: full name
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
+  const [signupOtp, setSignupOtp] = useState(['', '', '', '', '', '']);
+  const [signupFullName, setSignupFullName] = useState('');
+  const [signupOtpTimer, setSignupOtpTimer] = useState(0);
+  const [isSubmittingSignup, setIsSubmittingSignup] = useState(false);
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [emailExists, setEmailExists] = useState(false);
+  const [emailCheckMessage, setEmailCheckMessage] = useState('');
+  
   const menuRef = useRef(null);
 
   const handleSubmit = () => {
@@ -43,83 +49,13 @@ function LandingPage() {
     setSelectedOption(null);
   };
 
-  const handleSignupInputChange = (field, value) => {
-    setSignupData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (signupErrors[field]) {
-      setSignupErrors(prev => ({ ...prev, [field]: "" }));
+  // Signup OTP timer countdown
+  useEffect(() => {
+    if (signupOtpTimer > 0) {
+      const timer = setTimeout(() => setSignupOtpTimer(signupOtpTimer - 1), 1000);
+      return () => clearTimeout(timer);
     }
-  };
-
-  const handleSignupSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Validate form
-    const newErrors = {};
-    
-    if (!signupData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-    
-    if (!signupData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-    
-    if (!signupData.password) {
-      newErrors.password = 'Password is required';
-    } else if (signupData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    if (signupData.password !== signupData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    setSignupErrors(newErrors);
-    
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
-    
-    setIsSigningUp(true);
-    
-    try {
-      const response = await authAPI.register({
-        name: signupData.name,
-        email: signupData.email,
-        password: signupData.password,
-        provider: 'email'
-      });
-      
-      if (response.success) {
-        console.log('User registered successfully:', response.data);
-        
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify({
-          name: signupData.name,
-          email: signupData.email,
-          provider: 'email',
-          plan: 'Free Plan'
-        }));
-        
-        // Store auth token
-        localStorage.setItem('token', response.data.token);
-        
-        // Close modal and navigate to company details
-        setShowSignupModal(false);
-        navigate('/company-details');
-      } else {
-        throw new Error(response.message || 'Registration failed');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
-    } finally {
-      setIsSigningUp(false);
-    }
-  };
+  }, [signupOtpTimer]);
 
   // Close plus menu when clicking outside
   useEffect(() => {
@@ -285,95 +221,360 @@ function LandingPage() {
         </div>
       </div>
 
-      {/* Signup Modal */}
+      {/* Signup Modal - Multi Step */}
       {showSignupModal && (
-        <div className="signup-modal-overlay" onClick={() => setShowSignupModal(false)}>
+        <div className="signup-modal-overlay" onClick={() => {
+          setShowSignupModal(false);
+          setSignupStep(1);
+          setSignupEmail('');
+          setSignupPassword('');
+          setSignupConfirmPassword('');
+          setSignupOtp(['', '', '', '', '', '']);
+          setSignupFullName('');
+          setSignupOtpTimer(0);
+        }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
-              <h2>Create Account</h2>
+              <h3>{signupStep === 1 ? 'Create Account' : signupStep === 2 ? 'Verify Email' : 'Complete Profile'}</h3>
               <button 
-                className="signup-close-btn"
-                onClick={() => setShowSignupModal(false)}
+                className="signup-close-btn" 
+                onClick={() => {
+                  setShowSignupModal(false);
+                  setSignupStep(1);
+                  setSignupEmail('');
+                  setSignupPassword('');
+                  setSignupConfirmPassword('');
+                  setSignupOtp(['', '', '', '', '', '']);
+                  setSignupFullName('');
+                  setSignupOtpTimer(0);
+                }}
               >
                 ×
               </button>
             </div>
             
-            <form onSubmit={handleSignupSubmit} className="signup-form">
-              <div className="signup-form-group">
-                <input
-                  type="text"
-                  placeholder="Full Name *"
-                  value={signupData.name}
-                  onChange={(e) => handleSignupInputChange('name', e.target.value)}
-                  className={`signup-input ${signupErrors.name ? 'error' : ''}`}
-                />
-                {signupErrors.name && (
-                  <div className="signup-error">{signupErrors.name}</div>
-                )}
-              </div>
-              
-              <div className="signup-form-group">
-                <input
-                  type="email"
-                  placeholder="Email Address *"
-                  value={signupData.email}
-                  onChange={(e) => handleSignupInputChange('email', e.target.value)}
-                  className={`signup-input ${signupErrors.email ? 'error' : ''}`}
-                />
-                {signupErrors.email && (
-                  <div className="signup-error">{signupErrors.email}</div>
-                )}
-              </div>
-              
-              <div className="signup-form-group">
-                <input
-                  type="password"
-                  placeholder="Password *"
-                  value={signupData.password}
-                  onChange={(e) => handleSignupInputChange('password', e.target.value)}
-                  className={`signup-input ${signupErrors.password ? 'error' : ''}`}
-                />
-                {signupErrors.password && (
-                  <div className="signup-error">{signupErrors.password}</div>
-                )}
-              </div>
-              
-              <div className="signup-form-group">
-                <input
-                  type="password"
-                  placeholder="Confirm Password *"
-                  value={signupData.confirmPassword}
-                  onChange={(e) => handleSignupInputChange('confirmPassword', e.target.value)}
-                  className={`signup-input ${signupErrors.confirmPassword ? 'error' : ''}`}
-                />
-                {signupErrors.confirmPassword && (
-                  <div className="signup-error">{signupErrors.confirmPassword}</div>
-                )}
-              </div>
-              
-              <button 
-                type="submit" 
-                className="signup-submit-btn"
-                disabled={isSigningUp}
-              >
-                {isSigningUp ? 'Creating Account...' : 'Create Account'}
-              </button>
+            <div className="signup-form">
+              {signupStep === 1 && (
+                <>
+                  <div className="signup-form-group">
+                    <input
+                      type="email"
+                      placeholder="Email Address *"
+                      value={signupEmail}
+                      onChange={(e) => {
+                        setSignupEmail(e.target.value);
+                        setEmailExists(false);
+                        setEmailCheckMessage('');
+                      }}
+                      onBlur={async () => {
+                        if (!signupEmail.trim()) return;
+                        
+                        setIsCheckingEmail(true);
+                        setEmailCheckMessage('Checking...');
+                        try {
+                          const result = await authAPI.checkEmail(signupEmail.trim());
+                          if (result.exists) {
+                            setEmailExists(true);
+                            setEmailCheckMessage('User already exists with this email');
+                          } else {
+                            setEmailExists(false);
+                            setEmailCheckMessage('Email available');
+                          }
+                        } catch (error) {
+                          console.error('Email check error:', error);
+                          setEmailExists(false);
+                          setEmailCheckMessage('');
+                        } finally {
+                          setIsCheckingEmail(false);
+                        }
+                      }}
+                      className="signup-input"
+                      autoFocus
+                      style={{ 
+                        borderColor: emailExists ? '#ff4d4f' : emailCheckMessage === '' && signupEmail ? '#52c41a' : ''
+                      }}
+                    />
+                    {emailCheckMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: emailExists ? '#ff4d4f' : '#52c41a',
+                        marginTop: '4px'
+                      }}>
+                        {emailCheckMessage}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="signup-form-group" style={{ position: 'relative' }}>
+                    <input
+                      type={showSignupPassword ? "text" : "password"}
+                      placeholder="Password *"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      className="signup-input"
+                      style={{ paddingRight: '40px' }}
+                    />
+                    <span
+                      onClick={() => setShowSignupPassword(!showSignupPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        cursor: 'pointer',
+                        color: '#666',
+                        fontSize: '18px'
+                      }}
+                    >
+                      {showSignupPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+                  
+                  <div className="signup-form-group" style={{ position: 'relative' }}>
+                    <input
+                      type={showSignupConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm Password *"
+                      value={signupConfirmPassword}
+                      onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                      className="signup-input"
+                      style={{ paddingRight: '40px' }}
+                    />
+                    <span
+                      onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        cursor: 'pointer',
+                        color: '#666',
+                        fontSize: '18px'
+                      }}
+                    >
+                      {showSignupConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+                  
+                  <button 
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (!signupEmail.trim() || !signupPassword || !signupConfirmPassword) {
+                        alert('Please fill all fields');
+                        return;
+                      }
+                      if (signupPassword !== signupConfirmPassword) {
+                        alert('Passwords do not match');
+                        return;
+                      }
+                      if (signupPassword.length < 6) {
+                        alert('Password must be at least 6 characters');
+                        return;
+                      }
+                      
+                      if (emailExists) {
+                        alert('This email is already registered. Please use a different email or log in.');
+                        return;
+                      }
+                      
+                      setIsCheckingEmail(true);
+                      try {
+                        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                          setSignupOtpTimer(300);
+                          setSignupStep(2);
+                          setTimeout(() => document.getElementById('signup-otp-0')?.focus(), 100);
+                        } else {
+                          alert('Failed to send OTP');
+                        }
+                      } catch {
+                        alert('Failed to send OTP');
+                      } finally {
+                        setIsCheckingEmail(false);
+                      }
+                    }}
+                    className="signup-submit-btn"
+                    disabled={isCheckingEmail || emailExists}
+                    style={{ width: '100%', opacity: isCheckingEmail || emailExists ? 0.6 : 1 }}
+                  >
+                    {isCheckingEmail ? 'Sending OTP...' : 'Send Verification Code'}
+                  </button>
+                </>
+              )}
+
+              {signupStep === 2 && (
+                <>
+                  <p style={{ textAlign: 'center', marginBottom: '20px', color: '#666' }}>
+                    Enter the verification code sent to <strong>{signupEmail}</strong>
+                  </p>
+                  
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
+                    {signupOtp.map((digit, index) => (
+                      <input
+                        key={index}
+                        id={`signup-otp-${index}`}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={(e) => {
+                          if (e.target.value.length > 1) return;
+                          const newOtp = [...signupOtp];
+                          newOtp[index] = e.target.value;
+                          setSignupOtp(newOtp);
+                          if (e.target.value && index < 5) {
+                            document.getElementById(`signup-otp-${index + 1}`)?.focus();
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Backspace' && !signupOtp[index] && index > 0) {
+                            document.getElementById(`signup-otp-${index - 1}`)?.focus();
+                          }
+                        }}
+                        className="signup-input"
+                        style={{ width: '40px', height: '50px', textAlign: 'center', fontSize: '24px', padding: '0' }}
+                      />
+                    ))}
+                  </div>
+
+                  {signupOtpTimer > 0 && (
+                    <div style={{ textAlign: 'center', marginBottom: '16px', color: '#666', fontSize: '14px' }}>
+                      Code expires in {Math.floor(signupOtpTimer / 60)}:{(signupOtpTimer % 60).toString().padStart(2, '0')}
+                    </div>
+                  )}
+
+                  {signupOtpTimer === 0 && (
+                    <button
+                      onClick={async () => {
+                        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
+                        });
+                        if (response.ok) {
+                          setSignupOtpTimer(300);
+                          setSignupOtp(['', '', '', '', '', '']);
+                          alert('OTP resent!');
+                        }
+                      }}
+                      className="signup-login-btn"
+                      style={{ fontSize: '14px', width: '100%' }}
+                    >
+                      Resend Code
+                    </button>
+                  )}
+                  
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      const otpValue = signupOtp.join('');
+                      if (otpValue.length !== 6) {
+                        alert('Please enter the complete 6-digit code');
+                        return;
+                      }
+                      
+                      try {
+                        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/verify`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: signupEmail.trim(), otp: otpValue, purpose: 'accountCreation' })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                          setSignupStep(3);
+                          setTimeout(() => document.querySelector('.signup-input')?.focus(), 100);
+                        } else {
+                          alert('Invalid OTP');
+                        }
+                      } catch {
+                        alert('Invalid OTP');
+                      }
+                    }}
+                    className="signup-submit-btn"
+                    style={{ width: '100%', marginTop: '8px' }}
+                    disabled={signupOtp.join('').length !== 6}
+                  >
+                    Verify
+                  </button>
+                </>
+              )}
+
+              {signupStep === 3 && (
+                <>
+                  <div className="signup-form-group">
+                    <input
+                      type="text"
+                      placeholder="Full Name *"
+                      value={signupFullName}
+                      onChange={(e) => setSignupFullName(e.target.value)}
+                      className="signup-input"
+                      autoFocus
+                    />
+                  </div>
+                  
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      if (!signupFullName.trim()) {
+                        alert('Please enter your full name');
+                        return;
+                      }
+                      
+                      setIsSubmittingSignup(true);
+                      try {
+                        const response = await authAPI.register({
+                          name: signupFullName,
+                          email: signupEmail,
+                          password: signupPassword,
+                          provider: 'email'
+                        });
+                        
+                        if (response.success) {
+                          localStorage.setItem('user', JSON.stringify({
+                            name: signupFullName,
+                            email: signupEmail,
+                            provider: 'email',
+                            plan: 'Free Plan'
+                          }));
+                          localStorage.setItem('token', response.data.token);
+                          setShowSignupModal(false);
+                          setSignupStep(1);
+                          navigate('/company-details');
+                        }
+                      } catch {
+                        alert('Registration failed');
+                      } finally {
+                        setIsSubmittingSignup(false);
+                      }
+                    }}
+                    className="signup-submit-btn"
+                    disabled={isSubmittingSignup}
+                    style={{ width: '100%' }}
+                  >
+                    {isSubmittingSignup ? 'Creating Account...' : 'Complete Registration'}
+                  </button>
+                </>
+              )}
               
               <div className="signup-login-link">
                 Already have an account? 
                 <button 
-                  type="button"
+                  type="button" 
                   className="signup-login-btn"
                   onClick={() => {
                     setShowSignupModal(false);
+                    setSignupStep(1);
                     navigate('/login');
                   }}
                 >
-                  Login here
+                  Log in
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
