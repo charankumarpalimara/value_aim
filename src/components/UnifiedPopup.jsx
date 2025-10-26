@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form } from 'antd';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+
+const { TextArea } = Input;
+const { Option } = Select;
 import OrganizationDetailsTab from './tabs/OrganizationDetailsTab';
 import ProfileTab from './tabs/ProfileTab';
 import './UnifiedPopup.css';
@@ -51,12 +54,14 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       width={isMobile ? "95%" : "60%"}
       style={{ 
         maxWidth: isMobile ? '95%' : '1400px', 
-        top: isMobile ? '10px' : '20px' 
+        top: isMobile ? '10px' : '20px',
+        zIndex: 1000
       }}
       footer={null}
       destroyOnClose
       className="unified-popup-modal"
       closable={true}
+      maskStyle={{ zIndex: 999 }}
     >
       <div style={{ display: 'flex', height: '70vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}
@@ -161,11 +166,60 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
 
 // Service Manager Content Component (without header)
 const ServiceManagerContent = () => {
-  const [dataSource] = useState([]);
+  const [dataSource, setDataSource] = useState([]);
   const [form] = Form.useForm();
+  const [addForm] = Form.useForm();
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  const interestList = [
+    'Cloud Migration', 'AI/ML Solutions', 'Cybersecurity Services',
+    'Voice AI', 'Data Platform', 'Cloud Security', 'FinOps',
+    'AI Ops', 'Intelligent Automation', 'Managed Security',
+    'Zero Trust', 'Conversational Analytics', 'Multilingual Bots',
+    'AI/ML Use Cases', 'Data Governance'
+  ];
+
+  const keywordList = [
+    'Cost Savings', 'Agility', 'Revenue Growth', 'Innovation',
+    'Risk Reduction', 'Compliance', 'Customer Experience', 'Decision Making'
+  ];
+
+  const industryOptions = [
+    'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
+    'Education', 'Government', 'Energy', 'Other'
+  ];
+
+  const functionOptions = [
+    'Sales', 'Marketing', 'Operations', 'Finance', 'IT/Technology',
+    'Customer Service', 'Product Management', 'Other'
+  ];
+
+  const targetSegmentOptions = ['Small', 'Medium', 'Large', 'Startups'];
+
+  const handleModalOk = async () => {
+    try {
+      const values = await addForm.validateFields();
+      const newData = {
+        key: Date.now().toString(),
+        ...values,
+      };
+      const updatedData = [...dataSource, newData];
+      setDataSource(updatedData);
+      addForm.resetFields();
+      setIsModalVisible(false);
+      message.success('Service added successfully');
+    } catch (errInfo) {
+      console.log('Validate Failed:', errInfo);
+    }
+  };
+
+  const handleModalCancel = () => {
+    addForm.resetFields();
+    setIsModalVisible(false);
+  };
 
   const columns = [
     {
@@ -249,6 +303,7 @@ const ServiceManagerContent = () => {
           <Button 
             type="primary" 
             icon={<EditOutlined />}
+            onClick={() => setIsModalVisible(true)}
             style={{ width: isMobile ? '100%' : 'auto' }}
           >
             Add New Service
@@ -280,6 +335,112 @@ const ServiceManagerContent = () => {
           style={{ width: '100%' }}
         />
       </Form>
+
+      <Modal
+        title="Add New Service"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        width={800}
+        okText="Add"
+        cancelText="Cancel"
+      >
+        <Form form={addForm} layout="vertical">
+          <Form.Item
+            name="interests"
+            label="Product/Service Offerings"
+            rules={[{ required: true, message: 'Please select offerings' }]}
+          >
+            <Select
+              mode="tags"
+              placeholder="Select or type offerings"
+              tokenSeparators={[',']}
+            >
+              {interestList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="keywords"
+            label="Keywords"
+          >
+            <Select
+              mode="tags"
+              placeholder="Select or type keywords"
+              tokenSeparators={[',']}
+            >
+              {keywordList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="targetIndustry"
+            label="Target Industry"
+          >
+            <Select 
+              mode="multiple"
+              placeholder="Select industries"
+            >
+              {industryOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="functionType"
+            label="Function"
+          >
+            <Select 
+              mode="multiple"
+              placeholder="Select functions"
+            >
+              {functionOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="targetSegment"
+            label="Target Segment(s)"
+          >
+            <Select
+              mode="multiple"
+              placeholder="Select segments"
+            >
+              {targetSegmentOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="offerStatus"
+            label="Status"
+            valuePropName="checked"
+            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
+            getValueProps={(value) => ({ checked: value === 'Active' })}
+            initialValue="Active"
+          >
+            <Switch 
+              checkedChildren="Active" 
+              unCheckedChildren="Inactive"
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="description"
+            label="Description"
+          >
+            <TextArea rows={3} placeholder="Enter description" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
