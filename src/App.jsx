@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/LoginPage";
+import OTPScreen from "./components/OTPScreen";
 import FormFlow from "./components/FormFlow";
 import { GOOGLE_CLIENT_ID } from './config';
 import "./styles/global.css";
@@ -17,6 +18,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/otp" element={<OTPScreen />} />
             <Route path="/company-details" element={<FormFlow />} />
             <Route path="/service-details" element={<FormFlow />} />
             <Route path="/results" element={<FormFlow />} />
