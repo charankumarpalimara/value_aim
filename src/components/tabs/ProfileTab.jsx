@@ -159,14 +159,23 @@ const ProfileTab = () => {
         
         // Show success notification popup
         console.log('Showing success notification...');
-        notification.success({
-          message: 'Profile Updated',
-          description: 'Your profile has been updated successfully!',
-          placement: 'topRight',
-          duration: 4,
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-        });
-        console.log('Success notification should be displayed now');
+        try {
+          notification.success({
+            message: 'Profile Updated',
+            description: 'Your profile has been updated successfully!',
+            placement: 'topRight',
+            duration: 4,
+            style: {
+              zIndex: 9999,
+            },
+            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+          });
+          console.log('Success notification should be displayed now');
+        } catch (notifError) {
+          console.error('Notification error:', notifError);
+          // Fallback to message
+          message.success('Profile updated successfully!');
+        }
       } else {
         console.log('=== BACKEND ERROR ===');
         console.log('Response status:', response.status);
@@ -174,13 +183,20 @@ const ProfileTab = () => {
         
         const errorData = await response.json();
         console.log('Error data:', errorData);
-        notification.error({
-          message: 'Update Failed',
-          description: errorData.message || 'Failed to update profile. Please try again.',
-          placement: 'topRight',
-          duration: 5,
-          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-        });
+        try {
+          notification.error({
+            message: 'Update Failed',
+            description: errorData.message || 'Failed to update profile. Please try again.',
+            placement: 'topRight',
+            duration: 5,
+            style: {
+              zIndex: 9999,
+            },
+            icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+          });
+        } catch {
+          message.error(errorData.message || 'Failed to update profile');
+        }
       }
     } catch (error) {
       notification.error({
