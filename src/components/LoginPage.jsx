@@ -25,6 +25,10 @@ function LoginPage() {
   });
   const [signupErrors, setSignupErrors] = useState({});
   const [isSigningUp, setIsSigningUp] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showOtpOption, setShowOtpOption] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   // Google Login Handler
   const handleGoogleLogin = () => {
@@ -369,11 +373,48 @@ function LoginPage() {
     }
 
     try {
-      console.log('Attempting email login with:', email);
+      console.log('Checking if user exists:', email);
       
-      // Try to login with email
+      // Try to check if user exists by attempting login without password
       const loginResponse = await authAPI.login({
         email: email.trim(),
+        provider: 'email'
+      });
+      
+      // If we get here, user exists but password is required
+      if (loginResponse.success === false && loginResponse.message?.includes('password')) {
+        // User exists, show password modal
+        setShowPasswordModal(true);
+      }
+    } catch {
+      console.log('Email not found in database');
+      
+      // Email doesn't exist, show alert and prompt for signup
+      const shouldSignup = window.confirm(
+        'User not found. Would you like to sign up with this email?\n\n' +
+        'Click "OK" to create a new account or "Cancel" to try a different email.'
+      );
+      
+      if (shouldSignup) {
+        // Pre-fill email in signup modal
+        setSignupData(prev => ({ ...prev, email: email.trim() }));
+        setShowSignupModal(true);
+      }
+    }
+  };
+
+  const handlePasswordLogin = async () => {
+    if (!password.trim()) {
+      alert('Please enter your password');
+      return;
+    }
+
+    try {
+      console.log('Attempting password login');
+      
+      const loginResponse = await authAPI.login({
+        email: email.trim(),
+        password: password,
         provider: 'email'
       });
       
@@ -391,34 +432,47 @@ function LoginPage() {
         // Store auth token
         localStorage.setItem('token', loginResponse.data.token);
         
+        // Close password modal
+        setShowPasswordModal(false);
+        setPassword('');
+        
         // Check if user has completed onboarding
         if (loginResponse.data.hasCompletedOnboarding) {
-          // Navigate to results page
           navigate('/results');
         } else if (loginResponse.data.companyDetailsCompleted) {
-          // Navigate to service details
           navigate('/service-details');
         } else {
-          // Navigate to company details
           navigate('/company-details');
         }
       } else {
         throw new Error(loginResponse.message || 'Login failed');
       }
     } catch {
-      console.log('Email not found in database');
+      console.error('Password login failed');
+      alert('Invalid password. Please try again.');
+    }
+  };
+
+  const handleSendOtp = async () => {
+    setIsSendingOtp(true);
+    
+    try {
+      console.log('Sending OTP to:', email);
       
-      // Email doesn't exist, show alert and prompt for signup
-      const shouldSignup = window.confirm(
-        'User not found. Would you like to sign up with this email?\n\n' +
-        'Click "OK" to create a new account or "Cancel" to try a different email.'
-      );
+      // TODO: Replace with actual API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (shouldSignup) {
-        // Pre-fill email in signup modal
-        setSignupData(prev => ({ ...prev, email: email.trim() }));
-        setShowSignupModal(true);
-      }
+      alert('OTP sent to your email!');
+      
+      // Store email and navigate to OTP screen
+      localStorage.setItem('otpEmail', email.trim());
+      setShowPasswordModal(false);
+      navigate('/otp');
+    } catch (error) {
+      console.error('Failed to send OTP:', error);
+      alert('Failed to send OTP. Please try again.');
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
@@ -650,6 +704,89 @@ function LoginPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="signup-modal-overlay" onClick={() => { setShowPasswordModal(false); setPassword(''); setShowOtpOption(false); }}>
+          <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="signup-modal-header">
+              <h3>Enter Password</h3>
+              <button 
+                className="signup-close-btn" 
+                onClick={() => { setShowPasswordModal(false); setPassword(''); setShowOtpOption(false); }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={{ padding: '20px' }}>
+              <p style={{ marginBottom: '16px', color: '#666' }}>
+                Please enter your password for <strong>{email}</strong>
+              </p>
+              
+              {!showOtpOption ? (
+                <>
+                  <div className="signup-form-group">
+                    <input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="signup-input"
+                      autoFocus
+                      onKeyPress={(e) => e.key === 'Enter' && handlePasswordLogin()}
+                    />
+                  </div>
+                  
+                  <button 
+                    onClick={handlePasswordLogin}
+                    className="signup-submit-btn"
+                    style={{ width: '100%' }}
+                  >
+                    Log In
+                  </button>
+                  
+                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <button 
+                      onClick={() => setShowOtpOption(true)}
+                      className="signup-login-btn"
+                      style={{ fontSize: '14px' }}
+                    >
+                      Try another way
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <p style={{ marginBottom: '16px', color: '#666' }}>
+                      We'll send a verification code to your email
+                    </p>
+                    <button 
+                      onClick={handleSendOtp}
+                      className="signup-submit-btn"
+                      disabled={isSendingOtp}
+                      style={{ width: '100%' }}
+                    >
+                      {isSendingOtp ? 'Sending...' : 'Send OTP'}
+                    </button>
+                  </div>
+                  
+                  <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                    <button 
+                      onClick={() => setShowOtpOption(false)}
+                      className="signup-login-btn"
+                      style={{ fontSize: '14px' }}
+                    >
+                      Back to password
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
