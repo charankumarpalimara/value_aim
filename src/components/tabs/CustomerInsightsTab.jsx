@@ -37,7 +37,8 @@ const CustomerInsights = () => {
     <Box sx={{ 
       minHeight: '100vh',
       backgroundColor: '#f8f9fa',
-      padding: isMobile ? '16px' : '24px'
+      padding: isMobile ? '16px' : '24px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* Main Content */}
       <Box sx={{ display: 'flex', gap: 3, flexDirection: isMobile ? 'column' : 'row' }}>

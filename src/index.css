@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* Apple System Font - Primary */
 :root {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -13,6 +12,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apply Apple font globally */
+html, body, #root, .app, .content {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 a {
@@ -32,28 +36,162 @@ body {
   min-height: 100vh;
 }
 
+/* Alantur-Project Font Sizes */
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+h2 {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+h3, h4, h5, h6 {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
 }
 
 button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-size: 13px;
   font-weight: 500;
-  font-family: inherit;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
-}
+
+/* ===== REMOVE ONLY FOCUS OUTLINES AND BOX SHADOWS ===== */
+button,
+.ant-btn,
+.MuiButton-root,
 button:focus,
+button:active,
+button:focus-visible,
+.ant-btn:focus,
+.ant-btn:active,
+.MuiButton-root:focus,
+.MuiButton-root:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove Ant Design button pseudo-elements (but keep borders) */
+.ant-btn::before,
+.ant-btn::after {
+  display: none !important;
+}
+
+.ant-btn:hover,
+.ant-btn:focus,
+.ant-btn:active {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Remove Material-UI ripple effect borders */
+.MuiButton-root:focus,
+.MuiButton-root:active {
+  outline: none !important;
+}
+
+.MuiButtonBase-root:focus-visible {
+  outline: none !important;
+}
+
+.MuiTouchRipple-root {
+  display: none !important;
+}
+
+/* ===== ANT DESIGN COMPONENT OVERRIDES ===== */
+.ant-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  border: 1px solid transparent !important;
+}
+
+.ant-input, .ant-select, .ant-typography {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.ant-input:focus, .ant-input:active {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ===== MATERIAL-UI COMPONENT OVERRIDES ===== */
+.MuiTypography-root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.MuiButton-root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.MuiChip-root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.MuiInputBase-root, .MuiInputBase-input {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+.MuiMenuItem-root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+/* ===== REMOVE ALL BORDERS ON CLICK/FOCUS ===== */
+/* Native HTML buttons */
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+/* Ant Design buttons - comprehensive removal */
+.ant-btn-primary:focus,
+.ant-btn-primary:active,
+.ant-btn:focus,
+.ant-btn:active {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Material-UI buttons - comprehensive removal */
+.MuiButton-root:focus-visible,
+.MuiButton-contained:focus,
+.MuiButton-outlined:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.MuiButton-root .MuiTouchRipple-root {
+  display: none !important;
+}
+
+/* Remove focus outline from all elements but keep other properties */
+*:focus-visible {
+  outline: none !important;
+}
+
+/* Table text sizing */
+td, .ant-table-tbody > tr > td {
+  font-size: 11px !important;
+}
+
+.ant-table-thead > tr > th {
+  font-size: 11px !important;
+  font-weight: bold !important;
 }
 
 @media (prefers-color-scheme: light) {

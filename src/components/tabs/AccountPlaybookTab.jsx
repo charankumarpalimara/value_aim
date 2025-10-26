@@ -205,7 +205,7 @@ const Account = () => {
     };
 
   return (
-        <div style={{ padding: '24px', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
+        <div style={{ padding: '24px', backgroundColor: '#f5f5f5', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
             {/* Header Section */}
             <Card style={{ marginBottom: '24px' }}>
                 <Row justify="space-between" align="middle">

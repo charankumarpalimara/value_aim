@@ -179,7 +179,8 @@ const RevenueLeak = () => {
       minHeight: '100vh',
       width: '100%',
       boxSizing: 'border-box',
-      maxWidth: 'none'
+      maxWidth: 'none',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>

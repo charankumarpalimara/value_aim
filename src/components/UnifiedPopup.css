@@ -1,0 +1,198 @@
+/* Unified Popup Styles */
+.unified-popup-modal .ant-modal-content {
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.unified-popup-modal .ant-modal-body {
+  flex: 1;
+  padding: 0;
+  overflow: hidden;
+}
+
+.unified-popup-modal .ant-modal-header {
+  border-bottom: 1px solid #e8e8e8;
+  padding: 16px 24px;
+}
+
+.unified-popup-modal .ant-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #201F47;
+}
+
+/* Tab styling */
+.popup-tab {
+  transition: all 0.2s ease;
+}
+
+.popup-tab.active {
+  background-color: #201F47 !important;
+  color: #fff !important;
+}
+
+/* Specific fix for Organization Details tab */
+.popup-tab.active span {
+  background-color: transparent !important;
+  color: #fff !important;
+}
+
+.popup-tab:hover:not(.active) {
+  background-color: #201F47 !important;
+  color: #1890ff !important;
+}
+
+/* Desktop - Vertical Tabs */
+@media (min-width: 769px) {
+  .unified-popup-modal .ant-modal-body div[style*="display: block"] {
+    display: block !important;
+  }
+  
+  .popup-tab {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 10px 12px !important;
+    border-radius: 0 !important;
+    margin-bottom: 2px !important;
+    background-color: transparent !important;
+    color: #333 !important;
+    font-size: 13px !important;
+    display: block !important;
+  }
+  
+  .popup-tab.active {
+    background-color: #201F47 !important;
+    color: #fff !important;
+  }
+  
+  .popup-tab:hover:not(.active) {
+    background-color: #201F47 !important;
+    color: #1890ff !important;
+  }
+  
+  /* Ensure inactive tabs don't get background color on text */
+  .popup-tab:not(.active) span {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .unified-popup-modal {
+    width: 95% !important;
+    max-width: 95% !important;
+    margin: 10px !important;
+  }
+  
+  .unified-popup-modal .ant-modal-content {
+    height: 85vh;
+  }
+  
+  .unified-popup-modal .ant-modal-body {
+    padding: 0 !important;
+  }
+  
+  /* Mobile tabs styling - Top Center Alignment */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] {
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important;
+    display: flex !important;
+  }
+  
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div {
+    background-color: #f0f0f0 !important;
+    color: #333 !important;
+    border: 1px solid #d9d9d9 !important;
+    margin: 2px !important;
+    display: inline-block !important;
+  }
+  
+  /* Mobile active tab - entire tab background */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div[style*="background-color: #201F47"] {
+    background-color: #201F47 !important;
+    color: #fff !important;
+    border: none !important;
+  }
+  
+  /* Mobile active tab span styling */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div[style*="background-color: #201F47"] span {
+    background-color: transparent !important;
+    color: #fff !important;
+  }
+  
+  /* Ensure inactive tabs don't get background color on text */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:not([style*="background-color: #201F47"]) span {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+  
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:hover {
+    background-color: #201F47 !important;
+    color: #1890ff !important;
+  }
+  
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div[style*="background-color: #201F47"] {
+    background-color: #201F47 !important;
+    color: #fff !important;
+    border: none !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .unified-popup-modal {
+    width: 98% !important;
+    max-width: 98% !important;
+    margin: 5px !important;
+  }
+  
+  .unified-popup-modal .ant-modal-content {
+    height: 90vh;
+  }
+  
+  /* Make tabs smaller on very small screens */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] {
+    gap: 4px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+  
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+    z-index: 10 !important;
+    position: relative !important;
+  }
+  
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div[style*="background-color: #201F47"] {
+    background-color: #201F47 !important;
+    color: #fff !important;
+    border: none !important;
+  }
+  
+  /* Ensure inactive tabs don't get background color on text */
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:not([style*="background-color: #201F47"]) span {
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+  
+  /* Ensure sidebar doesn't go behind content */
+  .unified-popup-modal .ant-modal-body > div:first-child {
+    z-index: 10 !important;
+    position: relative !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .unified-popup-modal {
+    width: 98% !important;
+    max-width: 98% !important;
+    margin: 5px !important;
+  }
+  
+  .unified-popup-modal .ant-modal-content {
+    height: 90vh;
+  }
+}

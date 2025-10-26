@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Table, Button, Input, Select, Tag, Space, Form, Switch, message } from 'antd';
+import React, { useState } from 'react';
+import { Modal, Table, Button, Input, Tag, Space, Form } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import OrganizationDetailsTab from './tabs/OrganizationDetailsTab';
@@ -8,7 +8,6 @@ import './UnifiedPopup.css';
 
 const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isTablet = useMediaQuery({ maxWidth: 1024 });
 
   const renderContent = () => {
     switch (activeScreen) {
@@ -78,36 +77,59 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
             gap: isMobile ? '8px' : '0',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
-            {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => (
-              <div 
-                key={tab}
-                className={`popup-tab ${activeScreen === tab ? 'active' : ''}`}
-                style={{ 
-                  padding: isMobile ? '8px 12px' : '12px 16px', 
-                  cursor: 'pointer',
-                  backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
-                  color: activeScreen === tab ? '#fff' : '#333',
-                  borderRadius: isMobile ? '16px' : '0',
-                  fontSize: isMobile ? '12px' : '14px',
-                  fontWeight: activeScreen === tab ? '500' : '400',
-                  border: 'none',
-                  borderRight: isMobile ? 'none' : (activeScreen === tab ? '3px solid #1890ff' : 'none'),
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                  minWidth: 'fit-content',
-                  width: isMobile ? 'auto' : '100%',
-                  textAlign: isMobile ? 'center' : 'left',
-                  marginBottom: isMobile ? '0' : '4px'
-                }}
-                onClick={() => onScreenChange(tab)}
-                onMouseEnter={(e) => {
-                  if (!isMobile && activeScreen !== tab) {
-                    e.target.style.backgroundColor = '#f5f5f5';
-                    e.target.style.color = '#201F47';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isMobile) {
+            {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => {
+              // Mobile: Use Tag component
+              if (isMobile) {
+                return (
+                  <Tag
+                    key={tab}
+                    color={activeScreen === tab ? '#201F47' : 'default'}
+                    onClick={() => onScreenChange(tab)}
+                    style={{
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      padding: '4px 12px',
+                      borderRadius: '16px',
+                      border: activeScreen === tab ? '1px solid #201F47' : '1px solid #d9d9d9',
+                      color: activeScreen === tab ? '#fff' : '#666',
+                      fontWeight: activeScreen === tab ? '500' : '400',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {tab}
+                  </Tag>
+                );
+              }
+              // Desktop: Use existing div styling
+              return (
+                <div 
+                  key={tab}
+                  className={`popup-tab ${activeScreen === tab ? 'active' : ''}`}
+                  style={{ 
+                    padding: '12px 16px', 
+                    cursor: 'pointer',
+                    backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
+                    color: activeScreen === tab ? '#fff' : '#333',
+                    borderRadius: '0',
+                    fontSize: '14px',
+                    fontWeight: activeScreen === tab ? '500' : '400',
+                    border: 'none',
+                    borderRight: activeScreen === tab ? '3px solid #1890ff' : 'none',
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                    minWidth: 'fit-content',
+                    width: '100%',
+                    textAlign: 'left',
+                    marginBottom: '4px'
+                  }}
+                  onClick={() => onScreenChange(tab)}
+                  onMouseEnter={(e) => {
+                    if (activeScreen !== tab) {
+                      e.target.style.backgroundColor = '#f5f5f5';
+                      e.target.style.color = '#201F47';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
                     if (activeScreen !== tab) {
                       e.target.style.backgroundColor = 'transparent';
                       e.target.style.color = '#333';
@@ -115,12 +137,12 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                       e.target.style.backgroundColor = '#201F47';
                       e.target.style.color = '#fff';
                     }
-                  }
-                }}
-              >
-                <span>{tab}</span>
-              </div>
-            ))}
+                  }}
+                >
+                  <span>{tab}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -139,25 +161,11 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
 
 // Service Manager Content Component (without header)
 const ServiceManagerContent = () => {
-  const [dataSource, setDataSource] = useState([]);
+  const [dataSource] = useState([]);
   const [form] = Form.useForm();
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const isMobile = useMediaQuery({ maxWidth: 768 });
-
-  const interestList = [
-    'Cloud Migration', 'AI/ML Solutions', 'Cybersecurity Services',
-    'Voice AI', 'Data Platform', 'Cloud Security', 'FinOps',
-    'AI Ops', 'Intelligent Automation', 'Managed Security',
-    'Zero Trust', 'Conversational Analytics', 'Multilingual Bots',
-    'AI/ML Use Cases', 'Data Governance'
-  ];
-
-  const keywordList = [
-    'Cost Savings', 'Agility', 'Revenue Growth', 'Innovation',
-    'Risk Reduction', 'Compliance', 'Customer Experience', 'Decision Making'
-  ];
 
   const columns = [
     {

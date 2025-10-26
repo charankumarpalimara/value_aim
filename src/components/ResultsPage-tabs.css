@@ -12,14 +12,16 @@
 }
 
 .page-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 600;
   color: #1a1a1a;
   margin: 0 0 8px 0;
 }
 
 .page-subtitle {
-  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
   color: #666666;
   margin: 0;
 }
@@ -52,7 +54,8 @@
   border: 2px solid transparent;
   background: transparent;
   color: #64748b;
-  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -66,13 +69,26 @@
   border-color: #cbd5e1;
 }
 
+.tab-nav-btn:focus,
+.tab-nav-btn:active,
+.tab-nav-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .tab-nav-btn.active {
   background: #ffffff;
   color: #1e40af;
   border-color: #3b82f6;
-  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 600;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
   transform: scale(1.02);
+}
+
+.tab-nav-btn.active:focus,
+.tab-nav-btn.active:active {
+  outline: none !important;
 }
 
 /* Custom scrollbar for tab navigation */
@@ -126,7 +142,7 @@
   .tab-nav-btn {
     min-width: 130px;
     padding: 12px 20px;
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .tab-content-wrapper {
@@ -146,11 +162,11 @@
   }
 
   .page-title {
-    font-size: 20px;
+    font-size: 16px;
   }
 
   .page-subtitle {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .tab-navigation {
@@ -172,7 +188,7 @@
     min-width: auto;
     width: 100%;
     padding: 12px 16px;
-    font-size: 13px;
+    font-size: 12px;
     border-radius: 12px;
     flex: none;
   }
@@ -206,11 +222,11 @@
   }
 
   .page-title {
-    font-size: 18px;
+    font-size: 14px;
   }
 
   .page-subtitle {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .tab-navigation {
@@ -228,7 +244,7 @@
     min-width: auto;
     width: 100%;
     padding: 11px 12px;
-    font-size: 12px;
+    font-size: 11px;
     border-radius: 10px;
     line-height: 1.3;
   }
@@ -239,20 +255,27 @@
   }
 }
 
-/* Plus Menu Popup */
+/* Plus Menu Popup - ChatGPT Style */
 .plus-menu-popup {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  margin-bottom: 8px;
+  /* Position is controlled by JavaScript inline styles */
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 280px;
-  z-index: 1000;
-  overflow: hidden;
+  max-width: 320px;
+  width: max-content;
+  z-index: 9999;
   animation: slideUp 0.2s ease-out;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* On mobile, take full width */
+@media (max-width: 768px) {
+  .plus-menu-popup {
+    width: auto !important;
+    min-width: auto !important;
+  }
 }
 
 @keyframes slideUp {
@@ -281,8 +304,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: 10px;
+  padding: 10px 12px;
   border: none;
   background: white;
   cursor: pointer;
@@ -297,7 +320,6 @@
 
 .plus-menu-item:hover {
   background: #f8fafc;
-  transform: translateX(2px);
 }
 
 .plus-menu-item:active {
@@ -305,15 +327,14 @@
 }
 
 .menu-item-icon {
-  font-size: 24px;
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f0f4f8;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .menu-item-content {
@@ -321,10 +342,11 @@
 }
 
 .menu-item-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: #1a1a1a;
-  margin-bottom: 2px;
+  margin-bottom: 0;
+  line-height: 1.3;
 }
 
 .menu-item-desc {
@@ -332,26 +354,38 @@
   color: #666666;
 }
 
-/* Mobile adjustments for plus menu */
+/* Mobile adjustments for plus menu items */
 @media (max-width: 768px) {
-  .plus-menu-popup {
-    min-width: 260px;
-    left: auto;
-    right: 0;
-  }
-
   .plus-menu-item {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
 
   .menu-item-title {
-    font-size: 13px;
-  }
-
-  .menu-item-desc {
     font-size: 11px;
   }
+
+  .menu-item-icon {
+    width: 26px;
+    height: 26px;
+  }
 }
+
+  /* Tab container adjustments */
+  .ant-tabs-nav {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ant-tabs-tab {
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Content area mobile */
+  .ant-tabs-content {
+    padding: 16px !important;
+  }
+
 
 /* Scrollbar Styling for Tab Navigation (Desktop only) */
 @media (min-width: 769px) {

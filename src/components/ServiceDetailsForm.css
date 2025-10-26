@@ -1,7 +1,45 @@
+/* Page wrapper */
+.service-details-page {
+  width: 100%;
+  background: #E5E5E5;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px; /* Reduced padding for better positioning */
+}
+
+/* Header Styles */
+.service-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  background: #E5E5E5;
+  flex-shrink: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Mobile Menu Icon */
+.mobile-menu-icon {
+  display: none;
+}
+
+.service-logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.service-logo-image {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
 .service-details-container {
   padding: 40px;
-  background-color: #f8f9fa;
-  min-height: 100vh;
+  background-color: #E5E5E5;
+  flex: 1;
 }
 
 .service-details-header {
@@ -9,14 +47,14 @@
 }
 
 .service-details-header h2 {
-  font-size: 32px;
+  font-size: 18px;
   font-weight: 600;
   color: #1f2937;
   margin: 0 0 10px 0;
 }
 
 .service-details-header p {
-  font-size: 16px;
+  font-size: 13px;
   color: #6b7280;
   margin: 0;
 }
@@ -25,11 +63,71 @@
   margin-bottom: 20px;
 }
 
+.service-details-actions button {
+  transition: none !important;
+}
+
+.service-details-actions button:hover,
+.service-details-actions button:focus,
+.service-details-actions button:active {
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.service-details-actions .ant-btn:hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+}
+
+.service-details-actions .ant-btn-primary:hover {
+  background-color: #201F47 !important;
+  border-color: #201F47 !important;
+  color: white !important;
+}
+
+.service-details-actions .ant-btn-default:hover {
+  background-color: white !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
 .service-details-footer {
   margin-top: 30px;
   display: flex;
   justify-content: space-between;
   padding: 20px 0;
+}
+
+.service-details-footer button {
+  transition: none !important;
+}
+
+.service-details-footer button:hover,
+.service-details-footer button:focus,
+.service-details-footer button:active {
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.service-details-footer .ant-btn:hover {
+  background-color: inherit !important;
+  border-color: inherit !important;
+  color: inherit !important;
+}
+
+.service-details-footer .ant-btn-primary:hover {
+  background-color: #201F47 !important;
+  border-color: #201F47 !important;
+  color: white !important;
+}
+
+.service-details-footer .ant-btn-default:hover {
+  background-color: white !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
 }
 
 .editable-row {
@@ -45,7 +143,6 @@
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-height: 400px;
 }
 
 .ant-table-tbody > tr > td {
@@ -58,10 +155,25 @@
 }
 
 .ant-table-thead > tr > th {
-  background-color: #201F47;
-  color: white;
+  background-color: #201F47 !important;
+  color: white !important;
   font-weight: 600;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #201F47 !important;
+  padding: 16px !important;
+  font-size: 14px;
+}
+
+.ant-table-thead > tr > th::before {
+  display: none !important;
+}
+
+/* Filter icon color in header */
+.ant-table-thead > tr > th .ant-table-filter-trigger {
+  color: white !important;
+}
+
+.ant-table-thead > tr > th .anticon {
+  color: white !important;
 }
 
 .ant-table-tbody > tr > td {
@@ -115,13 +227,88 @@
 }
 
 /* Responsive adjustments */
+@media (max-width: 1024px) {
+  .service-header {
+    padding: 16px 24px;
+  }
+
+  .service-details-container {
+    padding: 32px;
+  }
+}
+
 @media (max-width: 768px) {
+  .service-details-page {
+    padding-top: 20px; /* Reduced padding for mobile */
+  }
+
   .service-details-container {
     padding: 20px;
   }
 
   .service-details-header h2 {
     font-size: 24px;
+  }
+
+  .service-details-header p {
+    font-size: 14px;
+  }
+
+  /* Mobile actions layout */
+  .service-details-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .service-details-actions .ant-input {
+    max-width: 100% !important;
+  }
+
+  .service-details-actions button {
+    width: 100% !important;
+  }
+
+  /* Table mobile adjustments */
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 10px 8px !important;
+    font-size: 11px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .ant-tag {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  /* Modal mobile adjustments */
+  .ant-modal {
+    max-width: calc(100% - 32px) !important;
+    margin: 16px auto !important;
+  }
+
+  .ant-modal-body {
+    padding: 16px;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+
+  /* Modal form layout - stack vertically on mobile */
+  .ant-modal-body form > div[style*="display: flex"] {
+    flex-direction: column !important;
+  }
+
+  .ant-modal-body form > div[style*="display: flex"] > * {
+    width: 100% !important;
+    flex: unset !important;
   }
 
   .service-details-footer {
@@ -131,5 +318,141 @@
 
   .service-details-footer button {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .service-details-page {
+    padding-top: 15px; /* Further reduced padding for small mobile */
+  }
+
+  .service-details-container {
+    padding: 16px;
+  }
+}
+
+/* Mobile Navigation Menu Styles */
+.mobile-nav {
+  width: 100%;
+  padding: 0;
+}
+
+.mobile-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.mobile-nav-item:hover {
+  background-color: #f5f5f5;
+  color: #201F47;
+}
+
+.mobile-nav-item.active {
+  background-color: #201F47;
+  color: white;
+}
+
+.mobile-nav-item.active:hover {
+  background-color: #1a1a3a;
+  color: white;
+}
+
+.mobile-nav-item svg {
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.mobile-nav-item span {
+  flex: 1;
+}
+
+.mobile-nav-divider {
+  height: 1px;
+  background-color: #e5e5e5;
+  margin: 8px 16px;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-content {
+    padding: 20px 0;
+  }
+  
+  .mobile-nav-item {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-nav-item {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+  .service-details-header h2 {
+    font-size: 20px;
+  }
+
+  .service-details-header p {
+    font-size: 13px;
+  }
+
+  /* Table extra small screens */
+  .ant-table-thead > tr > th {
+    padding: 8px 6px !important;
+    font-size: 10px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+
+  .ant-tag {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+
+  /* Modal for small screens */
+  .ant-modal {
+    max-width: calc(100% - 24px) !important;
+    margin: 12px auto !important;
+  }
+
+  .ant-modal-title {
+    font-size: 16px;
+  }
+
+  .ant-modal-body {
+    padding: 12px;
+    max-height: calc(100vh - 150px);
+  }
+
+  .ant-form-item-label > label {
+    font-size: 12px;
+  }
+
+  .ant-input,
+  .ant-select,
+  .ant-input-textarea {
+    font-size: 13px !important;
   }
 }

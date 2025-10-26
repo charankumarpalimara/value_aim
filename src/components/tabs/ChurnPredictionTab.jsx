@@ -210,7 +210,8 @@ const ChurnPrediction = () => {
       minHeight: '100vh',
       width: '100%',
       maxWidth: 'none',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>

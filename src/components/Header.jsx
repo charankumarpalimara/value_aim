@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import "./Header.css";
 
-function Header({ onNavigate }) {
+function Header({ onSignupClick }) {
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.mobile-menu') && !event.target.closest('.mobile-menu-toggle')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileMenuOpen]);
 
   return (
     <div className="header">
@@ -15,29 +32,37 @@ function Header({ onNavigate }) {
         <img src={logoImage} alt="Value AIM Logo" className="logo-image" />
       </div>
       <div className="header-actions">
-        <a href="#" className="nav-link">About Us</a>
-        <a href="#" className="nav-link">Contact Us</a>
-        <button className="header-btn" onClick={() => onNavigate && onNavigate('login')}>Login</button>
-        <button className="header-btn primary">Signup for Free</button>
-        <button 
-          className={`mobile-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
-          onClick={toggleMobileMenu}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
+        {!isMobile && (
+          <>
+            <a href="#" className="nav-link">About Us</a>
+            <a href="#" className="nav-link">Contact Us</a>
+            <button className="header-btn" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</button>
+            <button className="header-btn primary" onClick={() => { onSignupClick(); setIsMobileMenuOpen(false); }}>Signup for Free</button>
+          </>
+        )}
+        {isMobile && (
+          <button 
+            className={`mobile-menu-toggle ${isMobileMenuOpen ? 'active' : ''}`}
+            onClick={toggleMobileMenu}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        )}
       </div>
-      <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
-        <div className="mobile-menu-content">
-          <a href="#" className="mobile-nav-link">About Us</a>
-          <a href="#" className="mobile-nav-link">Contact Us</a>
-          <div className="mobile-menu-buttons">
-            <button className="header-btn" onClick={() => onNavigate && onNavigate('login')}>Login</button>
-            <button className="header-btn primary" onClick={() => onNavigate && onNavigate('login')}>Signup for Free</button>
+      {isMobile && (
+        <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
+          <div className="mobile-menu-content">
+            <a href="#" className="mobile-nav-link">About Us</a>
+            <a href="#" className="mobile-nav-link">Contact Us</a>
+            <div className="mobile-menu-buttons">
+              <button className="header-btn" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</button>
+              <button className="header-btn primary" onClick={() => { onSignupClick(); setIsMobileMenuOpen(false); }}>Signup for Free</button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

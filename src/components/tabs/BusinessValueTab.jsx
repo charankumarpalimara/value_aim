@@ -3,7 +3,7 @@ import './TabStyles.css';
 
 const BusinessValueTab = ({ mobile, tablet }) => {
   return (
-    <div className="tab-content" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="tab-content" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
       <div className="tab-section">
         <div className={`section-header ${mobile ? 'mobile' : ''}`}>
           <div>

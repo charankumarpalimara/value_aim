@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { companyAPI } from "../utils/api";
 import Header from "./Header";
-import { MicrosoftLogo, GoogleLogo, AppleLogo, AmazonLogo, MetaLogo } from "./BrandLogos";
 import "./CompanyDetailsPage.css";
 
-function CompanyDetailsPage({ onNavigate }) {
+function CompanyDetailsPage({ onNext }) {
+  const navigate = useNavigate();
   const industryOptions = [
     'Technology',
     'Healthcare',
@@ -83,19 +85,21 @@ function CompanyDetailsPage({ onNavigate }) {
     website: "",
     country: "",
     city: "",
-    employees: "",
-    description: ""
+    employees: ""
   });
 
   const [availableCities, setAvailableCities] = useState([]);
   const [countrySearch, setCountrySearch] = useState("");
   const [citySearch, setCitySearch] = useState("");
+  const [industrySearch, setIndustrySearch] = useState("");
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
+  const [errors, setErrors] = useState({});
   
   const countryRef = useRef(null);
   const cityRef = useRef(null);
-
+  const industryRef = useRef(null);
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -104,6 +108,9 @@ function CompanyDetailsPage({ onNavigate }) {
       }
       if (cityRef.current && !cityRef.current.contains(event.target)) {
         setShowCityDropdown(false);
+      }
+      if (industryRef.current && !industryRef.current.contains(event.target)) {
+        setShowIndustryDropdown(false);
       }
     };
 
@@ -147,6 +154,18 @@ function CompanyDetailsPage({ onNavigate }) {
     setShowCityDropdown(false);
   };
 
+  const handleIndustrySearch = (value) => {
+    setIndustrySearch(value);
+    setFormData(prev => ({ ...prev, industry: "" }));
+    setShowIndustryDropdown(true);
+  };
+
+  const handleIndustrySelect = (industry) => {
+    setFormData(prev => ({ ...prev, industry: industry }));
+    setIndustrySearch(industry);
+    setShowIndustryDropdown(false);
+  };
+
   const filteredCountries = Object.keys(countriesWithCities)
     .filter(country => country.toLowerCase().includes(countrySearch.toLowerCase()))
     .sort();
@@ -154,18 +173,131 @@ function CompanyDetailsPage({ onNavigate }) {
   const filteredCities = availableCities
     .filter(city => city.toLowerCase().includes(citySearch.toLowerCase()));
 
-  const handleSave = () => {
-    onNavigate('results');
+  const filteredIndustries = industryOptions
+    .filter(industry => industry.toLowerCase().includes(industrySearch.toLowerCase()));
+
+  const handleSave = async () => {
+    // Validate all fields
+    const newErrors = {};
+    
+    if (!formData.companyName.trim()) {
+      newErrors.companyName = 'Company name is required';
+    }
+    
+    if (!formData.industry) {
+      newErrors.industry = 'Industry is required';
+    }
+    
+    if (!formData.website.trim()) {
+      newErrors.website = 'Website is required';
+    } else {
+      // Allow URLs with or without http/https
+      const websiteValue = formData.website.trim();
+      // Check if it's a valid domain pattern
+      const domainPattern = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+      const urlPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/;
+      
+      if (!domainPattern.test(websiteValue) && !urlPattern.test(websiteValue)) {
+        newErrors.website = 'Please enter a valid website (e.g., example.com)';
+      }
+    }
+    
+    if (!formData.country) {
+      newErrors.country = 'Country is required';
+    }
+    
+    if (!formData.city) {
+      newErrors.city = 'City is required';
+    }
+    
+    if (!formData.employees) {
+      newErrors.employees = 'Number of employees is required';
+    }
+    
+    setErrors(newErrors);
+    
+    // If there are errors, don't proceed
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+    
+    try {
+      // Check if user is authenticated
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('You are not logged in. Please log in again.');
+        navigate('/login');
+        return;
+      }
+
+      // All fields are valid, proceed
+      // Auto-prepend https:// if not provided
+      let websiteUrl = formData.website.trim();
+      if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+        websiteUrl = 'https://' + websiteUrl;
+      }
+      
+      const companyData = {
+        companyName: formData.companyName,
+        industry: formData.industry,
+        website: websiteUrl,
+        country: formData.country,
+        city: formData.city,
+        employees: formData.employees
+      };
+
+      console.log('Saving company data:', companyData);
+      console.log('Auth token:', token ? 'Present' : 'Missing');
+
+      // Save company data to backend
+      const response = await companyAPI.createOrUpdate(companyData);
+      
+      if (response.success) {
+        console.log('Company details saved successfully:', response.data);
+        
+        // Also save to session storage for form flow
+        const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
+        formFlowData.companyDetails = companyData;
+        sessionStorage.setItem('formFlowData', JSON.stringify(formFlowData));
+        
+        // Call the original onNext function if provided
+        if (onNext) {
+          onNext(companyData);
+        } else {
+          // Navigate to service details page
+          navigate('/service-details');
+        }
+      } else {
+        throw new Error(response.message || 'Failed to save company details');
+      }
+    } catch (error) {
+      console.error('Error saving company details:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      if (error.response?.status === 401) {
+        alert('Your session has expired. Please log in again.');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        navigate('/login');
+      } else {
+        alert(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+      }
+    }
   };
+
+  // const handleBack = () => {
+  //   navigate('/login');
+  // };
 
   return (
     <div className="company-page">
-      <Header onNavigate={onNavigate} />
+      <Header />
       
       <div className="company-content">
         <div className="company-card">
           <h2 className="company-title">Company Details</h2>
-          <p className="company-subtitle">Enter your company information below.</p>
+          <p className="company-subtitle"> fill in your company information below.</p>
           
           {/* <div className="company-icons-section">
             <p className="icons-label">Trusted by leading companies:</p>
@@ -179,40 +311,95 @@ function CompanyDetailsPage({ onNavigate }) {
           </div> */}
           
           <div className="form-grid">
-            <input
-              type="text"
-              placeholder="Company Name"
-              value={formData.companyName}
-              onChange={(e) => handleInputChange('companyName', e.target.value)}
-              className="form-input"
-            />
-            <select
-              value={formData.industry}
-              onChange={(e) => handleInputChange('industry', e.target.value)}
-              className="form-select"
-            >
-              <option value="">Target Industry</option>
-              {industryOptions.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-            <input
-              type="url"
-              placeholder="Website (https://example.com)"
-              value={formData.website}
-              onChange={(e) => handleInputChange('website', e.target.value)}
-              className="form-input"
-            />
-            
-            {/* Searchable Country Dropdown */}
-            <div ref={countryRef} style={{ position: 'relative' }}>
+            <div className="form-field-wrapper">
               <input
                 type="text"
-                placeholder="Search Country..."
+                placeholder="Company Name *"
+                value={formData.companyName}
+                onChange={(e) => handleInputChange('companyName', e.target.value)}
+                className={`form-input ${errors.companyName ? 'error' : ''}`}
+              />
+              {errors.companyName && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.companyName}
+                </div>
+              )}
+            </div>
+            
+            {/* Searchable Industry Dropdown */}
+            <div ref={industryRef} className="form-field-wrapper" style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Industry... *"
+                value={industrySearch}
+                onChange={(e) => handleIndustrySearch(e.target.value)}
+                onFocus={() => setShowIndustryDropdown(true)}
+                className={`form-input ${errors.industry ? 'error' : ''}`}
+                autoComplete="off"
+              />
+              {showIndustryDropdown && filteredIndustries.length > 0 && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                  backgroundColor: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  zIndex: 1000,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}>
+                  {filteredIndustries.map((industry) => (
+                    <div
+                      key={industry}
+                      onClick={() => handleIndustrySelect(industry)}
+                      style={{
+                        padding: '10px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid #f0f0f0',
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                    >
+                      {industry}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {errors.industry && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.industry}
+                </div>
+              )}
+            </div>
+
+            <div className="form-field-wrapper">
+              <input
+                type="text"
+                placeholder="Website (e.g., example.com) *"
+                value={formData.website}
+                onChange={(e) => handleInputChange('website', e.target.value)}
+                className={`form-input ${errors.website ? 'error' : ''}`}
+              />
+              {errors.website && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.website}
+                </div>
+              )}
+            </div>
+            
+            {/* Searchable Country Dropdown */}
+            <div ref={countryRef} className="form-field-wrapper" style={{ position: 'relative' }}>
+              <input
+                type="text"
+                placeholder="Country... *"
                 value={countrySearch}
                 onChange={(e) => handleCountrySearch(e.target.value)}
                 onFocus={() => setShowCountryDropdown(true)}
-                className="form-input"
+                className={`form-input ${errors.country ? 'error' : ''}`}
                 autoComplete="off"
               />
               {showCountryDropdown && filteredCountries.length > 0 && (
@@ -247,17 +434,22 @@ function CompanyDetailsPage({ onNavigate }) {
                   ))}
                 </div>
               )}
+              {errors.country && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.country}
+                </div>
+              )}
             </div>
 
             {/* Searchable City Dropdown */}
-            <div ref={cityRef} style={{ position: 'relative' }}>
+            <div ref={cityRef} className="form-field-wrapper" style={{ position: 'relative' }}>
               <input
                 type="text"
-                placeholder="Search City..."
+                placeholder="City... *"
                 value={citySearch}
                 onChange={(e) => handleCitySearch(e.target.value)}
                 onFocus={() => setShowCityDropdown(true)}
-                className="form-input"
+                className={`form-input ${errors.city ? 'error' : ''}`}
                 disabled={!formData.country}
                 autoComplete="off"
               />
@@ -293,29 +485,59 @@ function CompanyDetailsPage({ onNavigate }) {
                   ))}
                 </div>
               )}
+              {errors.city && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.city}
+                </div>
+              )}
             </div>
-            <select
-              value={formData.employees}
-              onChange={(e) => handleInputChange('employees', e.target.value)}
-              className="form-select"
-            >
-              <option value="">Number of Employees</option>
-              <option value="1-10">1-10</option>
-              <option value="11-50">11-50</option>
-              <option value="51-200">51-200</option>
-              <option value="201-1000">201-1000</option>
-              <option value="1000+">1000+</option>
-            </select>
-            <textarea
-              placeholder="Short Company Description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              className="form-textarea"
-              rows="3"
-            />
+            <div className="form-field-wrapper">
+              <select
+                value={formData.employees}
+                onChange={(e) => handleInputChange('employees', e.target.value)}
+                className={`form-select ${errors.employees ? 'error' : ''}`}
+              >
+                <option value="">Number of Employees *</option>
+                <option value="1-10">1-10</option>
+                <option value="11-50">11-50</option>
+                <option value="51-200">51-200</option>
+                <option value="201-1000">201-1000</option>
+                <option value="1000+">1000+</option>
+              </select>
+              {errors.employees && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.employees}
+                </div>
+              )}
+            </div>
+            {/* <div className="form-field-wrapper full-width">
+              <textarea
+                placeholder="Short Company Description *"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                className={`form-textarea ${errors.description ? 'error' : ''}`}
+                rows="3"
+              />
+              {errors.description && (
+                <div style={{ color: '#dc3545', fontSize: '12px', marginTop: '4px' }}>
+                  {errors.description}
+                </div>
+              )}
+            </div> */}
           </div>
 
-          <button className="save-btn" onClick={handleSave}>Save Details</button>
+          <div style={{ display: 'flex', gap: '12px', width: '100%', gridColumn: '1 / -1' }}>
+            {/* <button 
+              className="save-btn" 
+              onClick={handleBack}
+              style={{ background: '#f0f0f0', color: '#201F47', flex: '0 0 120px' }}
+            >
+              Back
+            </button> */}
+            <button className="save-btn" onClick={handleSave} style={{ flex: 1 }}>
+              Continue
+            </button>
+          </div>
         </div>
       </div>
     </div>

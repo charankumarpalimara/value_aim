@@ -30,18 +30,6 @@
   align-items: center;
 }
 
-/* Ensure Avatar image fits properly in circle */
-.profile-avatar-section :global(.ant-avatar) {
-  overflow: hidden;
-}
-
-.profile-avatar-section :global(.ant-avatar img) {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover !important;
-  object-position: center center !important;
-}
-
 .profile-form-section {
   flex: 1;
 }

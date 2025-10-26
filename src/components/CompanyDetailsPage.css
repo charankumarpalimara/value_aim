@@ -26,15 +26,15 @@
 }
 
 .company-title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 600;
   color: #201F47;
   text-align: center;
   margin-bottom: 8px;
 }
 
 .company-subtitle {
-  font-size: 16px;
+  font-size: 13px;
   color: #666;
   text-align: center;
   margin-bottom: 24px;
@@ -46,7 +46,7 @@
 }
 
 .icons-label {
-  font-size: 14px;
+  font-size: 12px;
   color: #666;
   margin-bottom: 16px;
 }
@@ -91,9 +91,20 @@
   margin-bottom: 32px;
 }
 
+.form-field-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field-wrapper.full-width {
+  grid-column: 1 / -1;
+}
+
 .form-input,
 .form-select,
 .form-textarea {
+  width: 100%;
   padding: 14px 16px;
   border: 2px solid #ddd;
   background-color: transparent;
@@ -102,12 +113,26 @@
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
   border-color: #201F47;
+  outline: none !important;
+}
+
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  border-color: #dc3545;
+}
+
+.form-input.error:focus,
+.form-select.error:focus,
+.form-textarea.error:focus {
+  border-color: #dc3545;
 }
 
 .form-input::placeholder,
@@ -116,7 +141,6 @@
 }
 
 .form-textarea {
-  grid-column: 1 / -1;
   resize: vertical;
   min-height: 80px;
 }
@@ -128,14 +152,21 @@
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .save-btn:hover {
   background: #15143a;
+}
+
+.save-btn:focus,
+.save-btn:active,
+.save-btn:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* ===== Responsive Design ===== */
@@ -162,10 +193,15 @@
   .company-card {
     padding: 20px;
     max-width: 100%;
+    border-radius: 12px;
   }
 
   .company-title {
     font-size: 24px;
+  }
+
+  .company-subtitle {
+    font-size: 14px;
   }
 
   .form-grid {
@@ -180,6 +216,25 @@
     font-size: 14px;
   }
 
+  /* Searchable dropdown adjustments */
+  .form-input[type="text"] {
+    width: 100%;
+  }
+
+  /* Dropdown container adjustments */
+  div[style*="position: relative"] {
+    width: 100%;
+  }
+
+  /* Dropdown menu mobile */
+  div[style*="position: absolute"][style*="background: white"] {
+    max-height: 200px !important;
+    overflow-y: auto;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
   .company-icons {
     gap: 16px;
   }
@@ -191,6 +246,11 @@
 
   .company-icon svg {
     font-size: 24px;
+  }
+
+  .save-btn {
+    padding: 12px 14px;
+    font-size: 15px;
   }
 }
 
@@ -205,10 +265,19 @@
 
   .company-card {
     padding: 16px;
+    border-radius: 10px;
   }
 
   .company-title {
     font-size: 20px;
+  }
+
+  .company-subtitle {
+    font-size: 13px;
+  }
+
+  .form-grid {
+    gap: 12px;
   }
 
   .form-input,
@@ -216,6 +285,12 @@
   .form-textarea {
     padding: 10px 12px;
     font-size: 13px;
+  }
+
+  /* Dropdown menu extra small screens */
+  div[style*="position: absolute"][style*="background: white"] {
+    max-height: 180px !important;
+    font-size: 12px;
   }
 
   .company-icons {
@@ -233,5 +308,10 @@
 
   .icons-label {
     font-size: 12px;
+  }
+
+  .save-btn {
+    padding: 11px 12px;
+    font-size: 14px;
   }
 }

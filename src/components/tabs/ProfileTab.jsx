@@ -23,85 +23,19 @@ const ProfileTab = () => {
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
-    // Load user data from backend API
-    const loadUserProfile = async () => {
-      try {
-        const token = localStorage.getItem('token') || localStorage.getItem('authToken');
-        if (!token) {
-          console.log('No token found');
-          return;
-        }
-
-        console.log('Loading user profile from backend...');
-        const response = await fetch(`${API_BASE_URL}/user/profile`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log('User profile loaded from backend:', result);
-          
-          if (result.success && result.data) {
-            console.log('=== SETTING USER PROFILE ===');
-            console.log('Full result.data:', result.data);
-            console.log('result.data.picture:', result.data.picture);
-            console.log('result.data type:', typeof result.data);
-            
-            setUserProfile(result.data);
-            form.setFieldsValue({
-              name: result.data.name,
-              email: result.data.email
-            });
-            
-            // Set image preview with the picture URL from backend
-            if (result.data.picture) {
-              console.log('Setting image preview to:', result.data.picture);
-              setImagePreview(result.data.picture);
-            } else {
-              console.log('No picture URL in result.data');
-            }
-            
-            // Update localStorage with fresh data
-            localStorage.setItem('user', JSON.stringify(result.data));
-          }
-        } else {
-          console.error('Failed to load user profile');
-          // Fallback to localStorage if API fails
-          const storedUser = localStorage.getItem('user');
-          if (storedUser) {
-            const user = JSON.parse(storedUser);
-            setUserProfile(user);
-            form.setFieldsValue({
-              name: user.name,
-              email: user.email
-            });
-            if (user.picture) {
-              setImagePreview(user.picture);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-        // Fallback to localStorage
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          setUserProfile(user);
-          form.setFieldsValue({
-            name: user.name,
-            email: user.email
-          });
-          if (user.picture) {
-            setImagePreview(user.picture);
-          }
-        }
+    // Load user data from localStorage or API
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setUserProfile(user);
+      form.setFieldsValue({
+        name: user.name,
+        email: user.email
+      });
+      if (user.picture) {
+        setImagePreview(user.picture);
       }
-    };
-
-    loadUserProfile();
+    }
   }, [form]);
 
   // Debug effect to monitor imagePreview changes
@@ -113,13 +47,6 @@ const ProfileTab = () => {
       console.log('ImagePreview is a URL:', imagePreview);
     }
   }, [imagePreview]);
-
-  // Debug effect to monitor userProfile changes
-  useEffect(() => {
-    console.log('=== USERPROFILE CHANGED ===');
-    console.log('userProfile:', userProfile);
-    console.log('userProfile.picture:', userProfile.picture);
-  }, [userProfile]);
 
   const handleProfileUpdate = async (values) => {
     console.log('=== HANDLE PROFILE UPDATE CALLED ===');
@@ -363,87 +290,24 @@ const ProfileTab = () => {
       >
         <div className="profile-content-wrapper">
           <div className="profile-avatar-section">
-            <div style={{ position: 'relative', width: '100px', height: '100px' }}>
-              {imagePreview || userProfile.picture || userProfile.avatar ? (
-                <img
-                  src={
-                    imagePreview 
-                      ? (imagePreview instanceof File ? URL.createObjectURL(imagePreview) : imagePreview)
-                      : (userProfile.picture || userProfile.avatar || null)
-                  }
-                  alt="Profile"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    objectFit: 'cover',
-                    objectPosition: 'center center',
-                    backgroundColor: '#201F47'
-                  }}
-                  onError={(e) => {
-                    console.error('Avatar image failed to load:', e.target.src);
-                    console.error('Trying fallback to userProfile.avatar:', userProfile.avatar);
-                    // Try to use avatar field if picture fails
-                    if (userProfile.avatar && e.target.src !== userProfile.avatar) {
-                      e.target.src = userProfile.avatar;
-                    }
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '50%',
-                    backgroundColor: '#201F47',
-                    color: 'white',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '40px',
-                    fontWeight: 'bold'
-                  }}
-                >
-                  {userProfile.name?.charAt(0)?.toUpperCase() || 'U'}
-                </div>
-              )}
-            </div>
+            <Avatar 
+              size={100} 
+              icon={<UserOutlined />}
+              src={
+                imagePreview 
+                  ? (imagePreview instanceof File ? URL.createObjectURL(imagePreview) : imagePreview)
+                  : (userProfile.picture || null)
+              }
+              style={{ 
+                backgroundColor: '#201F47',
+                marginBottom: '12px'
+              }}
+            >
+              {!imagePreview && !userProfile.picture && userProfile.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
             {/* Debug info */}
             <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px' }}>
-              Debug: imagePreview={imagePreview ? 'Yes' : 'No'}, picture={userProfile.picture || 'None'}, avatar={userProfile.avatar || 'None'}
-            </div>
-            {/* Debug picture URL */}
-            {userProfile.picture && (
-              <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px', wordBreak: 'break-all' }}>
-                Picture URL: {userProfile.picture}
-              </div>
-            )}
-            {userProfile.avatar && userProfile.avatar !== userProfile.picture && (
-              <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px', wordBreak: 'break-all' }}>
-                Avatar URL: {userProfile.avatar}
-              </div>
-            )}
-            {/* Test image loading */}
-            <div style={{ marginTop: '8px', padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '4px' }}>Test Image Load:</div>
-              {userProfile.picture && (
-                <img 
-                  src={userProfile.picture} 
-                  alt="test" 
-                  style={{ maxWidth: '50px', maxHeight: '50px', border: '1px solid #ccc' }}
-                  onLoad={() => console.log('✅ Image loaded successfully:', userProfile.picture)}
-                  onError={() => console.error('❌ Image failed to load:', userProfile.picture)}
-                />
-              )}
-              {!userProfile.picture && userProfile.avatar && (
-                <img 
-                  src={userProfile.avatar} 
-                  alt="test" 
-                  style={{ maxWidth: '50px', maxHeight: '50px', border: '1px solid #ccc' }}
-                  onLoad={() => console.log('✅ Avatar image loaded successfully:', userProfile.avatar)}
-                  onError={() => console.error('❌ Avatar image failed to load:', userProfile.avatar)}
-                />
-              )}
+              Debug: {imagePreview ? (imagePreview instanceof File ? 'File' : 'URL') : 'None'}
             </div>
             {imagePreview && (
               <div style={{ 

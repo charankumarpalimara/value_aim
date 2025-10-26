@@ -218,7 +218,8 @@ const NotesTab = () => {
       <Box sx={{ 
         padding: isMobile ? 1 : isTablet ? 2 : 3,
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }}>
         <Box
           display="flex"
@@ -236,12 +237,13 @@ const NotesTab = () => {
             onChange={handleSearchChange}
             prefix={<SearchIcon style={{ color: "rgba(0,0,0,.25)" }} />}
             style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               height: isMobile ? "40px" : "34px",
               width: isMobile ? "100%" : isTablet ? "60%" : "50%",
               borderRadius: "3px",
               border: "none",
               boxShadow: "none",
-              fontSize: isMobile ? "14px" : "inherit",
+              fontSize: isMobile ? "13px" : "13px",
             }}
           />
           <Button
@@ -250,13 +252,14 @@ const NotesTab = () => {
             className="form-button"
             icon={<AddIcon />}
             style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               background: blueAccent,
               color: "#fff",
               height: isMobile ? "40px" : "34px",
               borderRadius: "4px",
               textTransform: "none",
               width: isMobile ? "100%" : "auto",
-              fontSize: isMobile ? "14px" : "inherit",
+              fontSize: isMobile ? "13px" : "13px",
             }}
           >
             Create New
@@ -293,9 +296,10 @@ const NotesTab = () => {
               <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
                 <Typography
                   sx={{ 
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                     fontWeight: "500", 
                     marginBottom: 1, 
-                    fontSize: isMobile ? "14px" : "16px",
+                    fontSize: isMobile ? "12px" : "13px",
                     lineHeight: isMobile ? "1.3" : "1.5",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -308,7 +312,8 @@ const NotesTab = () => {
                   {note.name}
                 </Typography>
                 <Typography sx={{ 
-                  fontSize: isMobile ? "12px" : "14px",
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                  fontSize: isMobile ? "11px" : "12px",
                   lineHeight: isMobile ? "1.4" : "1.6",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -335,8 +340,9 @@ const NotesTab = () => {
                 <Typography 
                   variant="body2" 
                   sx={{ 
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                     color: "text.secondary",
-                    fontSize: isMobile ? "11px" : "12px",
+                    fontSize: isMobile ? "11px" : "11px",
                   }}
                 >
                   {note.date}
@@ -369,8 +375,10 @@ const NotesTab = () => {
           <AntdTypography.Title 
             level={5} 
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 12 : 16,
-              fontSize: isMobile ? "16px" : "18px"
+              fontSize: isMobile ? "13px" : "13px",
+              fontWeight: 500
             }}
           >
             Edit Note
@@ -380,16 +388,19 @@ const NotesTab = () => {
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 12 : 16,
-              fontSize: isMobile ? "14px" : "inherit"
+              fontSize: isMobile ? "13px" : "13px"
             }}
             size={isMobile ? "middle" : "large"}
           />
           <AntdTypography.Title 
             level={5} 
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 12 : 16,
-              fontSize: isMobile ? "16px" : "18px"
+              fontSize: isMobile ? "13px" : "13px",
+              fontWeight: 500
             }}
           >
             Description
@@ -400,8 +411,9 @@ const NotesTab = () => {
             onChange={(e) => setEditDescription(e.target.value)}
             rows={isMobile ? 3 : 4}
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 16 : 24,
-              fontSize: isMobile ? "14px" : "inherit"
+              fontSize: isMobile ? "13px" : "13px"
             }}
           />
           <div
@@ -424,11 +436,12 @@ const NotesTab = () => {
                 onClick={handleEditSubmit}
                 className="form-button"
                 style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                   padding: isMobile ? "8px 24px" : "8px 32px",
                   background: blueAccent,
                   color: "#fff",
                   width: isMobile ? "100%" : "auto",
-                  fontSize: isMobile ? "14px" : "inherit",
+                  fontSize: isMobile ? "13px" : "13px",
                 }}
                 loading={isLoading}
               >
@@ -441,8 +454,9 @@ const NotesTab = () => {
                 onClick={() => setEditModalOpen(false)}
                 className="form-button"
                 sx={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                   width: isMobile ? "100%" : "auto",
-                  fontSize: isMobile ? "14px" : "inherit",
+                  fontSize: isMobile ? "13px" : "13px",
                 }}
               >
                 Cancel
@@ -455,8 +469,9 @@ const NotesTab = () => {
               className="form-button"
               startIcon={<DeleteIcon />}
               sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                 width: isMobile ? "100%" : "auto",
-                fontSize: isMobile ? "14px" : "inherit",
+                fontSize: isMobile ? "13px" : "13px",
               }}
             >
               Delete
@@ -480,8 +495,10 @@ const NotesTab = () => {
           <AntdTypography.Title 
             level={5} 
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 10 : 7,
-              fontSize: isMobile ? "16px" : "18px"
+              fontSize: isMobile ? "13px" : "13px",
+              fontWeight: 500
             }}
           >
             Enter Name
@@ -491,16 +508,19 @@ const NotesTab = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 12 : 16,
-              fontSize: isMobile ? "14px" : "inherit"
+              fontSize: isMobile ? "13px" : "13px"
             }}
             size={isMobile ? "middle" : "large"}
           />
           <AntdTypography.Title 
             level={5} 
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 10 : 7,
-              fontSize: isMobile ? "16px" : "18px"
+              fontSize: isMobile ? "13px" : "13px",
+              fontWeight: 500
             }}
           >
             Description
@@ -511,8 +531,9 @@ const NotesTab = () => {
             onChange={(e) => setDescription(e.target.value)}
             rows={isMobile ? 3 : 4}
             style={{ 
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
               marginBottom: isMobile ? 16 : 24,
-              fontSize: isMobile ? "14px" : "inherit"
+              fontSize: isMobile ? "13px" : "13px"
             }}
           />
           <div style={{ 
@@ -525,10 +546,11 @@ const NotesTab = () => {
               onClick={handleSubmit}
               className="form-button"
               sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                 background: blueAccent,
                 color: "#fff",
                 width: isMobile ? "100%" : "auto",
-                fontSize: isMobile ? "14px" : "inherit",
+                fontSize: isMobile ? "13px" : "13px",
               }}
             >
               Submit
@@ -539,8 +561,9 @@ const NotesTab = () => {
               onClick={handleCloseModal}
               className="form-button"
               sx={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                 width: isMobile ? "100%" : "auto",
-                fontSize: isMobile ? "14px" : "inherit",
+                fontSize: isMobile ? "13px" : "13px",
               }}
             >
               Cancel

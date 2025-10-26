@@ -1,0 +1,437 @@
+/* Mobile Responsive Styles for Modals */
+
+/* Global Modal Overrides to Prevent Double Scrollbars */
+.ant-modal-mask {
+  overflow: hidden !important;
+}
+
+.ant-modal-wrap {
+  overflow: hidden !important;
+}
+
+/* Desktop Modal Styles - Default smaller width */
+.service-manager-modal .ant-modal {
+  margin: 0 !important;
+  width: 50% !important;
+  max-width: 600px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  position: fixed !important;
+}
+
+.service-manager-modal .ant-modal-header {
+  padding: 16px 24px !important;
+}
+
+.service-manager-modal .ant-modal-header .ant-modal-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.service-manager-modal .ant-modal-content {
+  max-height: calc(100vh - 48px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.service-manager-modal .ant-modal-body {
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto !important;
+  padding: 20px !important;
+  flex: 1 !important;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin !important;
+  scrollbar-color: #d9d9d9 transparent !important;
+}
+
+.service-manager-modal .ant-modal-body::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.service-manager-modal .ant-modal-body::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9 !important;
+  border-radius: 3px !important;
+}
+
+.service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf !important;
+}
+
+/* Prevent any other scrollable elements within the modal */
+.service-manager-modal .ant-modal-body .ant-table,
+.organization-details-modal .ant-modal-body .ant-table {
+  overflow: visible !important;
+}
+
+.service-manager-modal .ant-modal-body .ant-table-body,
+.organization-details-modal .ant-modal-body .ant-table-body {
+  overflow: visible !important;
+}
+
+/* Ensure table doesn't create its own scrollbars */
+.service-manager-modal .ant-table-container,
+.organization-details-modal .ant-table-container {
+  overflow: visible !important;
+}
+
+.organization-details-modal .ant-modal {
+  margin: 0 !important;
+  width: 45% !important;
+  max-width: 550px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  position: fixed !important;
+}
+
+.organization-details-modal .ant-modal-header {
+  padding: 16px 24px !important;
+}
+
+.organization-details-modal .ant-modal-header .ant-modal-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+.organization-details-modal .ant-modal-content {
+  max-height: calc(100vh - 48px) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.organization-details-modal .ant-modal-body {
+  max-height: calc(100vh - 140px) !important;
+  overflow-y: auto !important;
+  padding: 20px !important;
+  flex: 1 !important;
+  /* Custom scrollbar styling */
+  scrollbar-width: thin !important;
+  scrollbar-color: #d9d9d9 transparent !important;
+}
+
+.organization-details-modal .ant-modal-body::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.organization-details-modal .ant-modal-body::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb {
+  background-color: #d9d9d9 !important;
+  border-radius: 3px !important;
+}
+
+.organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: #bfbfbf !important;
+}
+
+/* Nested Modal Fixes - Prevent Double Scrollbars */
+.service-manager-modal .ant-modal-body .ant-modal {
+  margin: 0 !important;
+}
+
+.service-manager-modal .ant-modal-body .ant-modal .ant-modal-content {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.service-manager-modal .ant-modal-body .ant-modal .ant-modal-body {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Ensure nested modal content doesn't create additional scrollbars */
+.service-manager-modal .ant-modal-body .ant-form {
+  overflow: visible !important;
+}
+
+/* Hide scrollbars on modal content wrapper to prevent double scrollbars */
+.service-manager-modal .ant-modal-content,
+.organization-details-modal .ant-modal-content {
+  overflow: hidden !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.service-manager-modal .ant-modal-content::-webkit-scrollbar,
+.organization-details-modal .ant-modal-content::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Force only modal body to have scrollbar */
+.service-manager-modal .ant-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.organization-details-modal .ant-modal-body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Hide scrollbars on any nested elements that might cause double scrollbars */
+.service-manager-modal .ant-modal-body * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.service-manager-modal .ant-modal-body *::-webkit-scrollbar {
+  display: none !important;
+}
+
+.organization-details-modal .ant-modal-body * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.organization-details-modal .ant-modal-body *::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  /* Modal adjustments - Larger mobile popups */
+  .service-manager-modal .ant-modal {
+    margin: 8px !important;
+    max-width: calc(100vw - 16px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 95% !important;
+    position: fixed !important;
+  }
+  
+  .organization-details-modal .ant-modal {
+    margin: 8px !important;
+    max-width: calc(100vw - 16px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 95% !important;
+    position: fixed !important;
+  }
+  
+  /* Force mobile width override */
+  .ant-modal.service-manager-modal {
+    width: 95% !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+  
+  .ant-modal.organization-details-modal {
+    width: 95% !important;
+    max-width: calc(100vw - 16px) !important;
+  }
+
+  .service-manager-modal .ant-modal-content,
+  .organization-details-modal .ant-modal-content {
+    max-height: calc(100vh - 16px) !important;
+  }
+
+  .service-manager-modal .ant-modal-body,
+  .organization-details-modal .ant-modal-body {
+    max-height: calc(100vh - 80px) !important;
+    padding: 16px !important;
+    /* Custom scrollbar styling for mobile */
+    scrollbar-width: thin !important;
+    scrollbar-color: #d9d9d9 transparent !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar {
+    width: 6px !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-track,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb {
+    background-color: #d9d9d9 !important;
+    border-radius: 3px !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb:hover,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #bfbfbf !important;
+  }
+
+  /* Header adjustments */
+  .service-manager-modal .ant-modal-header,
+  .organization-details-modal .ant-modal-header {
+    padding: 12px 16px !important;
+  }
+
+  .service-manager-modal .ant-modal-title,
+  .organization-details-modal .ant-modal-title {
+    font-size: 16px !important;
+  }
+
+  /* Table responsive adjustments */
+  .service-manager-modal .ant-table {
+    font-size: 12px !important;
+  }
+
+  .service-manager-modal .ant-table-thead > tr > th {
+    padding: 8px 4px !important;
+    font-size: 11px !important;
+  }
+
+  .service-manager-modal .ant-table-tbody > tr > td {
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+  }
+
+  .service-manager-modal .ant-tag {
+    font-size: 10px !important;
+    padding: 1px 4px !important;
+  }
+
+  /* Form adjustments */
+  .service-manager-modal .ant-form-item,
+  .organization-details-modal .ant-form-item {
+    margin-bottom: 16px !important;
+  }
+
+  .service-manager-modal .ant-input,
+  .service-manager-modal .ant-select,
+  .organization-details-modal .ant-input,
+  .organization-details-modal .ant-select {
+    font-size: 14px !important;
+  }
+
+  /* Button adjustments */
+  .service-manager-modal .ant-btn,
+  .organization-details-modal .ant-btn {
+    font-size: 14px !important;
+    padding: 4px 12px !important;
+  }
+
+  /* Modal form layout adjustments */
+  .service-manager-modal .ant-modal-body form > div[style*="display: flex"] {
+    flex-direction: column !important;
+  }
+
+  .service-manager-modal .ant-modal-body form > div[style*="display: flex"] > * {
+    width: 100% !important;
+    flex: unset !important;
+  }
+
+  /* Card adjustments */
+  .organization-details-modal .ant-card {
+    margin: 0 !important;
+  }
+
+  .organization-details-modal .ant-card-body {
+    padding: 16px !important;
+  }
+
+  /* Row/Col adjustments for mobile */
+  .organization-details-modal .ant-row {
+    margin: 0 !important;
+  }
+
+  .organization-details-modal .ant-col {
+    padding: 0 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Button container adjustments */
+  .organization-details-modal .ant-form-item:last-child {
+    margin-bottom: 0 !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens - Even larger mobile popups */
+  .service-manager-modal .ant-modal {
+    margin: 4px !important;
+    max-width: calc(100vw - 8px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 98% !important;
+    position: fixed !important;
+  }
+  
+  .organization-details-modal .ant-modal {
+    margin: 4px !important;
+    max-width: calc(100vw - 8px) !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 98% !important;
+    position: fixed !important;
+  }
+  
+  /* Force small mobile width override */
+  .ant-modal.service-manager-modal {
+    width: 98% !important;
+    max-width: calc(100vw - 8px) !important;
+  }
+  
+  .ant-modal.organization-details-modal {
+    width: 98% !important;
+    max-width: calc(100vw - 8px) !important;
+  }
+
+  .service-manager-modal .ant-modal-body,
+  .organization-details-modal .ant-modal-body {
+    padding: 12px !important;
+    max-height: calc(100vh - 60px) !important;
+    /* Custom scrollbar styling for small mobile */
+    scrollbar-width: thin !important;
+    scrollbar-color: #d9d9d9 transparent !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar {
+    width: 6px !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-track,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb {
+    background-color: #d9d9d9 !important;
+    border-radius: 3px !important;
+  }
+
+  .service-manager-modal .ant-modal-body::-webkit-scrollbar-thumb:hover,
+  .organization-details-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #bfbfbf !important;
+  }
+
+  .service-manager-modal .ant-modal-header,
+  .organization-details-modal .ant-modal-header {
+    padding: 8px 12px !important;
+  }
+
+  .service-manager-modal .ant-modal-title,
+  .organization-details-modal .ant-modal-title {
+    font-size: 14px !important;
+  }
+
+  /* Table extra small adjustments */
+  .service-manager-modal .ant-table-thead > tr > th {
+    padding: 6px 2px !important;
+    font-size: 10px !important;
+  }
+
+  .service-manager-modal .ant-table-tbody > tr > td {
+    padding: 4px 2px !important;
+    font-size: 10px !important;
+  }
+
+  .service-manager-modal .ant-tag {
+    font-size: 9px !important;
+    padding: 1px 2px !important;
+  }
+}

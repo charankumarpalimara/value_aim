@@ -1,74 +1,23 @@
 import React, { useState } from 'react';
-import { Table, Button, Input, Select, Tag, Space, Popconfirm, Form, Modal, Switch } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined, SearchOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message } from 'antd';
+import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
+import { serviceAPI } from '../utils/api';
 import './ServiceDetailsForm.css';
+import logo from '../assets/Amplify-Value-as-subtitle-3.png';
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const ServiceDetailsForm = ({ onNext, onBack }) => {
-  const [dataSource, setDataSource] = useState([
-    {
-      key: '1',
-      interests: ['Cloud Migration'],
-      keywords: ['Cost Savings', 'Agility'],
-      adjacencyExpansion: ['Cloud Security', 'FinOps'],
-      targetIndustry: [],
-      functionType: [],
-      targetSegment: ['Small', 'Medium', 'Large', 'Startups'],
-      offerStatus: 'Active',
-      description: ''
-    },
-    {
-      key: '2',
-      interests: ['AI/ML Solutions'],
-      keywords: ['Revenue Growth', 'Innovation'],
-      adjacencyExpansion: ['AI Ops', 'Intelligent Automation'],
-      targetIndustry: [],
-      functionType: [],
-      targetSegment: [],
-      offerStatus: 'Active',
-      description: ''
-    },
-    {
-      key: '3',
-      interests: ['Cybersecurity Services'],
-      keywords: ['Risk Reduction', 'Compliance'],
-      adjacencyExpansion: ['Managed Security', 'Zero Trust'],
-      targetIndustry: [],
-      functionType: [],
-      targetSegment: [],
-      offerStatus: 'Active',
-      description: ''
-    },
-    {
-      key: '4',
-      interests: ['Voice AI'],
-      keywords: ['Customer Experience', 'Revenue Growth'],
-      adjacencyExpansion: ['Conversational Analytics', 'Multilingual Bots'],
-      targetIndustry: [],
-      functionType: [],
-      targetSegment: [],
-      offerStatus: 'Active',
-      description: ''
-    },
-    {
-      key: '5',
-      interests: ['Data Platform'],
-      keywords: ['Decision Making', 'Innovation'],
-      adjacencyExpansion: ['AI/ML Use Cases', 'Data Governance'],
-      targetIndustry: [],
-      functionType: [],
-      targetSegment: [],
-      offerStatus: 'Active',
-      description: ''
-    }
-  ]);
+  const navigate = useNavigate();
+  const [dataSource, setDataSource] = useState([]);
   const [form] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [addForm] = Form.useForm();
-  const [editingKey, setEditingKey] = useState('');
   const [searchText, setSearchText] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
 
   const interestList = [
     'Cloud Migration',
@@ -172,38 +121,36 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     'Data Governance'
   ];
 
-  const isEditing = (record) => record.key === editingKey;
+  const isEditingCell = (record, dataIndex) => 
+    isEditMode && editingCell.key === record.key && editingCell.dataIndex === dataIndex;
 
-  const edit = (record) => {
+  const editCell = (record, dataIndex) => {
+    if (!isEditMode) return; // Only allow editing if edit mode is on
     form.setFieldsValue({
-      ...record,
+      [dataIndex]: record[dataIndex],
     });
-    setEditingKey(record.key);
+    setEditingCell({ key: record.key, dataIndex });
   };
 
-  const cancel = () => {
-    setEditingKey('');
-  };
-
-  const save = async (key) => {
+  const saveCell = async (key, dataIndex) => {
     try {
-      const row = await form.validateFields();
+      const values = await form.validateFields([dataIndex]);
       const newData = [...dataSource];
       const index = newData.findIndex((item) => key === item.key);
       if (index > -1) {
         const item = newData[index];
-        newData.splice(index, 1, { ...item, ...row });
+        newData.splice(index, 1, { ...item, ...values });
         setDataSource(newData);
-        setEditingKey('');
+        setEditingCell({ key: '', dataIndex: '' });
       }
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
   };
 
-  const handleDelete = (key) => {
-    const newData = dataSource.filter((item) => item.key !== key);
-    setDataSource(newData);
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    setEditingCell({ key: '', dataIndex: '' });
   };
 
   const showModal = () => {
@@ -230,9 +177,56 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsModalVisible(false);
   };
 
-  const handleSubmit = () => {
-    console.log('Service Data:', dataSource);
-    onNext({ services: dataSource });
+  const handleSubmit = async () => {
+    try {
+      console.log('Service Data:', dataSource);
+      
+      // Check if there's any data to save
+      if (dataSource.length === 0) {
+        console.log('No service data to save, proceeding with empty data');
+        message.info('No services to save, proceeding to next step');
+        
+        // Save empty data to session storage for form flow
+        const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
+        formFlowData.serviceDetails = { services: [] };
+        sessionStorage.setItem('formFlowData', JSON.stringify(formFlowData));
+        
+        // Call the original onNext function if provided
+        if (onNext) {
+          onNext({ services: [] });
+        } else {
+          // Navigate to results page
+          navigate('/results');
+        }
+        return;
+      }
+      
+      // Save services to backend only if there's data
+      const response = await serviceAPI.bulkCreate(dataSource);
+      
+      if (response.success) {
+        console.log('Services saved successfully:', response.data);
+        message.success('Services saved successfully!');
+        
+        // Also save to session storage for form flow
+        const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
+        formFlowData.serviceDetails = { services: dataSource };
+        sessionStorage.setItem('formFlowData', JSON.stringify(formFlowData));
+        
+        // Call the original onNext function if provided
+        if (onNext) {
+          onNext({ services: dataSource });
+        } else {
+          // Navigate to results page
+          navigate('/results');
+        }
+      } else {
+        throw new Error(response.message || 'Failed to save services');
+      }
+    } catch (error) {
+      console.error('Error saving services:', error);
+      message.error('Failed to save services. Please try again.');
+    }
   };
 
   // Filter data based on search text
@@ -257,11 +251,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'interests',
       key: 'interests',
       width: 180,
-      editable: true,
-      filters: interestList.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.interests?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.interests?.join(', ') || '';
+        const bStr = b.interests?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (interests, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'interests');
         return editable ? (
           <Form.Item
             name="interests"
@@ -273,6 +269,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               style={{ width: '100%' }}
               placeholder="Select or type offerings"
               tokenSeparators={[',']}
+              autoFocus
+              onBlur={() => saveCell(record.key, 'interests')}
+              onPressEnter={() => saveCell(record.key, 'interests')}
             >
               {interestList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -280,9 +279,19 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'interests')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
+            </Space>
+          </div>
         );
       },
     },
@@ -291,11 +300,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'keywords',
       key: 'keywords',
       width: 150,
-      editable: true,
-      filters: keywordList.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.keywords?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.keywords?.join(', ') || '';
+        const bStr = b.keywords?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (keywords, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'keywords');
         return editable ? (
           <Form.Item
             name="keywords"
@@ -307,6 +318,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               style={{ width: '100%' }}
               placeholder="Select or type keywords"
               tokenSeparators={[',']}
+              autoFocus
+              onBlur={() => saveCell(record.key, 'keywords')}
+              onPressEnter={() => saveCell(record.key, 'keywords')}
             >
               {keywordList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -314,9 +328,19 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'keywords')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
+            </Space>
+          </div>
         );
       },
     },
@@ -325,11 +349,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'adjacencyExpansion',
       key: 'adjacencyExpansion',
       width: 150,
-      editable: true,
-      filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.adjacencyExpansion?.join(', ') || '';
+        const bStr = b.adjacencyExpansion?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (adjacency, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'adjacencyExpansion');
         return editable ? (
           <Form.Item
             name="adjacencyExpansion"
@@ -340,6 +366,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               mode="multiple"
               style={{ width: '100%' }}
               placeholder="Select adjacency"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'adjacencyExpansion')}
             >
               {adjacencyExpansionList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -347,9 +375,19 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'adjacencyExpansion')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
+            </Space>
+          </div>
         );
       },
     },
@@ -358,11 +396,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'targetIndustry',
       key: 'targetIndustry',
       width: 150,
-      editable: true,
-      filters: industryOptions.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.targetIndustry?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.targetIndustry?.join(', ') || '';
+        const bStr = b.targetIndustry?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (industries, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'targetIndustry');
         return editable ? (
           <Form.Item
             name="targetIndustry"
@@ -373,6 +413,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               mode="multiple"
               style={{ width: '100%' }} 
               placeholder="Select industries"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'targetIndustry')}
             >
               {industryOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -380,11 +422,21 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {Array.isArray(industries) ? industries.map(industry => (
-              <Tag key={industry} color="cyan">{industry}</Tag>
-            )) : (industries || '-')}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'targetIndustry')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
+                <Tag key={industry} color="cyan">{industry}</Tag>
+              )) : '-'}
+            </Space>
+          </div>
         );
       },
     },
@@ -393,11 +445,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'functionType',
       key: 'functionType',
       width: 150,
-      editable: true,
-      filters: functionOptions.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.functionType?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.functionType?.join(', ') || '';
+        const bStr = b.functionType?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (functions, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'functionType');
         return editable ? (
           <Form.Item
             name="functionType"
@@ -408,6 +462,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               mode="multiple"
               style={{ width: '100%' }} 
               placeholder="Select functions"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'functionType')}
             >
               {functionOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -415,11 +471,21 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {Array.isArray(functions) ? functions.map(func => (
-              <Tag key={func} color="magenta">{func}</Tag>
-            )) : (functions || '-')}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'functionType')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
+                <Tag key={func} color="magenta">{func}</Tag>
+              )) : '-'}
+            </Space>
+          </div>
         );
       },
     },
@@ -428,11 +494,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'targetSegment',
       key: 'targetSegment',
       width: 150,
-      editable: true,
-      filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.targetSegment?.includes(value),
+      sorter: (a, b) => {
+        const aStr = a.targetSegment?.join(', ') || '';
+        const bStr = b.targetSegment?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
       render: (text, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'targetSegment');
         return editable ? (
           <Form.Item
             name="targetSegment"
@@ -443,6 +511,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               mode="multiple"
               style={{ width: '100%' }} 
               placeholder="Select segments"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'targetSegment')}
             >
               {targetSegmentOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
@@ -450,48 +520,76 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             </Select>
           </Form.Item>
         ) : (
-          <Space wrap>
-            {Array.isArray(text) ? text.map(segment => (
-              <Tag key={segment} color="orange">{segment}</Tag>
-            )) : (text || '-')}
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'targetSegment')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Space wrap>
+              {Array.isArray(text) && text.length > 0 ? text.map(segment => (
+                <Tag key={segment} color="orange">{segment}</Tag>
+              )) : '-'}
+            </Space>
+          </div>
         );
       },
     },
     {
-      title: 'Offer Status',
+      title: 'Status',
       dataIndex: 'offerStatus',
       key: 'offerStatus',
       width: 120,
-      editable: true,
+      sorter: (a, b) => (a.offerStatus || '').localeCompare(b.offerStatus || ''),
       filters: [
         { text: 'Active', value: 'Active' },
         { text: 'Inactive', value: 'Inactive' }
       ],
       onFilter: (value, record) => record.offerStatus === value,
       render: (text, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'offerStatus');
         return editable ? (
           <Form.Item
             name="offerStatus"
             style={{ margin: 0 }}
             rules={[{ required: false }]}
-            valuePropName="checked"
-            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
-            getValueProps={(value) => ({ checked: value === 'Active' })}
           >
             <Space>
               <Switch 
                 checkedChildren="Active" 
                 unCheckedChildren="Inactive"
-                onChange={(checked) => {
-                  form.setFieldsValue({ offerStatus: checked ? 'Active' : 'Inactive' });
+                checked={record.offerStatus === 'Active'}
+                autoFocus
+                onChange={async (checked) => {
+                  const newStatus = checked ? 'Active' : 'Inactive';
+                  const newData = [...dataSource];
+                  const index = newData.findIndex((item) => record.key === item.key);
+                  if (index > -1) {
+                    newData[index].offerStatus = newStatus;
+                    setDataSource(newData);
+                    setEditingCell({ key: '', dataIndex: '' });
+                  }
                 }}
               />
             </Space>
           </Form.Item>
         ) : (
-          <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>
+          <div 
+            onClick={() => editCell(record, 'offerStatus')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>
+          </div>
         );
       },
     },
@@ -500,86 +598,66 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       dataIndex: 'description',
       key: 'description',
       width: 200,
-      editable: true,
+      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
       render: (text, record) => {
-        const editable = isEditing(record);
+        const editable = isEditingCell(record, 'description');
         return editable ? (
           <Form.Item
             name="description"
             style={{ margin: 0 }}
             rules={[{ required: false }]}
           >
-            <TextArea rows={2} placeholder="Enter description" />
+            <TextArea 
+              rows={2} 
+              placeholder="Enter description"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'description')}
+            />
           </Form.Item>
-        ) : (text || '-');
-      },
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      fixed: 'right',
-      render: (_, record) => {
-        const editable = isEditing(record);
-        return editable ? (
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-            <Button
-              type="link"
-              icon={<SaveOutlined />}
-              onClick={() => save(record.key)}
-              size="small"
-              style={{ padding: 0 }}
-            >
-              Save
-            </Button>
-            <Button
-              type="link"
-              icon={<CloseOutlined />}
-              onClick={cancel}
-              size="small"
-              style={{ padding: 0 }}
-            >
-              Cancel
-            </Button>
-          </Space>
         ) : (
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              disabled={editingKey !== ''}
-              onClick={() => edit(record)}
-              size="small"
-              style={{ padding: 0 }}
-            >
-              Edit
-            </Button>
-            <Popconfirm
-              title="Sure to delete?"
-              onConfirm={() => handleDelete(record.key)}
-            >
-              <Button
-                type="link"
-                icon={<DeleteOutlined />}
-                danger
-                size="small"
-                style={{ padding: 0 }}
-              >
-                Delete
-              </Button>
-            </Popconfirm>
-          </Space>
+          <div 
+            onClick={() => editCell(record, 'description')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            {text || '-'}
+          </div>
         );
       },
     },
+    // {
+    //   title: 'Status',
+    //   key: 'status',
+    //   width: 100,
+    //   // fixed: 'right',
+    //   sorter: (a, b) => {
+    //     // Sort by modification status - you can customize this logic
+    //     return 0; // All rows have same status for now
+    //   },
+    //   render: (_, record) => (
+    //     <Tag color="blue">Saved</Tag>
+    //   ),
+    // },
   ];
 
   return (
-    <div className="service-details-container">
-      <div className="service-details-header">
-        <h2>Service Details</h2>
-        <p>Manage your service information in the table below</p>
+    <div className="service-details-page">
+      {/* Header */}
+      <div className="service-header">
+        <div className="service-logo-section">
+          <img src={logo} alt="Logo" className="service-logo-image" />
+        </div>
       </div>
+
+      <div className="service-details-container">
+        <div className="service-details-header">
+          <h2>Service Details</h2>
+          <p>Manage your service information in the table below</p>
+        </div>
 
       <div className="service-details-actions" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
         <Input
@@ -590,13 +668,22 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           style={{ maxWidth: 400 }}
           allowClear
         />
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={showModal}
-        >
-          Add New Service
-        </Button>
+        <Space>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showModal}
+          >
+            Add New Service
+          </Button>
+          <Button
+            type={isEditMode ? "default" : "primary"}
+            icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
+            onClick={toggleEditMode}
+          >
+            {isEditMode ? 'Done Editing' : 'Edit Services'}
+          </Button>
+        </Space>
       </div>
 
       <Form form={form} component={false}>
@@ -621,136 +708,154 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
-        width={600}
+        width={800}
         okText="Add"
         cancelText="Cancel"
       >
         <Form form={addForm} layout="vertical">
-          <Form.Item
-            name="interests"
-            label="Product/Service Offerings"
-            rules={[{ required: true, message: 'Please select or enter offerings' }]}
-          >
-            <Select
-              mode="tags"
-              placeholder="Select from list or type custom offerings"
-              style={{ width: '100%' }}
-              allowClear
-              tokenSeparators={[',']}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <Form.Item
+              name="interests"
+              label="Product/Service Offerings"
+              rules={[{ required: true, message: 'Please select or enter offerings' }]}
+              style={{ flex: 1 }}
             >
-              {interestList.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select
+                mode="tags"
+                placeholder="Select from list or type custom offerings"
+                style={{ width: '100%' }}
+                allowClear
+                tokenSeparators={[',']}
+              >
+                {interestList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            name="keywords"
-            label="Keywords"
-          >
-            <Select
-              mode="tags"
-              placeholder="Select from list or type custom keywords"
-              style={{ width: '100%' }}
-              allowClear
-              tokenSeparators={[',']}
+            <Form.Item
+              name="keywords"
+              label="Keywords"
+              style={{ flex: 1 }}
             >
-              {keywordList.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select
+                mode="tags"
+                placeholder="Select from list or type custom keywords"
+                style={{ width: '100%' }}
+                allowClear
+                tokenSeparators={[',']}
+              >
+                {keywordList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
 
-          <Form.Item
-            name="adjacencyExpansion"
-                    label="Adjacency Expansion"
-          >
-                <Select
-              mode="multiple"
-              placeholder="Select adjacency expansion"
-              style={{ width: '100%' }}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <Form.Item
+              name="adjacencyExpansion"
+              label="Adjacency Expansion"
+              style={{ flex: 1 }}
             >
-              {adjacencyExpansionList.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select
+                mode="multiple"
+                placeholder="Select adjacency expansion"
+                style={{ width: '100%' }}
+              >
+                {adjacencyExpansionList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            name="targetIndustry"
-            label="Target Industry"
-          >
-            <Select 
-              mode="multiple"
-              placeholder="Select target industries" 
-              style={{ width: '100%' }}
+            <Form.Item
+              name="targetIndustry"
+              label="Target Industry"
+              style={{ flex: 1 }}
             >
-              {industryOptions.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select 
+                mode="multiple"
+                placeholder="Select target industries" 
+                style={{ width: '100%' }}
+              >
+                {industryOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
 
-          <Form.Item
-            name="functionType"
-            label="Function"
-          >
-            <Select 
-              mode="multiple"
-              placeholder="Select functions" 
-              style={{ width: '100%' }}
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <Form.Item
+              name="functionType"
+              label="Function"
+              style={{ flex: 1 }}
             >
-              {functionOptions.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-              ))}
-            </Select>
-          </Form.Item>
+              <Select 
+                mode="multiple"
+                placeholder="Select functions" 
+                style={{ width: '100%' }}
+              >
+                {functionOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
 
-          <Form.Item
-            name="targetSegment"
-            label="Target Segment(s)"
-          >
-                <Select
-              mode="multiple"
-              placeholder="Select target segments" 
-              style={{ width: '100%' }}
+            <Form.Item
+              name="targetSegment"
+              label="Target Segment(s)"
+              style={{ flex: 1 }}
             >
-              {targetSegmentOptions.map(item => (
-                <Option key={item} value={item}>{item}</Option>
-                  ))}
-                </Select>
-          </Form.Item>
+              <Select
+                mode="multiple"
+                placeholder="Select target segments" 
+                style={{ width: '100%' }}
+              >
+                {targetSegmentOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
 
-          <Form.Item
-            name="offerStatus"
-            label="Offer Status"
-            valuePropName="checked"
-            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
-            getValueProps={(value) => ({ checked: value === 'Active' })}
-            initialValue="Active"
-          >
-            <Switch 
-              checkedChildren="Active" 
-              unCheckedChildren="Inactive"
-            />
-          </Form.Item>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <Form.Item
+              name="offerStatus"
+              label="Offer Status"
+              valuePropName="checked"
+              getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
+              getValueProps={(value) => ({ checked: value === 'Active' })}
+              initialValue="Active"
+              style={{ flex: 1 }}
+            >
+              <Switch 
+                checkedChildren="Active" 
+                unCheckedChildren="Inactive"
+              />
+            </Form.Item>
+
+            <div style={{ flex: 1 }}></div>
+          </div>
 
           <Form.Item
             name="description"
-                label="Description"
+            label="Description"
           >
             <TextArea rows={3} placeholder="Enter description" />
           </Form.Item>
         </Form>
       </Modal>
 
-      <div className="service-details-footer">
-        <Button onClick={onBack} size="large">
-              Back
-            </Button>
-        <Button type="primary" onClick={handleSubmit} size="large">
-              Continue
-            </Button>
+        <div className="service-details-footer">
+          <Button onClick={onBack} size="large">
+            Back
+          </Button>
+          <Button type="primary" onClick={handleSubmit} size="large">
+            Continue
+          </Button>
+        </div>
       </div>
     </div>
   );

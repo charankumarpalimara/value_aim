@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
+import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import "./ResultsPage.css";
 import "./ResultsPage-tabs.css";
@@ -15,9 +16,15 @@ import MeetingCoachTab from "./tabs/MeetingCoachTab";
 import ChurnPredictionTab from "./tabs/ChurnPredictionTab";
 import RevenueLeakTab from "./tabs/RevenueLeakTab";
 import AccountPlaybookTab from "./tabs/AccountPlaybookTab";
+import ProfileTab from "./tabs/ProfileTab";
+import OrganizationDetailsTab from "./tabs/OrganizationDetailsTab";
+import ServiceManagerTab from "./tabs/ServiceManagerTab";
+import UnifiedPopup from "./UnifiedPopup";
+import { userAPI } from "../utils/api";
 
 function ResultsPage() {
   const [website, setWebsite] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -30,47 +37,78 @@ function ResultsPage() {
   });
   const [activeTab, setActiveTab] = useState('Journey Matrix');
   const [activeSidebarOption, setActiveSidebarOption] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const [isTablet, setIsTablet] = useState(window.innerWidth <= 1024 && window.innerWidth > 768);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
   const [conversations, setConversations] = useState([]);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [userProfile] = useState({
+  const [menuPosition, setMenuPosition] = useState({ top: 'auto', bottom: 'auto', left: 'auto', right: 'auto' });
+  const [isMainPopupVisible, setIsMainPopupVisible] = useState(false);
+  const [activePopupScreen, setActivePopupScreen] = useState('Service Manager');
+  const plusButtonRef = useRef(null);
+  const menuRef = useRef(null);
+  const [userProfile, setUserProfile] = useState({
     name: "John Doe",
     email: "john.doe@company.com",
     avatar: null,
     plan: "Free Plan"
   });
 
-  // Handle window resize for responsive design
+  // Load user data from localStorage or API
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      setIsTablet(window.innerWidth <= 1024 && window.innerWidth > 768);
+    const loadUserData = async () => {
+      try {
+        // First check localStorage
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          setUserProfile({
+            name: user.name || "John Doe",
+            email: user.email || "john.doe@company.com",
+            avatar: user.picture || null,
+            plan: user.plan || "Free Plan"
+          });
+        }
+
+        // Also fetch from API to get latest data
+        const response = await userAPI.getProfile();
+        if (response.success && response.data) {
+          const user = response.data;
+          setUserProfile({
+            name: user.name || "John Doe",
+            email: user.email || "john.doe@company.com",
+            avatar: user.picture || null,
+            plan: user.plan || "Free Plan"
+          });
+        }
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    loadUserData();
   }, []);
 
+  // Responsive design is now handled by react-responsive
+
   const handleSubmit = () => {
-    if (website.trim()) {
-      // Create new conversation entry
+    if (website.trim() || selectedOption) {
+      // Create new conversation entry from input or selected option
+      const title = website.trim() || selectedOption;
       const newConversation = {
         id: Date.now(),
-        title: website.trim(),
+        title: title,
         createdAt: new Date().toISOString()
       };
 
       // Add to conversations list (newest first)
       setConversations(prev => [newConversation, ...prev]);
 
-      // Clear input
+      // Clear input and selected option
       setWebsite("");
+      setSelectedOption(null);
 
       console.log("Created conversation:", newConversation);
-    } else {
-      alert("Please enter a question or website URL");
     }
   };
 
@@ -112,16 +150,70 @@ function ResultsPage() {
   };
 
   const handleAddConversation = (title) => {
-    const newConversation = {
-      id: Date.now(),
-      title: title,
-      createdAt: new Date().toISOString()
-    };
-
-    setConversations(prev => [newConversation, ...prev]);
+    // Set single selected option (replaces any previous selection)
+    setSelectedOption(title);
     setShowPlusMenu(false);
-    console.log("Added conversation:", newConversation);
   };
+
+  const handleRemoveOption = () => {
+    setSelectedOption(null);
+  };
+
+  // Smart positioning logic for plus menu
+  useEffect(() => {
+    if (showPlusMenu && plusButtonRef.current && menuRef.current) {
+      const buttonRect = plusButtonRef.current.getBoundingClientRect();
+      const menuHeight = menuRef.current.offsetHeight || 400;
+      const menuWidth = menuRef.current.offsetWidth || 320;
+
+      const viewportWidth = isMobile ? 375 : 1200; // Approximate viewport widths
+      const viewportHeight = 800; // Approximate viewport height
+
+      let position = { top: 'auto', bottom: 'auto', left: 'auto', right: 'auto' };
+
+      if (isMobile) {
+        // Mobile: Align to right side where plus button is
+        position = {
+          right: '16px',
+          left: 'auto',
+          bottom: `${viewportHeight - buttonRect.top + 12}px`,
+          top: 'auto'
+        };
+      } else {
+        // Desktop: Smart positioning
+        const spaceAbove = buttonRect.top;
+        const spaceBelow = viewportHeight - buttonRect.bottom;
+
+        // Vertical positioning
+        if (spaceAbove >= menuHeight + 20) {
+          // Enough space above
+          position.bottom = `${viewportHeight - buttonRect.top + 8}px`;
+        } else if (spaceBelow >= menuHeight + 20) {
+          // Position below
+          position.top = `${buttonRect.bottom + 8}px`;
+        } else {
+          // Not enough space either way, position above and make scrollable
+          position.bottom = `${viewportHeight - buttonRect.top + 8}px`;
+        }
+
+        // Horizontal positioning
+        const idealLeft = buttonRect.left - (menuWidth / 2) + (buttonRect.width / 2);
+
+        if (idealLeft + menuWidth > viewportWidth - 20) {
+          // Would overflow right, align to right
+          position.right = '20px';
+        } else if (idealLeft < 20) {
+          // Would overflow left, align to left
+          position.left = '20px';
+        } else {
+          // Centered position works
+          position.left = `${idealLeft}px`;
+        }
+      }
+
+      setMenuPosition(position);
+    }
+  }, [showPlusMenu]);
 
   // Close plus menu and profile menu when clicking outside
   useEffect(() => {
@@ -138,10 +230,41 @@ function ResultsPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showPlusMenu, showProfileMenu]);
 
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to logout?')) {
+      sessionStorage.clear();
+      window.location.href = '/';
+    }
+  };
+
+
   return (
     <div className="results-page">
       {/* Header */}
       <header className="page-header">
+        {/* <button 
+          className="back-to-services-btn" 
+          onClick={handleBackToServices}
+          style={{
+            background: 'transparent',
+            border: '1px solid #201F47',
+            color: '#201F47',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '13px',
+            fontWeight: 500,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Back
+        </button> */}
         <img src={logoImage} alt="Logo" className="header-logo" />
         <button className="menu-btn" onClick={toggleSidebar} aria-label="Toggle menu">
           <span></span>
@@ -164,30 +287,30 @@ function ResultsPage() {
           <button className="collapse-btn-desktop" onClick={toggleSidebarCollapse} aria-label="Toggle sidebar">
             {isSidebarCollapsed ? (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 4L13 10L7 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M7 4L13 10L7 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             ) : (
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 4L7 10L13 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M13 4L7 10L13 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             )}
           </button>
-          
+
           <div className="sidebar-inner">
             <div className="sidebar-top">
               <img src={logoImage} alt="Logo" className="sidebar-logo" />
               <div className="sidebar-icon-collapsed">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <rect x="2" y="2" width="28" height="28" rx="4" fill="#201F47"/>
+                  <rect x="2" y="2" width="28" height="28" rx="4" fill="#201F47" />
                   <text x="16" y="20" fontSize="16" fill="white" fontWeight="bold" textAnchor="middle">V</text>
                 </svg>
               </div>
               <button className="close-btn" onClick={closeSidebar} aria-label="Close sidebar">×</button>
             </div>
-            
+
             <button className="new-chat" onClick={handleNewChat}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 1V15M1 8H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M8 1V15M1 8H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
               New chat
             </button>
@@ -196,21 +319,21 @@ function ResultsPage() {
               <div className="nav-section">
                 <div className="nav-title" onClick={() => toggleSection('today')}>
                   <span>Today</span>
-                  <svg 
-                    className={`chevron ${expandedSections.today ? 'expanded' : ''}`} 
-                    width="12" 
-                    height="12" 
-                    viewBox="0 0 12 12" 
+                  <svg
+                    className={`chevron ${expandedSections.today ? 'expanded' : ''}`}
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
                     fill="none"
                   >
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className={`nav-items ${expandedSections.today ? 'expanded' : ''}`}>
                   {/* Bank of America Dropdown */}
                   <div className="nav-subsection">
                     <div className="nav-subtitle" onClick={(e) => {
-                      
+
                       // If clicking the text itself (not the chevron), show tabs
                       if (!e.target.closest('svg')) {
                         setActiveSidebarOption('Bank of America');
@@ -222,14 +345,14 @@ function ResultsPage() {
                       toggleSection('bankOfAmerica');
                     }}>
                       <span style={{ cursor: 'pointer' }}>Bank of America</span>
-                      <svg 
-                        className={`chevron ${expandedSections.bankOfAmerica ? 'expanded' : ''}`} 
-                        width="12" 
-                        height="12" 
-                        viewBox="0 0 12 12" 
+                      <svg
+                        className={`chevron ${expandedSections.bankOfAmerica ? 'expanded' : ''}`}
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
                         fill="none"
                       >
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.bankOfAmerica ? 'expanded' : ''}`}>
@@ -255,14 +378,14 @@ function ResultsPage() {
                       toggleSection('cisco');
                     }}>
                       <span style={{ cursor: 'pointer' }}>Cisco</span>
-                      <svg 
-                        className={`chevron ${expandedSections.cisco ? 'expanded' : ''}`} 
-                        width="12" 
-                        height="12" 
-                        viewBox="0 0 12 12" 
+                      <svg
+                        className={`chevron ${expandedSections.cisco ? 'expanded' : ''}`}
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
                         fill="none"
                       >
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.cisco ? 'expanded' : ''}`}>
@@ -288,14 +411,14 @@ function ResultsPage() {
                       toggleSection('aig');
                     }}>
                       <span style={{ cursor: 'pointer' }}>AIG</span>
-                      <svg 
-                        className={`chevron ${expandedSections.aig ? 'expanded' : ''}`} 
-                        width="12" 
-                        height="12" 
-                        viewBox="0 0 12 12" 
+                      <svg
+                        className={`chevron ${expandedSections.aig ? 'expanded' : ''}`}
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
                         fill="none"
                       >
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </div>
                     <div className={`nav-subitems ${expandedSections.aig ? 'expanded' : ''}`}>
@@ -313,14 +436,14 @@ function ResultsPage() {
               <div className="nav-section">
                 <div className="nav-title" onClick={() => toggleSection('yesterday')}>
                   <span>Yesterday</span>
-                  <svg 
-                    className={`chevron ${expandedSections.yesterday ? 'expanded' : ''}`} 
-                    width="12" 
-                    height="12" 
-                    viewBox="0 0 12 12" 
+                  <svg
+                    className={`chevron ${expandedSections.yesterday ? 'expanded' : ''}`}
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
                     fill="none"
                   >
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className={`nav-items ${expandedSections.yesterday ? 'expanded' : ''}`}>
@@ -332,14 +455,14 @@ function ResultsPage() {
               <div className="nav-section">
                 <div className="nav-title" onClick={() => toggleSection('previous')}>
                   <span>Previous 7 days</span>
-                  <svg 
-                    className={`chevron ${expandedSections.previous ? 'expanded' : ''}`} 
-                    width="12" 
-                    height="12" 
-                    viewBox="0 0 12 12" 
+                  <svg
+                    className={`chevron ${expandedSections.previous ? 'expanded' : ''}`}
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
                     fill="none"
                   >
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
                 <div className={`nav-items ${expandedSections.previous ? 'expanded' : ''}`}>
@@ -350,9 +473,9 @@ function ResultsPage() {
                     </div>
                   ) : (
                     conversations.map((conv) => (
-                      <a 
-                        key={conv.id} 
-                        href="#" 
+                      <a
+                        key={conv.id}
+                        href="#"
                         className="nav-item"
                         onClick={(e) => { e.preventDefault(); console.log('Clicked:', conv.title); }}
                       >
@@ -384,77 +507,116 @@ function ResultsPage() {
                     </div>
                   )}
                   {!isSidebarCollapsed && (
-                    <svg 
+                    <svg
                       className={`profile-chevron ${showProfileMenu ? 'expanded' : ''}`}
-                      width="12" 
-                      height="12" 
-                      viewBox="0 0 12 12" 
+                      width="12"
+                      height="12"
+                      viewBox="0 0 12 12"
                       fill="none"
                     >
-                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
                 </button>
-                
+
                 {/* Profile Menu Dropdown */}
                 {showProfileMenu && (
                   <div className="profile-menu">
-                    <div className="profile-menu-header">
-                      <div className="profile-menu-avatar">
-                        {userProfile.avatar ? (
-                          <img src={userProfile.avatar} alt="Profile" />
-                        ) : (
-                          <div className="avatar-placeholder">
-                            {userProfile.name.charAt(0).toUpperCase()}
+                    <button className="profile-menu-item" >
+                      <div className="profile-menu-header">
+                        <div className="profile-menu-avatar">
+                          {userProfile.avatar ? (
+                            <img src={userProfile.avatar} alt="Profile" />
+                          ) : (
+                            <div className="avatar-placeholder">
+                              {userProfile.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="profile-menu-info">
+                          <div className="profile-menu-name">{userProfile.name}</div>
+                          <div className="profile-menu-email">{userProfile.email}</div>
+                          <div className="profile-menu-plan">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ marginRight: '4px' }}>
+                              <path d="M8 1L10.5 5.5L15.5 6L12 9.5L13 14.5L8 12L3 14.5L4 9.5L0.5 6L5.5 5.5L8 1Z" fill="currentColor" />
+                            </svg>
+                            {userProfile.plan}
                           </div>
-                        )}
-                      </div>
-                      <div className="profile-menu-info">
-                        <div className="profile-menu-name">{userProfile.name}</div>
-                        <div className="profile-menu-email">{userProfile.email}</div>
-                        <div className="profile-menu-plan">
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style={{ marginRight: '4px' }}>
-                            <path d="M8 1L10.5 5.5L15.5 6L12 9.5L13 14.5L8 12L3 14.5L4 9.5L0.5 6L5.5 5.5L8 1Z" fill="currentColor"/>
-                          </svg>
-                          {userProfile.plan}
                         </div>
                       </div>
-                    </div>
-                    
+                    </button>
+
                     <div className="profile-menu-divider"></div>
-                    
+
                     <div className="profile-menu-items">
-                      <button className="profile-menu-item">
+                      {/* <button className="profile-menu-item" onClick={() => { setActiveSidebarOption('Profile'); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M13 2L3 12M3 2L13 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                          <path d="M8 8C9.65685 8 11 6.65685 11 5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5C5 6.65685 6.34315 8 8 8Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                          <path d="M3 14C3 11.7909 4.79086 10 7 10H9C11.2091 10 13 11.7909 13 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        <span>My Profile</span>
+                      </button> */}
+
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Organization Details'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M13 2H3C2.44772 2 2 2.44772 2 3V13C2 13.5523 2.44772 14 3 14H13C13.5523 14 14 13.5523 14 13V3C14 2.44772 13.5523 2 13 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                          <path d="M8 6C8.82843 6 9.5 5.32843 9.5 4.5C9.5 3.67157 8.82843 3 8 3C7.17157 3 6.5 3.67157 6.5 4.5C6.5 5.32843 7.17157 6 8 6Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                          <path d="M11 13C11 11.3431 9.65685 10 8 10C6.34315 10 5 11.3431 5 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <span>Organization Details</span>
+                      </button>
+
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Service Manager'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M2 3H14V11H2V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                          <path d="M2 6H14M5 3V6M11 3V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M4 9H6M4 12H6M8 9H10M8 12H10M12 9H12.01M12 12H12.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                        <span>Service Manager</span>
+                      </button>
+
+                      <div className="profile-menu-divider"></div>
+
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Suggestions'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                          <path d="M8 5V8L10.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span>Suggestions</span>
                       </button>
-                      
-                      <button className="profile-menu-item">
+
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Settings'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                          <path d="M12.8 10C12.7277 10.2384 12.7224 10.4932 12.7847 10.7349C12.847 10.9766 12.9743 11.1953 13.1533 11.3667L13.1933 11.4067C13.3351 11.5481 13.4472 11.7166 13.5228 11.9022C13.5984 12.0878 13.6361 12.287 13.6361 12.4883C13.6361 12.6897 13.5984 12.8889 13.5228 13.0745C13.4472 13.2601 13.3351 13.4286 13.1933 13.57C13.0519 13.7118 12.8834 13.8239 12.6978 13.8995C12.5122 13.9751 12.313 14.0128 12.1117 14.0128C11.9103 14.0128 11.7111 13.9751 11.5255 13.8995C11.3399 13.8239 11.1714 13.7118 11.03 13.57L10.99 13.53C10.8186 13.351 10.5999 13.2237 10.3582 13.1614C10.1165 13.0991 9.86173 13.1044 9.62333 13.1767C9.39017 13.2444 9.17989 13.3765 9.01849 13.558C8.85709 13.7395 8.75116 13.9631 8.71333 14.2033V14.3333C8.71333 14.7426 8.55107 15.1353 8.26268 15.4237C7.97429 15.7121 7.5816 15.8743 7.17233 15.8743C6.76307 15.8743 6.37038 15.7121 6.08199 15.4237C5.7936 15.1353 5.63133 14.7426 5.63133 14.3333V14.27C5.58736 14.0223 5.47349 13.7923 5.30278 13.6064C5.13207 13.4205 4.91157 13.2861 4.66667 13.2183C4.42827 13.146 4.17345 13.1513 3.93177 13.2336C3.69009 13.3159 3.47142 13.4705 3.3 13.68L3.26 13.72C3.11857 13.8618 2.95011 13.9739 2.76451 14.0495C2.57891 14.1251 2.37968 14.1628 2.17833 14.1628C1.97699 14.1628 1.77776 14.1251 1.59216 14.0495C1.40656 13.9739 1.2381 13.8618 1.09667 13.72C0.954838 13.5786 0.842753 13.4101 0.767141 13.2245C0.691528 13.0389 0.653809 12.8397 0.653809 12.6383C0.653809 12.437 0.691528 12.2378 0.767141 12.0522C0.842753 11.8666 0.954838 11.6981 1.09667 11.5567L1.13667 11.5167C1.34713 11.3452 1.5017 11.1266 1.58396 10.8849C1.66623 10.6432 1.67151 10.3884 1.59967 10.15C1.532 9.91684 1.39987 9.70656 1.21839 9.54516C1.03691 9.38376 0.813302 9.27783 0.573 9.24V9.2C0.163735 9.2 -0.228955 9.03774 -0.517345 8.74935C-0.805735 8.46096 -0.968 8.06827 -0.968 7.659C-0.968 7.24974 -0.805735 6.85705 -0.517345 6.56866C-0.228955 6.28027 0.163735 6.118 0.573 6.118H0.636333C0.884054 6.07403 1.11402 5.96016 1.29994 5.78945C1.48586 5.61874 1.62024 5.39824 1.688 5.15333C1.76033 4.91493 1.75505 4.66011 1.67279 4.41843C1.59052 4.17676 1.43595 3.95809 1.2265 3.78667L1.18667 3.74667C1.04484 3.60524 0.932753 3.43678 0.857141 3.25118C0.781528 3.06558 0.743809 2.86635 0.743809 2.665C0.743809 2.46366 0.781528 2.26443 0.857141 2.07883C0.932753 1.89323 1.04484 1.72477 1.18667 1.58333C1.3281 1.4415 1.49656 1.32942 1.68216 1.25381C1.86776 1.17819 2.06699 1.14048 2.26833 1.14048C2.46968 1.14048 2.66891 1.17819 2.85451 1.25381C3.04011 1.32942 3.20857 1.4415 3.35 1.58333L3.39 1.62333C3.56142 1.83279 3.78009 1.98736 4.02177 2.06963C4.26345 2.15189 4.51827 2.15717 4.75667 2.08483H4.79667C5.02983 2.0171 5.24011 1.88497 5.40151 1.70349C5.56291 1.52201 5.66884 1.2984 5.70667 1.05817V0.928333C5.70667 0.519068 5.86893 0.126378 6.15732 -0.162011C6.44571 -0.450401 6.8384 -0.612667 7.24767 -0.612667C7.65693 -0.612667 8.04962 -0.450401 8.33801 -0.162011C8.6264 0.126378 8.78867 0.519068 8.78867 0.928333V0.991667C8.8265 1.2319 8.93243 1.45551 9.09383 1.63699C9.25523 1.81847 9.46551 1.9506 9.69867 2.01833C9.93707 2.09067 10.1919 2.08539 10.4336 2.00312C10.6752 1.92086 10.8939 1.76629 11.0653 1.55683L11.1053 1.51683C11.2468 1.375 11.4152 1.26292 11.6008 1.1873C11.7864 1.11169 11.9857 1.07397 12.187 1.07397C12.3883 1.07397 12.5876 1.11169 12.7732 1.1873C12.9588 1.26292 13.1272 1.375 13.2687 1.51683C13.4105 1.65827 13.5226 1.82673 13.5982 2.01233C13.6738 2.19793 13.7115 2.39716 13.7115 2.5985C13.7115 2.79985 13.6738 2.99908 13.5982 3.18468C13.5226 3.37028 13.4105 3.53874 13.2687 3.68017L13.2287 3.72017C13.0192 3.89159 12.8646 4.11026 12.7824 4.35193C12.7001 4.59361 12.6948 4.84843 12.7667 5.08683V5.12683C12.8344 5.35999 12.9665 5.57027 13.148 5.73167C13.3295 5.89307 13.5531 5.999 13.7933 6.03683H13.9233C14.3326 6.03683 14.7253 6.1991 15.0137 6.48749C15.302 6.77588 15.4643 7.16857 15.4643 7.57783C15.4643 7.9871 15.302 8.37979 15.0137 8.66818C14.7253 8.95657 14.3326 9.11883 13.9233 9.11883H13.86C13.6198 9.15666 13.3962 9.26259 13.2147 9.42399C13.0332 9.58539 12.9011 9.79567 12.8333 10.0288V10.0288Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                          <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                          <path d="M12.8 10C12.7277 10.2384 12.7224 10.4932 12.7847 10.7349C12.847 10.9766 12.9743 11.1953 13.1533 11.3667L13.1933 11.4067C13.3351 11.5481 13.4472 11.7166 13.5228 11.9022C13.5984 12.0878 13.6361 12.287 13.6361 12.4883C13.6361 12.6897 13.5984 12.8889 13.5228 13.0745C13.4472 13.2601 13.3351 13.4286 13.1933 13.57C13.0519 13.7118 12.8834 13.8239 12.6978 13.8995C12.5122 13.9751 12.313 14.0128 12.1117 14.0128C11.9103 14.0128 11.7111 13.9751 11.5255 13.8995C11.3399 13.8239 11.1714 13.7118 11.03 13.57L10.99 13.53C10.8186 13.351 10.5999 13.2237 10.3582 13.1614C10.1165 13.0991 9.86173 13.1044 9.62333 13.1767C9.39017 13.2444 9.17989 13.3765 9.01849 13.558C8.85709 13.7395 8.75116 13.9631 8.71333 14.2033V14.3333C8.71333 14.7426 8.55107 15.1353 8.26268 15.4237C7.97429 15.7121 7.5816 15.8743 7.17233 15.8743C6.76307 15.8743 6.37038 15.7121 6.08199 15.4237C5.7936 15.1353 5.63133 14.7426 5.63133 14.3333V14.27C5.58736 14.0223 5.47349 13.7923 5.30278 13.6064C5.13207 13.4205 4.91157 13.2861 4.66667 13.2183C4.42827 13.146 4.17345 13.1513 3.93177 13.2336C3.69009 13.3159 3.47142 13.4705 3.3 13.68L3.26 13.72C3.11857 13.8618 2.95011 13.9739 2.76451 14.0495C2.57891 14.1251 2.37968 14.1628 2.17833 14.1628C1.97699 14.1628 1.77776 14.1251 1.59216 14.0495C1.40656 13.9739 1.2381 13.8618 1.09667 13.72C0.954838 13.5786 0.842753 13.4101 0.767141 13.2245C0.691528 13.0389 0.653809 12.8397 0.653809 12.6383C0.653809 12.437 0.691528 12.2378 0.767141 12.0522C0.842753 11.8666 0.954838 11.6981 1.09667 11.5567L1.13667 11.5167C1.34713 11.3452 1.5017 11.1266 1.58396 10.8849C1.66623 10.6432 1.67151 10.3884 1.59967 10.15C1.532 9.91684 1.39987 9.70656 1.21839 9.54516C1.03691 9.38376 0.813302 9.27783 0.573 9.24V9.2C0.163735 9.2 -0.228955 9.03774 -0.517345 8.74935C-0.805735 8.46096 -0.968 8.06827 -0.968 7.659C-0.968 7.24974 -0.805735 6.85705 -0.517345 6.56866C-0.228955 6.28027 0.163735 6.118 0.573 6.118H0.636333C0.884054 6.07403 1.11402 5.96016 1.29994 5.78945C1.48586 5.61874 1.62024 5.39824 1.688 5.15333C1.76033 4.91493 1.75505 4.66011 1.67279 4.41843C1.59052 4.17676 1.43595 3.95809 1.2265 3.78667L1.18667 3.74667C1.04484 3.60524 0.932753 3.43678 0.857141 3.25118C0.781528 3.06558 0.743809 2.86635 0.743809 2.665C0.743809 2.46366 0.781528 2.26443 0.857141 2.07883C0.932753 1.89323 1.04484 1.72477 1.18667 1.58333C1.3281 1.4415 1.49656 1.32942 1.68216 1.25381C1.86776 1.17819 2.06699 1.14048 2.26833 1.14048C2.46968 1.14048 2.66891 1.17819 2.85451 1.25381C3.04011 1.32942 3.20857 1.4415 3.35 1.58333L3.39 1.62333C3.56142 1.83279 3.78009 1.98736 4.02177 2.06963C4.26345 2.15189 4.51827 2.15717 4.75667 2.08483H4.79667C5.02983 2.0171 5.24011 1.88497 5.40151 1.70349C5.56291 1.52201 5.66884 1.2984 5.70667 1.05817V0.928333C5.70667 0.519068 5.86893 0.126378 6.15732 -0.162011C6.44571 -0.450401 6.8384 -0.612667 7.24767 -0.612667C7.65693 -0.612667 8.04962 -0.450401 8.33801 -0.162011C8.6264 0.126378 8.78867 0.519068 8.78867 0.928333V0.991667C8.8265 1.2319 8.93243 1.45551 9.09383 1.63699C9.25523 1.81847 9.46551 1.9506 9.69867 2.01833C9.93707 2.09067 10.1919 2.08539 10.4336 2.00312C10.6752 1.92086 10.8939 1.76629 11.0653 1.55683L11.1053 1.51683C11.2468 1.375 11.4152 1.26292 11.6008 1.1873C11.7864 1.11169 11.9857 1.07397 12.187 1.07397C12.3883 1.07397 12.5876 1.11169 12.7732 1.1873C12.9588 1.26292 13.1272 1.375 13.2687 1.51683C13.4105 1.65827 13.5226 1.82673 13.5982 2.01233C13.6738 2.19793 13.7115 2.39716 13.7115 2.5985C13.7115 2.79985 13.6738 2.99908 13.5982 3.18468C13.5226 3.37028 13.4105 3.53874 13.2687 3.68017L13.2287 3.72017C13.0192 3.89159 12.8646 4.11026 12.7824 4.35193C12.7001 4.59361 12.6948 4.84843 12.7667 5.08683V5.12683C12.8344 5.35999 12.9665 5.57027 13.148 5.73167C13.3295 5.89307 13.5531 5.999 13.7933 6.03683H13.9233C14.3326 6.03683 14.7253 6.1991 15.0137 6.48749C15.302 6.77588 15.4643 7.16857 15.4643 7.57783C15.4643 7.9871 15.302 8.37979 15.0137 8.66818C14.7253 8.95657 14.3326 9.11883 13.9233 9.11883H13.86C13.6198 9.15666 13.3962 9.26259 13.2147 9.42399C13.0332 9.58539 12.9011 9.79567 12.8333 10.0288V10.0288Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                         </svg>
-                        <span>Setting</span>
+                        <span>Settings</span>
                       </button>
-                      
-                      <button className="profile-menu-item">
+
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Help'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                          <path d="M8 4V8M8 11H8.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                          <path d="M8 4V8M8 11H8.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
                         <span>Help</span>
                       </button>
-                      
+
                       <div className="profile-menu-divider"></div>
-                      
-                      <button className="profile-menu-item logout">
+
+                      <button className="profile-menu-item upgrade">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M10 11.3333L14 8L10 4.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <path d="M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M8 1L10 5.5L15 6L11.5 9.5L12.5 14.5L8 12L3.5 14.5L4.5 9.5L1 6L6 5.5L8 1Z" fill="currentColor" />
+                        </svg>
+                        <span>Upgrade Plan</span>
+                      </button>
+
+                      <div className="profile-menu-divider"></div>
+
+                      <button className="profile-menu-item logout" onClick={handleLogout}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M10 11.3333L14 8L10 4.66667" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span>Logout</span>
                       </button>
@@ -528,66 +690,267 @@ function ResultsPage() {
             {activeSidebarOption === 'Notes' && (
               <NotesTab />
             )}
+
+            {/* New Profile and Management Screens */}
+            {activeSidebarOption === 'Profile' && (
+              <ProfileTab />
+            )}
+
+            {/* Unified Popup System */}
+            <UnifiedPopup 
+              isVisible={isMainPopupVisible}
+              onClose={() => setIsMainPopupVisible(false)}
+              activeScreen={activePopupScreen}
+              onScreenChange={setActivePopupScreen}
+            />
           </div>
 
           <div className={`search-box-bottom ${isSidebarCollapsed ? 'expanded' : ''}`}>
             <div className="search-box">
-              <input
-                type="text"
-                placeholder="You Customer's website"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="search-input"
-              />
-              <div className="search-actions">
-                <div style={{ position: 'relative' }}>
-                  <button className="search-btn" onClick={togglePlusMenu}>
-                    <HiPlus size={20} />
-                  </button>
-                  
-                  {/* Plus Menu Popup */}
-                  {showPlusMenu && (
-                    <div className="plus-menu-popup">
-                      <div className="plus-menu-header">
-                        <span>Add to Analysis</span>
+              {selectedOption ? (
+                /* Layout with Selected Option: Two Rows */
+                <>
+                  {/* First Row: Input Field */}
+                  <input
+                    type="text"
+                    placeholder="Enter website..."
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="search-input"
+                  />
+
+                  {/* Second Row: Selected Tag + Action Buttons */}
+                  <div className="bottom-row-search">
+                    <div className="tag-container-search">
+                      <div className="selected-tag-search">
+                        <span>{selectedOption}</span>
+                        <button
+                          className="remove-tag-btn-search"
+                          onClick={handleRemoveOption}
+                          aria-label="Remove"
+                        >
+                          ×
+                        </button>
                       </div>
-                      <button 
-                        className="plus-menu-item"
-                        onClick={() => handleAddConversation('Sales Pipeline Analysis')}
-                      >
-                        <span className="menu-item-icon">📊</span>
-                        <div className="menu-item-content">
-                          <div className="menu-item-title">Sales Pipeline Analysis</div>
-                          <div className="menu-item-desc">Analyze your sales pipeline</div>
-                        </div>
-                      </button>
-                      <button 
-                        className="plus-menu-item"
-                        onClick={() => handleAddConversation('Competitor Analysis')}
-                      >
-                        <span className="menu-item-icon">🎯</span>
-                        <div className="menu-item-content">
-                          <div className="menu-item-title">Competitor Analysis</div>
-                          <div className="menu-item-desc">Compare with competitors</div>
-                        </div>
-                      </button>
-                      <button 
-                        className="plus-menu-item"
-                        onClick={() => handleAddConversation('Revenue Forecasting')}
-                      >
-                        <span className="menu-item-icon">💰</span>
-                        <div className="menu-item-content">
-                          <div className="menu-item-title">Revenue Forecasting</div>
-                          <div className="menu-item-desc">Predict future revenue</div>
-                        </div>
-                      </button>
                     </div>
-                  )}
+                    <div className="search-actions">
+                      <button
+                        ref={plusButtonRef}
+                        className="search-btn"
+                        onClick={togglePlusMenu}
+                      >
+                        <HiPlus size={16} />
+                      </button>
+
+                      {/* Plus Menu Popup - Smart Positioning */}
+                      {showPlusMenu && (
+                        <div
+                          ref={menuRef}
+                          className="plus-menu-popup"
+                          style={{
+                            position: 'fixed',
+                            top: menuPosition.top,
+                            bottom: menuPosition.bottom,
+                            left: menuPosition.left,
+                            right: menuPosition.right,
+                            maxHeight: '60vh',
+                            overflowY: 'auto'
+                          }}
+                        >
+                          <div className="plus-menu-header">
+                            <span>Add to Analysis</span>
+                          </div>
+                          <button
+                            className="plus-menu-item"
+                            onClick={() => handleAddConversation('Understanding Customer\'s Business')}
+                          >
+                            <span className="menu-item-icon">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M2 14V4.5C2 4.10218 2.15804 3.72064 2.43934 3.43934C2.72064 3.15804 3.10218 3 3.5 3H5.5C5.89782 3 6.27936 3.15804 6.56066 3.43934C6.84196 3.72064 7 4.10218 7 4.5V14M2 14H14M2 14H1M7 14H14M14 14H15M14 14V8.5C14 8.10218 13.842 7.72064 13.5607 7.43934C13.2794 7.15804 12.8978 7 12.5 7H10.5C10.1022 7 9.72064 7.15804 9.43934 7.43934C9.15804 7.72064 9 8.10218 9 8.5V14M5 6H4.5M5 9H4.5M11 10H10.5" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </span>
+                            <div className="menu-item-content">
+                              <div className="menu-item-title">Understanding Customer's Business</div>
+                            </div>
+                          </button>
+                          <button
+                            className="plus-menu-item"
+                            onClick={() => handleAddConversation('Buying Intent & Signals')}
+                          >
+                            <span className="menu-item-icon">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z" stroke="#666" strokeWidth="1.2" />
+                                <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="#666" strokeWidth="1.2" />
+                                <path d="M12.5 3.5L13.5 2.5M3.5 12.5L2.5 13.5M3.5 3.5L2.5 2.5M12.5 12.5L13.5 13.5" stroke="#666" strokeWidth="1.2" strokeLinecap="round" />
+                              </svg>
+                            </span>
+                            <div className="menu-item-content">
+                              <div className="menu-item-title">Buying Intent & Signals</div>
+                            </div>
+                          </button>
+                          <button
+                            className="plus-menu-item"
+                            onClick={() => handleAddConversation('Value Alignment')}
+                          >
+                            <span className="menu-item-icon">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M8 1L10 5.5L15 6L11.5 9.5L12.5 14.5L8 12L3.5 14.5L4.5 9.5L1 6L6 5.5L8 1Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </span>
+                            <div className="menu-item-content">
+                              <div className="menu-item-title">Value Alignment</div>
+                            </div>
+                          </button>
+                          <button
+                            className="plus-menu-item"
+                            onClick={() => handleAddConversation('Engagement Approach')}
+                          >
+                            <span className="menu-item-icon">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M10.5 5C10.5 5 11 5.5 11 6.5C11 7.5 10.5 8 10.5 8M12.5 3C12.5 3 13.5 4 13.5 6.5C13.5 9 12.5 10 12.5 10M3.5 9V7C3.5 6.60218 3.65804 6.22064 3.93934 5.93934C4.22064 5.65804 4.60218 5.5 5 5.5H6.5L9 3V13L6.5 10.5H5C4.60218 10.5 4.22064 10.342 3.93934 10.0607C3.65804 9.77936 3.5 9.39782 3.5 9Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            </span>
+                            <div className="menu-item-content">
+                              <div className="menu-item-title">Engagement Approach</div>
+                            </div>
+                          </button>
+                          <button
+                            className="plus-menu-item"
+                            onClick={() => handleAddConversation('Today\'s News')}
+                          >
+                            <span className="menu-item-icon">
+                              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 2H11V12H3V2Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M11 4H13C13.2652 4 13.5196 4.10536 13.7071 4.29289C13.8946 4.48043 14 4.73478 14 5V13C14 13.2652 13.8946 13.5196 13.7071 13.7071C13.5196 13.8946 13.2652 14 13 14H3C2.73478 14 2.48043 13.8946 2.29289 13.7071C2.10536 13.5196 2 13.2652 2 13V12" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M5 5H9M5 7H9M5 9H7" stroke="#666" strokeWidth="1.2" strokeLinecap="round" />
+                              </svg>
+                            </span>
+                            <div className="menu-item-content">
+                              <div className="menu-item-title">Today's News</div>
+                            </div>
+                          </button>
+                        </div>
+                      )}
+                      <button className="search-btn"><HiMicrophone size={16} /></button>
+                      <button className="search-btn submit" onClick={handleSubmit}><HiArrowUp size={16} /></button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Default Layout: Single Row */
+                <div className="single-row-search">
+                  <input
+                    type="text"
+                    placeholder="Your Customer's website"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    className="search-input"
+                  />
+                  <div className="search-actions">
+                    <button
+                      ref={plusButtonRef}
+                      className="search-btn"
+                      onClick={togglePlusMenu}
+                    >
+                      <HiPlus size={16} />
+                    </button>
+
+                    {/* Plus Menu Popup - Smart Positioning */}
+                    {showPlusMenu && (
+                      <div
+                        ref={menuRef}
+                        className="plus-menu-popup"
+                        style={{
+                          position: 'fixed',
+                          top: menuPosition.top,
+                          bottom: menuPosition.bottom,
+                          left: menuPosition.left,
+                          right: menuPosition.right,
+                          maxHeight: '60vh',
+                          overflowY: 'auto'
+                        }}
+                      >
+                        <div className="plus-menu-header">
+                          <span>Add to Analysis</span>
+                        </div>
+                        <button
+                          className="plus-menu-item"
+                          onClick={() => handleAddConversation('Understanding Customer\'s Business')}
+                        >
+                          <span className="menu-item-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M2 14V4.5C2 4.10218 2.15804 3.72064 2.43934 3.43934C2.72064 3.15804 3.10218 3 3.5 3H5.5C5.89782 3 6.27936 3.15804 6.56066 3.43934C6.84196 3.72064 7 4.10218 7 4.5V14M2 14H14M2 14H1M7 14H14M14 14H15M14 14V8.5C14 8.10218 13.842 7.72064 13.5607 7.43934C13.2794 7.15804 12.8978 7 12.5 7H10.5C10.1022 7 9.72064 7.15804 9.43934 7.43934C9.15804 7.72064 9 8.10218 9 8.5V14M5 6H4.5M5 9H4.5M11 10H10.5" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                          <div className="menu-item-content">
+                            <div className="menu-item-title">Understanding Customer's Business</div>
+                          </div>
+                        </button>
+                        <button
+                          className="plus-menu-item"
+                          onClick={() => handleAddConversation('Buying Intent & Signals')}
+                        >
+                          <span className="menu-item-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z" stroke="#666" strokeWidth="1.2" />
+                              <path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="#666" strokeWidth="1.2" />
+                              <path d="M12.5 3.5L13.5 2.5M3.5 12.5L2.5 13.5M3.5 3.5L2.5 2.5M12.5 12.5L13.5 13.5" stroke="#666" strokeWidth="1.2" strokeLinecap="round" />
+                            </svg>
+                          </span>
+                          <div className="menu-item-content">
+                            <div className="menu-item-title">Buying Intent & Signals</div>
+                          </div>
+                        </button>
+                        <button
+                          className="plus-menu-item"
+                          onClick={() => handleAddConversation('Value Alignment')}
+                        >
+                          <span className="menu-item-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M8 1L10 5.5L15 6L11.5 9.5L12.5 14.5L8 12L3.5 14.5L4.5 9.5L1 6L6 5.5L8 1Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                          <div className="menu-item-content">
+                            <div className="menu-item-title">Value Alignment</div>
+                          </div>
+                        </button>
+                        <button
+                          className="plus-menu-item"
+                          onClick={() => handleAddConversation('Engagement Approach')}
+                        >
+                          <span className="menu-item-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M10.5 5C10.5 5 11 5.5 11 6.5C11 7.5 10.5 8 10.5 8M12.5 3C12.5 3 13.5 4 13.5 6.5C13.5 9 12.5 10 12.5 10M3.5 9V7C3.5 6.60218 3.65804 6.22064 3.93934 5.93934C4.22064 5.65804 4.60218 5.5 5 5.5H6.5L9 3V13L6.5 10.5H5C4.60218 10.5 4.22064 10.342 3.93934 10.0607C3.65804 9.77936 3.5 9.39782 3.5 9Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                          <div className="menu-item-content">
+                            <div className="menu-item-title">Engagement Approach</div>
+                          </div>
+                        </button>
+                        <button
+                          className="plus-menu-item"
+                          onClick={() => handleAddConversation('Today\'s News')}
+                        >
+                          <span className="menu-item-icon">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                              <path d="M3 2H11V12H3V2Z" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M11 4H13C13.2652 4 13.5196 4.10536 13.7071 4.29289C13.8946 4.48043 14 4.73478 14 5V13C14 13.2652 13.8946 13.5196 13.7071 13.7071C13.5196 13.8946 13.2652 14 13 14H3C2.73478 14 2.48043 13.8946 2.29289 13.7071C2.10536 13.5196 2 13.2652 2 13V12" stroke="#666" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                              <path d="M5 5H9M5 7H9M5 9H7" stroke="#666" strokeWidth="1.2" strokeLinecap="round" />
+                            </svg>
+                          </span>
+                          <div className="menu-item-content">
+                            <div className="menu-item-title">Today's News</div>
+                          </div>
+                        </button>
+                      </div>
+                    )}
+                    <button className="search-btn"><HiMicrophone size={16} /></button>
+                    <button className="search-btn submit" onClick={handleSubmit}><HiArrowUp size={16} /></button>
+                  </div>
                 </div>
-                <button className="search-btn"><HiMicrophone size={20} /></button>
-                <button className="search-btn submit" onClick={handleSubmit}><HiArrowUp size={20} /></button>
-              </div>
+              )}
             </div>
           </div>
         </main>

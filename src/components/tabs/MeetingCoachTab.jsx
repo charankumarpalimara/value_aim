@@ -104,7 +104,7 @@ const MeetingCoach = () => {
       display: 'flex',
       minHeight: '100vh',
       backgroundColor: '#f8fafc',
-      fontFamily: 'Poppins, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* Main Content */}
       <Box sx={{

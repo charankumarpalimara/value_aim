@@ -1,65 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import CompanyDetailsPage from './CompanyDetailsPage';
 import ServiceDetailsForm from './ServiceDetailsForm';
 import ResultsPage from './ResultsPage';
 
 const FormFlow = () => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    companyDetails: null,
-    serviceDetails: null
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const [formData, setFormData] = useState(() => {
+    const saved = sessionStorage.getItem('formFlowData');
+    return saved ? JSON.parse(saved) : {
+      companyDetails: null,
+      serviceDetails: null
+    };
   });
+
+  // Save form data to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('formFlowData', JSON.stringify(formData));
+  }, [formData]);
 
   const handleCompanyDetailsNext = (companyData) => {
     setFormData(prev => ({ ...prev, companyDetails: companyData }));
-    setCurrentStep(2);
-  };
-
-  const handleCompanyDetailsNavigate = (destination) => {
-    if (destination === 'results') {
-      setCurrentStep(2); // Go to Service Details instead of directly to results
-    }
+    navigate('/service-details');
   };
 
   const handleServiceDetailsNext = (serviceData) => {
     setFormData(prev => ({ ...prev, serviceDetails: serviceData }));
-    setCurrentStep(3);
+    navigate('/results');
   };
 
   const handleServiceDetailsBack = () => {
-    setCurrentStep(1);
+    navigate('/company-details');
   };
 
   const handleResultsBack = () => {
-    setCurrentStep(2);
+    navigate('/service-details');
   };
 
-  const renderCurrentStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <CompanyDetailsPage onNavigate={handleCompanyDetailsNavigate} />;
-      case 2:
+  const handleLogout = () => {
+    sessionStorage.clear();
+    navigate('/');
+  };
+
+  const renderCurrentPage = () => {
+    const path = location.pathname;
+    
+    switch (path) {
+      case '/company-details':
+        return <CompanyDetailsPage onNext={handleCompanyDetailsNext} />;
+      case '/service-details':
         return (
           <ServiceDetailsForm 
             onNext={handleServiceDetailsNext} 
             onBack={handleServiceDetailsBack}
           />
         );
-      case 3:
+      case '/results':
         return (
           <ResultsPage 
             formData={formData}
             onBack={handleResultsBack}
+            onLogout={handleLogout}
           />
         );
       default:
-        return <CompanyDetailsPage onNavigate={handleCompanyDetailsNavigate} />;
+        return <CompanyDetailsPage onNext={handleCompanyDetailsNext} />;
     }
   };
 
   return (
     <div>
-      {renderCurrentStep()}
+      {renderCurrentPage()}
     </div>
   );
 };
