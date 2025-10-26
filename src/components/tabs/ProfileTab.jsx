@@ -159,6 +159,10 @@ const ProfileTab = () => {
         
         // Show success notification popup
         console.log('Showing success notification...');
+        
+        // Try alert first to verify we reach this point
+        alert('Profile updated successfully!');
+        
         try {
           notification.success({
             message: 'Profile Updated',
@@ -166,11 +170,11 @@ const ProfileTab = () => {
             placement: 'topRight',
             duration: 4,
             style: {
-              zIndex: 9999,
+              zIndex: 2000,
             },
             icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
           });
-          console.log('Success notification should be displayed now');
+          console.log('Success notification called');
         } catch (notifError) {
           console.error('Notification error:', notifError);
           // Fallback to message
@@ -190,7 +194,7 @@ const ProfileTab = () => {
             placement: 'topRight',
             duration: 5,
             style: {
-              zIndex: 9999,
+              zIndex: 2000,
             },
             icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
           });
