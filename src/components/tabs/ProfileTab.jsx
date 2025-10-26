@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Avatar, Upload, message, Divider, Space } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Card, Avatar, Upload, message, Divider, Space, notification } from 'antd';
+import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { API_BASE_URL } from '../../config';
 import './ProfileTab.css';
@@ -157,13 +157,13 @@ const ProfileTab = () => {
         setHasNewImage(false);
         setSelectedFile(null);
         
-        // Show success notification
-        message.success({
-          content: 'Profile updated successfully!',
-          duration: 3,
-          style: {
-            marginTop: '60px',
-          },
+        // Show success notification popup
+        notification.success({
+          message: 'Profile Updated',
+          description: 'Your profile has been updated successfully!',
+          placement: 'topRight',
+          duration: 4,
+          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
         });
       } else {
         console.log('=== BACKEND ERROR ===');
@@ -172,21 +172,21 @@ const ProfileTab = () => {
         
         const errorData = await response.json();
         console.log('Error data:', errorData);
-        message.error({
-          content: errorData.message || 'Failed to update profile. Please try again.',
-          duration: 4,
-          style: {
-            marginTop: '60px',
-          },
+        notification.error({
+          message: 'Update Failed',
+          description: errorData.message || 'Failed to update profile. Please try again.',
+          placement: 'topRight',
+          duration: 5,
+          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
         });
       }
     } catch (error) {
-      message.error({
-        content: 'Failed to update profile. Please check your connection and try again.',
-        duration: 4,
-        style: {
-          marginTop: '60px',
-        },
+      notification.error({
+        message: 'Update Failed',
+        description: 'Failed to update profile. Please check your connection and try again.',
+        placement: 'topRight',
+        duration: 5,
+        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
       });
       console.error('Profile update error:', error);
       console.error('Error details:', error.message);
@@ -220,31 +220,31 @@ const ProfileTab = () => {
       });
 
       if (response.ok) {
-        message.success({
-          content: 'Password changed successfully!',
-          duration: 3,
-          style: {
-            marginTop: '60px',
-          },
+        notification.success({
+          message: 'Password Changed',
+          description: 'Your password has been changed successfully!',
+          placement: 'topRight',
+          duration: 4,
+          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
         });
         passwordForm.resetFields();
       } else {
         const errorData = await response.json();
-        message.error({
-          content: errorData.message || 'Failed to change password. Please try again.',
-          duration: 4,
-          style: {
-            marginTop: '60px',
-          },
+        notification.error({
+          message: 'Password Change Failed',
+          description: errorData.message || 'Failed to change password. Please try again.',
+          placement: 'topRight',
+          duration: 5,
+          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
         });
       }
     } catch (error) {
-      message.error({
-        content: 'Failed to change password. Please check your connection and try again.',
-        duration: 4,
-        style: {
-          marginTop: '60px',
-        },
+      notification.error({
+        message: 'Password Change Failed',
+        description: 'Failed to change password. Please check your connection and try again.',
+        placement: 'topRight',
+        duration: 5,
+        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
       });
       console.error('Password change error:', error);
     } finally {
