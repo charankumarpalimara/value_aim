@@ -375,30 +375,49 @@ function LoginPage() {
     try {
       console.log('Checking if user exists:', email);
       
-      // Try to check if user exists by attempting login without password
-      const loginResponse = await authAPI.login({
+      // Check if user exists by trying to login without password
+      // If user exists, API will return error asking for password
+      await authAPI.login({
         email: email.trim(),
         provider: 'email'
       });
       
-      // If we get here, user exists but password is required
-      if (loginResponse.success === false && loginResponse.message?.includes('password')) {
-        // User exists, show password modal
-        setShowPasswordModal(true);
-      }
-    } catch {
+      // If no error, user might not exist
       console.log('Email not found in database');
       
-      // Email doesn't exist, show alert and prompt for signup
       const shouldSignup = window.confirm(
         'User not found. Would you like to sign up with this email?\n\n' +
         'Click "OK" to create a new account or "Cancel" to try a different email.'
       );
       
       if (shouldSignup) {
-        // Pre-fill email in signup modal
         setSignupData(prev => ({ ...prev, email: email.trim() }));
         setShowSignupModal(true);
+      }
+    } catch (error) {
+      // If error occurs, check if it's because password is required (user exists)
+      const errorMessage = error?.response?.data?.message || error?.message || '';
+      
+      if (errorMessage.toLowerCase().includes('password') || 
+          errorMessage.toLowerCase().includes('credential') ||
+          error.response?.status === 400 || 
+          error.response?.status === 401) {
+        // User exists, show password modal
+        console.log('User exists, showing password modal');
+        setShowPasswordModal(true);
+      } else {
+        // Other error, assume user doesn't exist
+        console.log('Email not found in database');
+        
+        const shouldSignup = window.confirm(
+          'User not found. Would you like to sign up with this email?\n\n' +
+          'Click "OK" to create a new account or "Cancel" to try a different email.'
+        );
+        
+        if (shouldSignup) {
+          setSignupData(prev => ({ ...prev, email: email.trim() }));
+          setShowSignupModal(true);
+        }
       }
     }
   };
