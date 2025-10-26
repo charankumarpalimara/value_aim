@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Card, message, Row, Col } from 'antd';
-import { SaveOutlined, BankOutlined, GlobalOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Button, Card, message, Row, Col, notification } from 'antd';
+import { SaveOutlined, BankOutlined, GlobalOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { API_BASE_URL } from '../../config';
 
@@ -144,20 +144,45 @@ const OrganizationDetailsTab = () => {
           }
         }
         
-        message.success({
-          content: 'Organization details saved successfully!',
-          duration: 3,
+        // Alert to verify success
+        alert('Organization details saved successfully!');
+        
+        // Show success notification popup
+        notification.success({
+          message: 'Organization Updated',
+          description: 'Your organization details have been saved successfully!',
+          placement: 'topRight',
+          duration: 4,
           style: {
-            marginTop: '60px',
+            zIndex: 2000,
           },
+          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
         });
       } else {
         const errorData = await response.json();
-        message.error(errorData.message || 'Failed to save organization details');
+        notification.error({
+          message: 'Save Failed',
+          description: errorData.message || 'Failed to save organization details.',
+          placement: 'topRight',
+          duration: 5,
+          style: {
+            zIndex: 2000,
+          },
+          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+        });
       }
     } catch (error) {
       console.error('Error saving organization details:', error);
-      message.error('Failed to save organization details. Please try again.');
+      notification.error({
+        message: 'Save Failed',
+        description: 'Failed to save organization details. Please check your connection and try again.',
+        placement: 'topRight',
+        duration: 5,
+        style: {
+          zIndex: 2000,
+        },
+        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      });
     } finally {
       setLoading(false);
     }
