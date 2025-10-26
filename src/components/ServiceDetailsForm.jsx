@@ -18,6 +18,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const interestList = [
     'Cloud Migration',
@@ -178,6 +179,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   };
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
       console.log('Service Data:', dataSource);
       
@@ -226,6 +228,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     } catch (error) {
       console.error('Error saving services:', error);
       message.error('Failed to save services. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -852,8 +856,8 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           <Button onClick={onBack} size="large">
             Back
           </Button>
-          <Button type="primary" onClick={handleSubmit} size="large">
-            Continue
+          <Button type="primary" onClick={handleSubmit} size="large" loading={isSubmitting} disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Continue'}
           </Button>
         </div>
       </div>

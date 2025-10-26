@@ -47,6 +47,8 @@ function LoginPage() {
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
+  const [isCheckingEmailExistence, setIsCheckingEmailExistence] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Debug: Monitor password modal state
   useEffect(() => {
@@ -516,6 +518,7 @@ function LoginPage() {
       return;
     }
 
+    setIsCheckingEmailExistence(true);
     try {
       console.log('Checking if user exists:', email);
       
@@ -544,6 +547,8 @@ function LoginPage() {
     } catch (error) {
       console.error('Error checking email:', error);
       alert('An error occurred while checking your email. Please try again.');
+    } finally {
+      setIsCheckingEmailExistence(false);
     }
   };
 
@@ -553,6 +558,7 @@ function LoginPage() {
       return;
     }
 
+    setIsLoggingIn(true);
     try {
       console.log('Attempting password login');
       
@@ -594,6 +600,8 @@ function LoginPage() {
     } catch {
       console.error('Password login failed');
       alert('Invalid password. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -766,8 +774,8 @@ function LoginPage() {
               >
                 Back
               </button> */}
-              <button className="continue-btn" onClick={handleContinue} style={{ flex: 1 }}>
-                Continue
+              <button className="continue-btn" onClick={handleContinue} disabled={isCheckingEmailExistence} style={{ flex: 1, opacity: isCheckingEmailExistence ? 0.6 : 1 }}>
+                {isCheckingEmailExistence ? 'Checking...' : 'Continue'}
               </button>
             </div>
           </div>
@@ -1190,10 +1198,11 @@ function LoginPage() {
                       handlePasswordLogin();
                     }}
                     className="signup-submit-btn"
-                    style={{ width: '100%' }}
+                    disabled={isLoggingIn}
+                    style={{ width: '100%', opacity: isLoggingIn ? 0.6 : 1 }}
                     type="button"
                   >
-                    Log In
+                    {isLoggingIn ? 'Logging in...' : 'Log In'}
                   </button>
                   
                   <div style={{ textAlign: 'center', marginTop: '16px' }}>
