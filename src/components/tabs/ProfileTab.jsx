@@ -172,10 +172,22 @@ const ProfileTab = () => {
         
         const errorData = await response.json();
         console.log('Error data:', errorData);
-        message.error(errorData.message || 'Failed to update profile');
+        message.error({
+          content: errorData.message || 'Failed to update profile. Please try again.',
+          duration: 4,
+          style: {
+            marginTop: '60px',
+          },
+        });
       }
     } catch (error) {
-      message.error('Failed to update profile');
+      message.error({
+        content: 'Failed to update profile. Please check your connection and try again.',
+        duration: 4,
+        style: {
+          marginTop: '60px',
+        },
+      });
       console.error('Profile update error:', error);
       console.error('Error details:', error.message);
       console.error('Error stack:', error.stack);
@@ -218,10 +230,22 @@ const ProfileTab = () => {
         passwordForm.resetFields();
       } else {
         const errorData = await response.json();
-        message.error(errorData.message || 'Failed to change password');
+        message.error({
+          content: errorData.message || 'Failed to change password. Please try again.',
+          duration: 4,
+          style: {
+            marginTop: '60px',
+          },
+        });
       }
     } catch (error) {
-      message.error('Failed to change password');
+      message.error({
+        content: 'Failed to change password. Please check your connection and try again.',
+        duration: 4,
+        style: {
+          marginTop: '60px',
+        },
+      });
       console.error('Password change error:', error);
     } finally {
       setLoading(false);
