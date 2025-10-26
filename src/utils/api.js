@@ -29,10 +29,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Don't redirect to login if we're already on login page or if it's a login attempt
+      const isLoginPage = window.location.pathname === '/login';
+      const isLoginAttempt = error.config?.url?.includes('/auth/login');
+      
+      if (!isLoginPage && !isLoginAttempt) {
+        // Token expired or invalid
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
