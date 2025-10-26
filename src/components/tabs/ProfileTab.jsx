@@ -158,6 +158,7 @@ const ProfileTab = () => {
         setSelectedFile(null);
         
         // Show success notification popup
+        console.log('Showing success notification...');
         notification.success({
           message: 'Profile Updated',
           description: 'Your profile has been updated successfully!',
@@ -165,6 +166,7 @@ const ProfileTab = () => {
           duration: 4,
           icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
         });
+        console.log('Success notification should be displayed now');
       } else {
         console.log('=== BACKEND ERROR ===');
         console.log('Response status:', response.status);
