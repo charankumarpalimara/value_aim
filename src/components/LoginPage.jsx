@@ -406,11 +406,19 @@ function LoginPage() {
         throw new Error(loginResponse.message || 'Login failed');
       }
     } catch {
-      console.log('Email not found in database, navigating to signup');
+      console.log('Email not found in database');
       
-      // Email doesn't exist, show signup modal instead
-      setSignupData(prev => ({ ...prev, email: email.trim() }));
-      setShowSignupModal(true);
+      // Email doesn't exist, show alert and prompt for signup
+      const shouldSignup = window.confirm(
+        'User not found. Would you like to sign up with this email?\n\n' +
+        'Click "OK" to create a new account or "Cancel" to try a different email.'
+      );
+      
+      if (shouldSignup) {
+        // Pre-fill email in signup modal
+        setSignupData(prev => ({ ...prev, email: email.trim() }));
+        setShowSignupModal(true);
+      }
     }
   };
 
