@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
@@ -29,6 +29,11 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [showOtpOption, setShowOtpOption] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+
+  // Debug: Monitor password modal state
+  useEffect(() => {
+    console.log('Password modal state changed:', showPasswordModal);
+  }, [showPasswordModal]);
 
   // Google Login Handler
   const handleGoogleLogin = () => {
@@ -405,6 +410,7 @@ function LoginPage() {
         // User exists, show password modal
         console.log('User exists, showing password modal');
         setShowPasswordModal(true);
+        console.log('Password modal should be open now, showPasswordModal:', true);
       } else {
         // Other error, assume user doesn't exist
         console.log('Email not found in database');
@@ -730,7 +736,9 @@ function LoginPage() {
       {/* Password Modal */}
       {showPasswordModal && (
         <div className="signup-modal-overlay" onClick={(e) => {
+          console.log('Overlay clicked, target:', e.target, 'currentTarget:', e.currentTarget);
           if (e.target === e.currentTarget) {
+            console.log('Closing modal from overlay click');
             setShowPasswordModal(false);
             setPassword('');
             setShowOtpOption(false);
