@@ -33,6 +33,9 @@ function LoginPage() {
   // Debug: Monitor password modal state
   useEffect(() => {
     console.log('Password modal state changed:', showPasswordModal);
+    if (showPasswordModal === false) {
+      console.trace('Modal closed - stack trace:');
+    }
   }, [showPasswordModal]);
 
   // Google Login Handler
@@ -366,6 +369,7 @@ function LoginPage() {
   };
 
   const handleContinue = async () => {
+    console.log('handleContinue called');
     if (!email.trim()) {
       alert('Please enter your email address');
       return;
@@ -409,6 +413,7 @@ function LoginPage() {
           error.response?.status === 401) {
         // User exists, show password modal
         console.log('User exists, showing password modal');
+        console.log('About to set showPasswordModal to true');
         setShowPasswordModal(true);
         console.log('Password modal should be open now, showPasswordModal:', true);
       } else {
@@ -484,15 +489,30 @@ function LoginPage() {
     try {
       console.log('Sending OTP to:', email);
       
-      // TODO: Replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call backend API to send OTP
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          purpose: 'login'
+        })
+      });
       
-      alert('OTP sent to your email!');
+      const result = await response.json();
       
-      // Store email and navigate to OTP screen
-      localStorage.setItem('otpEmail', email.trim());
-      setShowPasswordModal(false);
-      navigate('/otp');
+      if (result.success) {
+        alert('OTP sent to your email! Please check your inbox.');
+        
+        // Store email and navigate to OTP screen
+        localStorage.setItem('otpEmail', email.trim());
+        setShowPasswordModal(false);
+        navigate('/otp');
+      } else {
+        throw new Error(result.message || 'Failed to send OTP');
+      }
     } catch (error) {
       console.error('Failed to send OTP:', error);
       alert('Failed to send OTP. Please try again.');

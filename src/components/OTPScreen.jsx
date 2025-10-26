@@ -75,12 +75,67 @@ const OTPScreen = () => {
 
     try {
       console.log('Verifying OTP:', otpValue);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      alert('OTP verified successfully!');
-      navigate('/company-details');
+      
+      // Verify OTP with backend
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/verify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          otp: otpValue,
+          purpose: 'login'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // OTP verified, now login the user
+        const loginResponse = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            provider: 'email'
+          })
+        });
+        
+        const loginResult = await loginResponse.json();
+        
+        if (loginResult.success) {
+          // Store user data and token
+          localStorage.setItem('user', JSON.stringify({
+            name: loginResult.data.name || email.split('@')[0],
+            email: email,
+            provider: 'email',
+            plan: loginResult.data.plan || 'Free Plan'
+          }));
+          
+          localStorage.setItem('token', loginResult.data.token);
+          
+          alert('Login successful!');
+          
+          // Navigate to appropriate screen
+          if (loginResult.data.hasCompletedOnboarding) {
+            navigate('/results');
+          } else if (loginResult.data.companyDetailsCompleted) {
+            navigate('/service-details');
+          } else {
+            navigate('/company-details');
+          }
+        } else {
+          throw new Error('Login failed');
+        }
+      } else {
+        throw new Error(result.message || 'Invalid OTP');
+      }
     } catch (error) {
       console.error('OTP verification failed:', error);
-      alert('Invalid OTP. Please try again.');
+      alert(error.message || 'Invalid OTP. Please try again.');
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0].focus();
     } finally {
@@ -91,12 +146,29 @@ const OTPScreen = () => {
   const handleResendOtp = async () => {
     try {
       console.log('Resending OTP to:', email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      alert('OTP resent successfully!');
-      setTimer(300);
-      setIsResendDisabled(true);
-      setOtp(['', '', '', '', '', '']);
-      inputRefs.current[0].focus();
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          purpose: 'login'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('OTP resent successfully! Please check your email.');
+        setTimer(300);
+        setIsResendDisabled(true);
+        setOtp(['', '', '', '', '', '']);
+        inputRefs.current[0].focus();
+      } else {
+        throw new Error(result.message || 'Failed to resend OTP');
+      }
     } catch (error) {
       console.error('Failed to resend OTP:', error);
       alert('Failed to resend OTP. Please try again.');
