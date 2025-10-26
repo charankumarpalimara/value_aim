@@ -62,10 +62,13 @@ function ResultsPage() {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           const user = JSON.parse(storedUser);
+          console.log('User data from localStorage:', user);
+          const avatarUrl = user.picture || user.avatar || null;
+          console.log('Avatar URL:', avatarUrl);
           setUserProfile({
             name: user.name || "John Doe",
             email: user.email || "john.doe@company.com",
-            avatar: user.picture || null,
+            avatar: avatarUrl,
             plan: user.plan || "Free Plan"
           });
         }
@@ -74,10 +77,13 @@ function ResultsPage() {
         const response = await userAPI.getProfile();
         if (response.success && response.data) {
           const user = response.data;
+          console.log('User data from API:', user);
+          const avatarUrl = user.picture || user.avatar || null;
+          console.log('Avatar URL from API:', avatarUrl);
           setUserProfile({
             name: user.name || "John Doe",
             email: user.email || "john.doe@company.com",
-            avatar: user.picture || null,
+            avatar: avatarUrl,
             plan: user.plan || "Free Plan"
           });
         }
