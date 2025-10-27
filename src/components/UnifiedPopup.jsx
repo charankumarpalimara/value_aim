@@ -187,6 +187,12 @@ const ServiceManagerContent = () => {
     'Risk Reduction', 'Compliance', 'Customer Experience', 'Decision Making'
   ];
 
+  const adjacencyExpansionList = [
+    'Cloud Security', 'FinOps', 'AI Ops', 'Intelligent Automation',
+    'Managed Security', 'Zero Trust', 'Conversational Analytics',
+    'Multilingual Bots', 'AI/ML Use Cases', 'Data Governance'
+  ];
+
   const industryOptions = [
     'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
     'Education', 'Government', 'Energy', 'Other'
@@ -226,7 +232,14 @@ const ServiceManagerContent = () => {
       title: 'Product/Service Offerings',
       dataIndex: 'interests',
       key: 'interests',
-      width: 180,
+      sorter: (a, b) => {
+        const aStr = a.interests?.join(', ') || '';
+        const bStr = b.interests?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: interestList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.interests?.includes(value),
       render: (interests) => (
         <Space wrap>
           {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
@@ -237,7 +250,14 @@ const ServiceManagerContent = () => {
       title: 'Keywords',
       dataIndex: 'keywords',
       key: 'keywords',
-      width: 150,
+      sorter: (a, b) => {
+        const aStr = a.keywords?.join(', ') || '';
+        const bStr = b.keywords?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: keywordList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.keywords?.includes(value),
       render: (keywords) => (
         <Space wrap>
           {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
@@ -245,11 +265,103 @@ const ServiceManagerContent = () => {
       ),
     },
     {
+      title: 'Adjacency Expansion',
+      dataIndex: 'adjacencyExpansion',
+      key: 'adjacencyExpansion',
+      sorter: (a, b) => {
+        const aStr = a.adjacencyExpansion?.join(', ') || '';
+        const bStr = b.adjacencyExpansion?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
+      render: (adjacency) => (
+        <Space wrap>
+          {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
+        </Space>
+      ),
+    },
+    {
+      title: 'Target Industry',
+      dataIndex: 'targetIndustry',
+      key: 'targetIndustry',
+      sorter: (a, b) => {
+        const aStr = a.targetIndustry?.join(', ') || '';
+        const bStr = b.targetIndustry?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: industryOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.targetIndustry?.includes(value),
+      render: (industries) => (
+        <Space wrap>
+          {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
+            <Tag key={industry} color="cyan">{industry}</Tag>
+          )) : '-'}
+        </Space>
+      ),
+    },
+    {
+      title: 'Function',
+      dataIndex: 'functionType',
+      key: 'functionType',
+      sorter: (a, b) => {
+        const aStr = a.functionType?.join(', ') || '';
+        const bStr = b.functionType?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: functionOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.functionType?.includes(value),
+      render: (functions) => (
+        <Space wrap>
+          {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
+            <Tag key={func} color="magenta">{func}</Tag>
+          )) : '-'}
+        </Space>
+      ),
+    },
+    {
+      title: 'Target Segment(s)',
+      dataIndex: 'targetSegment',
+      key: 'targetSegment',
+      sorter: (a, b) => {
+        const aStr = a.targetSegment?.join(', ') || '';
+        const bStr = b.targetSegment?.join(', ') || '';
+        return aStr.localeCompare(bStr);
+      },
+      sortDirections: ['ascend', 'descend'],
+      filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.targetSegment?.includes(value),
+      render: (text) => (
+        <Space wrap>
+          {Array.isArray(text) && text.length > 0 ? text.map(segment => (
+            <Tag key={segment} color="orange">{segment}</Tag>
+          )) : '-'}
+        </Space>
+      ),
+    },
+    {
       title: 'Status',
       dataIndex: 'offerStatus',
       key: 'offerStatus',
-      width: 120,
+      sorter: (a, b) => (a.offerStatus || '').localeCompare(b.offerStatus || ''),
+      sortDirections: ['ascend', 'descend'],
+      filters: [
+        { text: 'Active', value: 'Active' },
+        { text: 'Inactive', value: 'Inactive' }
+      ],
+      onFilter: (value, record) => record.offerStatus === value,
       render: (text) => <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>,
+    },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      sortDirections: ['ascend', 'descend'],
+      render: (text) => text || '-',
     },
   ];
 
@@ -259,7 +371,12 @@ const ServiceManagerContent = () => {
     return (
       item.interests?.some(i => i.toLowerCase().includes(searchLower)) ||
       item.keywords?.some(k => k.toLowerCase().includes(searchLower)) ||
-      item.offerStatus?.toLowerCase().includes(searchLower)
+      item.adjacencyExpansion?.some(a => a.toLowerCase().includes(searchLower)) ||
+      item.targetIndustry?.some(t => t.toLowerCase().includes(searchLower)) ||
+      item.functionType?.some(f => f.toLowerCase().includes(searchLower)) ||
+      item.targetSegment?.some(s => s.toLowerCase().includes(searchLower)) ||
+      item.offerStatus?.toLowerCase().includes(searchLower) ||
+      item.description?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -333,6 +450,8 @@ const ServiceManagerContent = () => {
           bordered
           size="middle"
           style={{ width: '100%' }}
+          filterMultiple={true}
+          showSorterTooltip={false}
         />
       </Form>
 
@@ -372,6 +491,20 @@ const ServiceManagerContent = () => {
               tokenSeparators={[',']}
             >
               {keywordList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="adjacencyExpansion"
+            label="Adjacency Expansion"
+          >
+            <Select
+              mode="multiple"
+              placeholder="Select adjacency"
+            >
+              {adjacencyExpansionList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
