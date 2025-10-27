@@ -28,7 +28,61 @@ function LandingPage() {
   const [emailExists, setEmailExists] = useState(false);
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
   
+  // Email restrictions
+  const [emailRestricted, setEmailRestricted] = useState(false);
+  const [emailRestrictionMessage, setEmailRestrictionMessage] = useState('');
+  
   const menuRef = useRef(null);
+
+  // Email validation function
+  const validateEmailRestrictions = (email) => {
+    const domain = email.split('@')[1]?.toLowerCase();
+    
+    // List of restricted domains (disposable emails, spam domains, etc.)
+    const restrictedDomains = [
+      // Disposable email services
+      '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
+      'throwaway.email', 'temp-mail.org', 'getnada.com', 'maildrop.cc',
+      'sharklasers.com', 'guerrillamailblock.com', 'pokemail.net', 'spam4.me',
+      'bccto.me', 'chacuo.net', 'dispostable.com', 'mailnesia.com',
+      'meltmail.com', 'trashmail.com', 'yopmail.com', 'yopmail.net',
+      'yopmail.org', 'cool.fr.nf', 'jetable.fr.nf', 'nospam.ze.tc',
+      'nomail.xl.cx', 'mega.zik.dj', 'speed.1s.fr', 'courriel.fr.nf',
+      'moncourrier.fr.nf', 'monemail.fr.nf', 'monmail.fr.nf',
+      // Common spam domains
+      'spam.com', 'spam.org', 'spam.net', 'spam.info', 'spam.biz',
+      'spam.co.uk', 'spam.de', 'spam.fr', 'spam.it', 'spam.es',
+      // Test domains
+      'test.com', 'example.com', 'sample.com', 'demo.com',
+      // Invalid domains
+      'localhost', 'invalid', 'test', 'example'
+    ];
+    
+    // Check if domain is restricted
+    if (restrictedDomains.includes(domain)) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('This email domain is not allowed. Please use a valid email address.');
+      return false;
+    }
+    
+    // Check for suspicious patterns
+    if (domain && domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Temporary or suspicious email domains are not allowed.');
+      return false;
+    }
+    
+    // Check for valid domain structure
+    if (domain && !domain.includes('.')) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Please enter a valid email address with a proper domain.');
+      return false;
+    }
+    
+    setEmailRestricted(false);
+    setEmailRestrictionMessage('');
+    return true;
+  };
 
   const handleSubmit = () => {
     if (website.trim() || selectedOption) {
@@ -232,6 +286,8 @@ function LandingPage() {
           setSignupOtp(['', '', '', '', '', '']);
           setSignupFullName('');
           setSignupOtpTimer(0);
+          setEmailRestricted(false);
+          setEmailRestrictionMessage('');
         }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
@@ -247,6 +303,8 @@ function LandingPage() {
                   setSignupOtp(['', '', '', '', '', '']);
                   setSignupFullName('');
                   setSignupOtpTimer(0);
+                  setEmailRestricted(false);
+                  setEmailRestrictionMessage('');
                 }}
               >
                 ×
@@ -265,9 +323,16 @@ function LandingPage() {
                         setSignupEmail(e.target.value);
                         setEmailExists(false);
                         setEmailCheckMessage('');
+                        setEmailRestricted(false);
+                        setEmailRestrictionMessage('');
                       }}
                       onBlur={async () => {
                         if (!signupEmail.trim()) return;
+                        
+                        // First validate email restrictions
+                        if (!validateEmailRestrictions(signupEmail.trim())) {
+                          return;
+                        }
                         
                         setIsCheckingEmail(true);
                         setEmailCheckMessage('Checking...');
@@ -291,7 +356,7 @@ function LandingPage() {
                       className="signup-input"
                       autoFocus
                       style={{ 
-                        borderColor: emailExists ? '#ff4d4f' : emailCheckMessage === '' && signupEmail ? '#52c41a' : ''
+                        borderColor: emailExists || emailRestricted ? '#ff4d4f' : emailCheckMessage === '' && signupEmail && !emailRestricted ? '#52c41a' : ''
                       }}
                     />
                     {emailCheckMessage && (
@@ -301,6 +366,15 @@ function LandingPage() {
                         marginTop: '4px'
                       }}>
                         {emailCheckMessage}
+                      </div>
+                    )}
+                    {emailRestrictionMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {emailRestrictionMessage}
                       </div>
                     )}
                   </div>
@@ -371,6 +445,12 @@ function LandingPage() {
                         return;
                       }
                       
+                      // Check if email is restricted
+                      if (emailRestricted) {
+                        alert('This email domain is not allowed. Please use a valid email address.');
+                        return;
+                      }
+                      
                       if (emailExists) {
                         alert('This email is already registered. Please use a different email or log in.');
                         return;
@@ -398,8 +478,8 @@ function LandingPage() {
                       }
                     }}
                     className="signup-submit-btn"
-                    disabled={isCheckingEmail || emailExists}
-                    style={{ width: '100%', opacity: isCheckingEmail || emailExists ? 0.6 : 1 }}
+                    disabled={isCheckingEmail || emailExists || emailRestricted}
+                    style={{ width: '100%', opacity: isCheckingEmail || emailExists || emailRestricted ? 0.6 : 1 }}
                   >
                     {isCheckingEmail ? 'Sending OTP...' : 'Send Verification Code'}
                   </button>

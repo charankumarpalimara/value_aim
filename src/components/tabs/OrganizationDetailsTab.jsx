@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Form, Input, Select, Button, Card, message, Row, Col, notification } from 'antd';
 import { SaveOutlined, BankOutlined, GlobalOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
@@ -21,7 +21,7 @@ const OrganizationDetailsTab = () => {
     'Consulting', 'Legal Services', 'Non-Profit', 'Other'
   ];
 
-  const countriesWithCities = {
+  const countriesWithCities = useMemo(() => ({
     'United States': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'San Francisco', 'Seattle', 'Boston', 'Austin', 'Denver'],
     'United Kingdom': ['London', 'Birmingham', 'Manchester', 'Glasgow', 'Liverpool', 'Edinburgh'],
     'Canada': ['Toronto', 'Montreal', 'Vancouver', 'Calgary', 'Edmonton', 'Ottawa'],
@@ -30,7 +30,7 @@ const OrganizationDetailsTab = () => {
     'France': ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice'],
     'Australia': ['Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide'],
     'Singapore': ['Singapore'],
-  };
+  }), []);
 
   const [availableCities, setAvailableCities] = useState([]);
 
@@ -80,7 +80,7 @@ const OrganizationDetailsTab = () => {
     };
 
     loadOrganizationData();
-  }, [form]);
+  }, [form, countriesWithCities]);
 
   const handleCountryChange = (country) => {
     form.setFieldValue('city', undefined);
@@ -218,13 +218,14 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Company Name" 
+            label="Company Name *" 
             name="companyName" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
+            rules={[{ required: true, message: 'Please enter company name' }]}
           >
             <Input 
               prefix={<BankOutlined />}
@@ -233,13 +234,14 @@ const OrganizationDetailsTab = () => {
             />
           </Form.Item>
           <Form.Item 
-            label="Industry" 
+            label="Industry *" 
             name="industry" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
+            rules={[{ required: true, message: 'Please select industry' }]}
           >
             <Select 
               placeholder="Select industry"
@@ -264,7 +266,7 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Website" 
+            label="Website *" 
             name="website" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -272,7 +274,7 @@ const OrganizationDetailsTab = () => {
               width: isMobile ? '100%' : 'auto'
             }}
             rules={[
-              { required: false },
+              { required: true, message: 'Please enter website URL' },
               { type: 'url', message: 'Please enter a valid URL' }
             ]}
           >
@@ -283,13 +285,14 @@ const OrganizationDetailsTab = () => {
             />
           </Form.Item>
           <Form.Item 
-            label="Number of Employees" 
+            label="Number of Employees *" 
             name="employees" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
+            rules={[{ required: true, message: 'Please select number of employees' }]}
           >
             <Select 
               placeholder="Select employee count"
@@ -312,13 +315,14 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Country" 
+            label="Country *" 
             name="country" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
+            rules={[{ required: true, message: 'Please select country' }]}
           >
             <Select 
               placeholder="Select country"
@@ -335,13 +339,14 @@ const OrganizationDetailsTab = () => {
             </Select>
           </Form.Item>
           <Form.Item 
-            label="City" 
+            label="City *" 
             name="city" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
+            rules={[{ required: true, message: 'Please select city' }]}
           >
             <Select 
               placeholder="Select city"

@@ -17,14 +17,6 @@ function LoginPage() {
   const [googleUserData, setGoogleUserData] = useState(null);
   const [loginProvider, setLoginProvider] = useState('');
   const [showSignupModal, setShowSignupModal] = useState(false);
-  const [signupData, setSignupData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
-  const [signupErrors, setSignupErrors] = useState({});
-  const [isSigningUp, setIsSigningUp] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState('');
   const [showOtpOption, setShowOtpOption] = useState(false);
@@ -49,6 +41,60 @@ function LoginPage() {
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
   const [isCheckingEmailExistence, setIsCheckingEmailExistence] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  
+  // Email restrictions
+  const [emailRestricted, setEmailRestricted] = useState(false);
+  const [emailRestrictionMessage, setEmailRestrictionMessage] = useState('');
+
+  // Email validation function
+  const validateEmailRestrictions = (email) => {
+    const domain = email.split('@')[1]?.toLowerCase();
+    
+    // List of restricted domains (disposable emails, spam domains, etc.)
+    const restrictedDomains = [
+      // Disposable email services
+      '10minutemail.com', 'tempmail.org', 'guerrillamail.com', 'mailinator.com',
+      'throwaway.email', 'temp-mail.org', 'getnada.com', 'maildrop.cc',
+      'sharklasers.com', 'guerrillamailblock.com', 'pokemail.net', 'spam4.me',
+      'bccto.me', 'chacuo.net', 'dispostable.com', 'mailnesia.com',
+      'meltmail.com', 'trashmail.com', 'yopmail.com', 'yopmail.net',
+      'yopmail.org', 'cool.fr.nf', 'jetable.fr.nf', 'nospam.ze.tc',
+      'nomail.xl.cx', 'mega.zik.dj', 'speed.1s.fr', 'courriel.fr.nf',
+      'moncourrier.fr.nf', 'monemail.fr.nf', 'monmail.fr.nf',
+      // Common spam domains
+      'spam.com', 'spam.org', 'spam.net', 'spam.info', 'spam.biz',
+      'spam.co.uk', 'spam.de', 'spam.fr', 'spam.it', 'spam.es',
+      // Test domains
+      'test.com', 'example.com', 'sample.com', 'demo.com',
+      // Invalid domains
+      'localhost', 'invalid', 'test', 'example'
+    ];
+    
+    // Check if domain is restricted
+    if (restrictedDomains.includes(domain)) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('This email domain is not allowed. Please use a valid email address.');
+      return false;
+    }
+    
+    // Check for suspicious patterns
+    if (domain && domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Temporary or suspicious email domains are not allowed.');
+      return false;
+    }
+    
+    // Check for valid domain structure
+    if (domain && !domain.includes('.')) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Please enter a valid email address with a proper domain.');
+      return false;
+    }
+    
+    setEmailRestricted(false);
+    setEmailRestrictionMessage('');
+    return true;
+  };
 
   // Debug: Monitor password modal state
   useEffect(() => {
@@ -540,7 +586,6 @@ function LoginPage() {
         );
         
         if (shouldSignup) {
-          setSignupData(prev => ({ ...prev, email: email.trim() }));
           setShowSignupModal(true);
         }
       }
@@ -647,80 +692,6 @@ function LoginPage() {
     }
   };
 
-  // Signup functions
-  const handleSignupInputChange = (field, value) => {
-    setSignupData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
-    if (signupErrors[field]) {
-      setSignupErrors(prev => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  const handleSignupSubmit = async () => {
-    const newErrors = {};
-    
-    if (!signupData.name.trim()) {
-      newErrors.name = 'Name is required';
-    }
-    
-    if (!signupData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    
-    if (!signupData.password) {
-      newErrors.password = 'Password is required';
-    } else if (signupData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    if (signupData.password !== signupData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-    
-    setSignupErrors(newErrors);
-    
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
-    
-    setIsSigningUp(true);
-    
-    try {
-      const response = await authAPI.register({
-        name: signupData.name,
-        email: signupData.email,
-        password: signupData.password,
-        provider: 'email'
-      });
-      
-      if (response.success) {
-        console.log('User registered successfully:', response.data);
-        
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify({
-          name: signupData.name,
-          email: signupData.email,
-          provider: 'email',
-          plan: 'Free Plan'
-        }));
-        
-        // Store auth token
-        localStorage.setItem('token', response.data.token);
-        
-        // Navigate to company details
-        navigate('/company-details');
-      } else {
-        throw new Error(response.message || 'Registration failed');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      alert('Registration failed. Please try again.');
-    } finally {
-      setIsSigningUp(false);
-    }
-  };
 
   // const handleBack = () => {
   //   navigate('/');
@@ -793,6 +764,8 @@ function LoginPage() {
           setSignupOtp(['', '', '', '', '', '']);
           setSignupFullName('');
           setSignupOtpTimer(0);
+          setEmailRestricted(false);
+          setEmailRestrictionMessage('');
         }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
@@ -808,6 +781,8 @@ function LoginPage() {
                   setSignupOtp(['', '', '', '', '', '']);
                   setSignupFullName('');
                   setSignupOtpTimer(0);
+                  setEmailRestricted(false);
+                  setEmailRestrictionMessage('');
                 }}
               >
                 ×
@@ -826,9 +801,16 @@ function LoginPage() {
                         setSignupEmail(e.target.value);
                         setEmailExists(false);
                         setEmailCheckMessage('');
+                        setEmailRestricted(false);
+                        setEmailRestrictionMessage('');
                       }}
                       onBlur={async () => {
                         if (!signupEmail.trim()) return;
+                        
+                        // First validate email restrictions
+                        if (!validateEmailRestrictions(signupEmail.trim())) {
+                          return;
+                        }
                         
                         setIsCheckingEmail(true);
                         setEmailCheckMessage('Checking...');
@@ -853,7 +835,7 @@ function LoginPage() {
                       className="signup-input"
                       autoFocus
                       style={{ 
-                        borderColor: emailExists ? '#ff4d4f' : emailCheckMessage === '' && signupEmail ? '#52c41a' : ''
+                        borderColor: emailExists || emailRestricted ? '#ff4d4f' : emailCheckMessage === '' && signupEmail && !emailRestricted ? '#52c41a' : ''
                       }}
                     />
                     {emailCheckMessage && (
@@ -863,6 +845,15 @@ function LoginPage() {
                         marginTop: '4px'
                       }}>
                         {emailCheckMessage}
+                      </div>
+                    )}
+                    {emailRestrictionMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {emailRestrictionMessage}
                       </div>
                     )}
                   </div>
@@ -933,6 +924,12 @@ function LoginPage() {
                         return;
                       }
                       
+                      // Check if email is restricted
+                      if (emailRestricted) {
+                        alert('This email domain is not allowed. Please use a valid email address.');
+                        return;
+                      }
+                      
                       // Check if email already exists
                       if (emailExists) {
                         alert('This email is already registered. Please use a different email or log in.');
@@ -962,8 +959,8 @@ function LoginPage() {
                       }
                     }}
                     className="signup-submit-btn"
-                    disabled={isCheckingEmail || emailExists}
-                    style={{ width: '100%', opacity: isCheckingEmail || emailExists ? 0.6 : 1 }}
+                    disabled={isCheckingEmail || emailExists || emailRestricted}
+                    style={{ width: '100%', opacity: isCheckingEmail || emailExists || emailRestricted ? 0.6 : 1 }}
                   >
                     {isCheckingEmail ? 'Sending OTP...' : 'Send Verification Code'}
                   </button>

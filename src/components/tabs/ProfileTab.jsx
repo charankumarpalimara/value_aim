@@ -368,7 +368,7 @@ const ProfileTab = () => {
             <div style={{ fontSize: '10px', color: '#999', marginBottom: '8px' }}>
               Debug: {imagePreview ? (imagePreview instanceof File ? 'File' : 'URL') : 'None'}
             </div>
-            {imagePreview && (
+            {/* {imagePreview && (
               <div style={{ 
                 fontSize: '12px', 
                 color: '#52c41a', 
@@ -377,7 +377,7 @@ const ProfileTab = () => {
               }}>
                 ✓ Image Selected
               </div>
-            )}
+            )} */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
               <input
                 type="file"
@@ -413,7 +413,7 @@ const ProfileTab = () => {
               style={{ maxWidth: isMobile ? '100%' : '500px' }}
             >
               <Form.Item
-                label="Full Name"
+                label="Full Name *"
                 name="name"
                 rules={[{ required: true, message: 'Please enter your name' }]}
               >
@@ -425,7 +425,7 @@ const ProfileTab = () => {
               </Form.Item>
 
               <Form.Item
-                label="Email Address"
+                label="Email Address *"
                 name="email"
                 rules={[
                   { required: true, message: 'Please enter your email' },
@@ -501,7 +501,7 @@ const ProfileTab = () => {
             style={{ maxWidth: isMobile ? '100%' : '500px' }}
           >
             <Form.Item
-              label="Current Password"
+              label="Current Password *"
               name="currentPassword"
               rules={[{ required: true, message: 'Please enter your current password' }]}
             >
@@ -513,7 +513,7 @@ const ProfileTab = () => {
             </Form.Item>
 
             <Form.Item
-              label="New Password"
+              label="New Password *"
               name="newPassword"
               rules={[
                 { required: true, message: 'Please enter your new password' },
@@ -528,7 +528,7 @@ const ProfileTab = () => {
             </Form.Item>
 
             <Form.Item
-              label="Confirm New Password"
+              label="Confirm New Password *"
               name="confirmPassword"
               dependencies={['newPassword']}
               rules={[
