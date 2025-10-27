@@ -178,7 +178,6 @@ const ServiceManagerTab = () => {
       title: 'Product/Service Offerings',
       dataIndex: 'interests',
       key: 'interests',
-      width: 180,
       sorter: (a, b) => {
         const aStr = a.interests?.join(', ') || '';
         const bStr = b.interests?.join(', ') || '';
@@ -225,7 +224,6 @@ const ServiceManagerTab = () => {
       title: 'Keywords',
       dataIndex: 'keywords',
       key: 'keywords',
-      width: 150,
       sorter: (a, b) => {
         const aStr = a.keywords?.join(', ') || '';
         const bStr = b.keywords?.join(', ') || '';
@@ -272,7 +270,6 @@ const ServiceManagerTab = () => {
       title: 'Adjacency Expansion',
       dataIndex: 'adjacencyExpansion',
       key: 'adjacencyExpansion',
-      width: 150,
       sorter: (a, b) => {
         const aStr = a.adjacencyExpansion?.join(', ') || '';
         const bStr = b.adjacencyExpansion?.join(', ') || '';
@@ -318,7 +315,6 @@ const ServiceManagerTab = () => {
       title: 'Target Industry',
       dataIndex: 'targetIndustry',
       key: 'targetIndustry',
-      width: 150,
       sorter: (a, b) => {
         const aStr = a.targetIndustry?.join(', ') || '';
         const bStr = b.targetIndustry?.join(', ') || '';
@@ -366,7 +362,6 @@ const ServiceManagerTab = () => {
       title: 'Function',
       dataIndex: 'functionType',
       key: 'functionType',
-      width: 150,
       sorter: (a, b) => {
         const aStr = a.functionType?.join(', ') || '';
         const bStr = b.functionType?.join(', ') || '';
@@ -414,7 +409,6 @@ const ServiceManagerTab = () => {
       title: 'Target Segment(s)',
       dataIndex: 'targetSegment',
       key: 'targetSegment',
-      width: 150,
       sorter: (a, b) => {
         const aStr = a.targetSegment?.join(', ') || '';
         const bStr = b.targetSegment?.join(', ') || '';
@@ -462,7 +456,6 @@ const ServiceManagerTab = () => {
       title: 'Status',
       dataIndex: 'offerStatus',
       key: 'offerStatus',
-      width: 120,
       sorter: (a, b) => {
         const aStr = a.offerStatus || '';
         const bStr = b.offerStatus || '';
@@ -517,7 +510,6 @@ const ServiceManagerTab = () => {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
-      width: 200,
       sorter: (a, b) => {
         const aStr = a.description || '';
         const bStr = b.description || '';
@@ -990,128 +982,6 @@ const ServiceManagerTab = () => {
       </Form>
                 </div>
 
-      <Modal
-        title="Add New Service"
-        open={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        width={800}
-        okText="Add"
-        cancelText="Cancel"
-      >
-        <Form form={addForm} layout="vertical">
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="interests"
-              label="Product/Service Offerings"
-              rules={[{ required: true, message: 'Please select offerings' }]}
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="tags"
-                placeholder="Select or type offerings"
-                tokenSeparators={[',']}
-              >
-                {interestList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="keywords"
-              label="Keywords"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="tags"
-                placeholder="Select or type keywords"
-                tokenSeparators={[',']}
-              >
-                {keywordList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="adjacencyExpansion"
-              label="Adjacency Expansion"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select adjacency"
-              >
-                {adjacencyExpansionList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="targetIndustry"
-              label="Target Industry"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select 
-                mode="multiple"
-                placeholder="Select industries"
-              >
-                {industryOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="functionType"
-              label="Function"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select 
-                mode="multiple"
-                placeholder="Select functions"
-              >
-                {functionOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="targetSegment"
-              label="Target Segment(s)"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select segments"
-              >
-                {targetSegmentOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="offerStatus"
-            label="Status"
-            valuePropName="checked"
-            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
-            getValueProps={(value) => ({ checked: value === 'Active' })}
-            initialValue="Active"
-          >
-            <Switch 
-              checkedChildren="Active" 
-              unCheckedChildren="Inactive"
-            />
-          </Form.Item>
 
               </div>
             </Modal>
