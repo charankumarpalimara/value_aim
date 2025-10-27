@@ -15,11 +15,9 @@ const ServiceManagerTab = () => {
 
   // Form and modal states
   const [form] = Form.useForm();
-  const [addForm] = Form.useForm();
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const [searchText, setSearchText] = useState('');
-  const [isEditMode, setIsEditMode] = useState(false);
+  const isEditMode = true; // Always in view mode for Service Manager tab
 
   // Sidebar states
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -154,38 +152,10 @@ const ServiceManagerTab = () => {
     }
   };
 
-  const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
-    setEditingCell({ key: '', dataIndex: '' });
-  };
-
   const saveToStorage = (data) => {
     const formData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
     formData.serviceDetails = { services: data };
     sessionStorage.setItem('formFlowData', JSON.stringify(formData));
-  };
-
-  const handleModalOk = async () => {
-    try {
-      const values = await addForm.validateFields();
-      const newData = {
-        key: Date.now().toString(),
-        ...values,
-      };
-      const updatedData = [...dataSource, newData];
-      setDataSource(updatedData);
-      saveToStorage(updatedData);
-      addForm.resetFields();
-      setIsModalVisible(false);
-      message.success('Service added successfully');
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
-    }
-  };
-
-  const handleModalCancel = () => {
-    addForm.resetFields();
-    setIsModalVisible(false);
   };
 
   const filteredData = dataSource.filter((item) => {
@@ -987,32 +957,16 @@ const ServiceManagerTab = () => {
                   </p>
                 </div>
 
-                <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px', width: '100%' }}>
-        <Input
-          placeholder="Search services..."
-          prefix={<SearchOutlined />}
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          style={{ maxWidth: 400 }}
-          allowClear
-        />
-        <Space>
-          <Button
-            type="primary"
-            icon={<EditOutlined />}
-            onClick={() => setIsModalVisible(true)}
-          >
-            Add New Service
-          </Button>
-          <Button
-                      type={isEditMode ? "default" : "primary"}
-                      icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
-                      onClick={toggleEditMode}
-                    >
-                      {isEditMode ? 'Done Editing' : 'Edit Services'}
-          </Button>
-        </Space>
-      </div>
+                <div style={{ marginBottom: 16 }}>
+          <Input
+            placeholder="Search services..."
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ maxWidth: 400 }}
+            allowClear
+          />
+        </div>
 
                 <div style={{ width: '100%' }}>
       <Form form={form} component={false}>
@@ -1036,137 +990,7 @@ const ServiceManagerTab = () => {
       </Form>
                 </div>
 
-      <Modal
-        title="Add New Service"
-        open={isModalVisible}
-        onOk={handleModalOk}
-        onCancel={handleModalCancel}
-        width={800}
-        okText="Add"
-        cancelText="Cancel"
-      >
-        <Form form={addForm} layout="vertical">
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="interests"
-              label="Product/Service Offerings"
-              rules={[{ required: true, message: 'Please select offerings' }]}
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="tags"
-                placeholder="Select or type offerings"
-                tokenSeparators={[',']}
-              >
-                {interestList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
 
-            <Form.Item
-              name="keywords"
-              label="Keywords"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="tags"
-                placeholder="Select or type keywords"
-                tokenSeparators={[',']}
-              >
-                {keywordList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="adjacencyExpansion"
-              label="Adjacency Expansion"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select adjacency"
-              >
-                {adjacencyExpansionList.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="targetIndustry"
-              label="Target Industry"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select 
-                mode="multiple"
-                placeholder="Select industries"
-              >
-                {industryOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            <Form.Item
-              name="functionType"
-              label="Function"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select 
-                mode="multiple"
-                placeholder="Select functions"
-              >
-                {functionOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-
-            <Form.Item
-              name="targetSegment"
-              label="Target Segment(s)"
-              style={{ flex: 1, minWidth: '200px' }}
-            >
-              <Select
-                mode="multiple"
-                placeholder="Select segments"
-              >
-                {targetSegmentOptions.map(item => (
-                  <Option key={item} value={item}>{item}</Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </div>
-
-          <Form.Item
-            name="offerStatus"
-            label="Status"
-            valuePropName="checked"
-            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
-            getValueProps={(value) => ({ checked: value === 'Active' })}
-            initialValue="Active"
-          >
-            <Switch 
-              checkedChildren="Active" 
-              unCheckedChildren="Inactive"
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="description"
-            label="Description"
-          >
-            <TextArea rows={3} placeholder="Enter description" />
-          </Form.Item>
-        </Form>
-      </Modal>
               </div>
             </Modal>
 
