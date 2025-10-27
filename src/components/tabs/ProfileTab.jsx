@@ -323,17 +323,19 @@ const ProfileTab = () => {
       overflow: 'auto'
     }}>
       <h1 style={{ 
-        fontSize: isMobile ? '24px' : '28px', 
+        fontSize: isMobile ? '18px' : '18px', 
         fontWeight: '600', 
         marginBottom: '8px',
-        color: '#201F47'
+        color: '#201F47',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }}>
         Profile Settings
       </h1>
       <p style={{ 
         color: '#666', 
         marginBottom: isMobile ? '24px' : '32px',
-        fontSize: isMobile ? '13px' : '14px'
+        fontSize: isMobile ? '13px' : '13px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }}>
         Manage your account settings and preferences
       </p>
@@ -577,8 +579,6 @@ const ProfileTab = () => {
           <div className="action-item">
             <Button 
               type="default"
-              size="large"
-              style={{ width: isMobile ? '100%' : 'auto' }}
               onClick={() => {
                 // TODO: Implement plan upgrade
                 message.info('Plan upgrade coming soon!');
@@ -596,8 +596,6 @@ const ProfileTab = () => {
           <div className="action-item">
             <Button 
               danger
-              size="large"
-              style={{ width: isMobile ? '100%' : 'auto' }}
               onClick={() => {
                 if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
                   // TODO: Implement account deletion

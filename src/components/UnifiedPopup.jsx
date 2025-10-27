@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch } from 'antd';
-import { EditOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Popconfirm } from 'antd';
+import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 
 const { TextArea } = Input;
@@ -23,22 +23,22 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       case 'Suggestions':
         return (
           <div style={{ padding: '24px' }}>
-            <h3>Suggestions</h3>
-            <p>Suggestions content will be implemented here.</p>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Suggestions</h3>
+            <p style={{ fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Suggestions content will be implemented here.</p>
           </div>
         );
       case 'Settings':
         return (
           <div style={{ padding: '24px' }}>
-            <h3>Settings</h3>
-            <p>Settings content will be implemented here.</p>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Settings</h3>
+            <p style={{ fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Settings content will be implemented here.</p>
           </div>
         );
       case 'Help':
         return (
           <div style={{ padding: '24px' }}>
-            <h3>Help</h3>
-            <p>Help content will be implemented here.</p>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Help</h3>
+            <p style={{ fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Help content will be implemented here.</p>
           </div>
         );
       default:
@@ -48,7 +48,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
 
   return (
     <Modal
-      title={activeScreen}
+      // title={activeScreen}
       open={isVisible}
       onCancel={onClose}
       width={isMobile ? "95%" : "60%"}
@@ -155,7 +155,9 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         <div style={{ 
           flex: 1, 
           overflowY: 'auto',
-          padding: '0'
+          padding: '0',
+          height: isMobile ? 'calc(70vh - 60px)' : 'auto',
+          minHeight: isMobile ? '600px' : 'auto'
         }}>
           {renderContent()}
         </div>
@@ -220,6 +222,21 @@ const ServiceManagerContent = () => {
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
+  };
+
+  const handleDelete = (key) => {
+    const newData = dataSource.filter(item => item.key !== key);
+    setDataSource(newData);
+    message.warning('Service deleted successfully');
+  };
+
+  const handleBulkDelete = () => {
+    if (dataSource.length === 0) {
+      message.warning('No services to delete');
+      return;
+    }
+    setDataSource([]);
+    message.warning('All services deleted successfully');
   };
 
   const handleModalCancel = () => {
@@ -355,14 +372,35 @@ const ServiceManagerContent = () => {
       onFilter: (value, record) => record.offerStatus === value,
       render: (text) => <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>,
     },
-    // {
-    //   title: 'Description',
-    //   dataIndex: 'description',
-    //   key: 'description',
-    //   sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
-    //   sortDirections: ['ascend', 'descend'],
-    //   render: (text) => text || '-',
-    // },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      sortDirections: ['ascend', 'descend'],
+      render: (text) => text || '-',
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      render: (_, record) => (
+        <Popconfirm
+          title="Delete Service"
+          description="Are you sure you want to delete this service?"
+          onConfirm={() => handleDelete(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />}
+            size="small"
+          />
+        </Popconfirm>
+      ),
+    },
   ];
 
   const filteredData = dataSource.filter((item) => {
@@ -381,12 +419,43 @@ const ServiceManagerContent = () => {
   });
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ 
+      padding: '24px', 
+      height: isMobile ? '85vh' : '80vh', 
+      overflowY: 'auto',
+      minHeight: isMobile ? '600px' : 'auto'
+    }}>
+      <style>
+        {`
+          .no-hover-button:hover {
+            background-color: inherit !important;
+            border-color: inherit !important;
+            color: inherit !important;
+            box-shadow: none !important;
+            transform: none !important;
+          }
+          .no-hover-button.ant-btn-primary:hover {
+            background-color: #1890ff !important;
+            border-color: #1890ff !important;
+            color: #fff !important;
+          }
+          .no-hover-button.ant-btn-danger:hover {
+            background-color: #ff4d4f !important;
+            border-color: #ff4d4f !important;
+            color: #fff !important;
+          }
+          .no-hover-button.ant-btn-default:hover {
+            background-color: #fff !important;
+            border-color: #d9d9d9 !important;
+            color: rgba(0, 0, 0, 0.88) !important;
+          }
+        `}
+      </style>
       <div style={{ marginBottom: '24px' }}>
-        <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '600' }}>
+        <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
           Manage your service offerings, keywords, and target segments
         </h3>
-        <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '14px' }}>
+        <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
           {dataSource.length === 0 ? 'No services added yet. Click "Add New Service" to get started.' : `${dataSource.length} service(s) configured.`}
         </p>
       </div>
@@ -410,30 +479,91 @@ const ServiceManagerContent = () => {
           }}
           allowClear
         />
-        <Space 
-          style={{ 
-            width: isMobile ? '100%' : 'auto',
-            justifyContent: isMobile ? 'flex-start' : 'flex-end'
-          }}
-          wrap={isMobile}
-        >
-          <Button 
-            type="primary" 
-            icon={<EditOutlined />}
-            onClick={() => setIsModalVisible(true)}
-            style={{ width: isMobile ? '100%' : 'auto' }}
-          >
-            Add New Service
-          </Button>
-          <Button
-            type={isEditMode ? "default" : "primary"}
-            icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
-            onClick={() => setIsEditMode(!isEditMode)}
-            style={{ width: isMobile ? '100%' : 'auto' }}
-          >
-            {isEditMode ? 'Done Editing' : 'Edit Services'}
-          </Button>
-        </Space>
+{isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+            <Button 
+              type="primary" 
+              icon={<EditOutlined />}
+              onClick={() => setIsModalVisible(true)}
+              style={{ 
+                width: '100%',
+                ':hover': { backgroundColor: 'transparent' }
+              }}
+              className="no-hover-button"
+            >
+              Add New Service
+            </Button>
+            <Button
+              type={isEditMode ? "default" : "primary"}
+              icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
+              onClick={() => setIsEditMode(!isEditMode)}
+              style={{ 
+                width: '100%',
+                ':hover': { backgroundColor: 'transparent' }
+              }}
+              className="no-hover-button"
+            >
+              {isEditMode ? 'Done Editing' : 'Edit Services'}
+            </Button>
+            <Popconfirm
+              title="Delete All Services"
+              description="Are you sure you want to delete all services? This action cannot be undone."
+              onConfirm={handleBulkDelete}
+              okText="Yes"
+              cancelText="No"
+              disabled={dataSource.length === 0}
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                style={{ 
+                  width: '100%',
+                  ':hover': { backgroundColor: 'transparent' }
+                }}
+                className="no-hover-button"
+                disabled={dataSource.length === 0}
+              >
+                Delete All
+              </Button>
+            </Popconfirm>
+          </div>
+        ) : (
+          <Space>
+            <Button 
+              type="primary" 
+              icon={<EditOutlined />}
+              onClick={() => setIsModalVisible(true)}
+              className="no-hover-button"
+            >
+              Add New Service
+            </Button>
+            <Button
+              type={isEditMode ? "default" : "primary"}
+              icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
+              onClick={() => setIsEditMode(!isEditMode)}
+              className="no-hover-button"
+            >
+              {isEditMode ? 'Done Editing' : 'Edit Services'}
+            </Button>
+            <Popconfirm
+              title="Delete All Services"
+              description="Are you sure you want to delete all services? This action cannot be undone."
+              onConfirm={handleBulkDelete}
+              okText="Yes"
+              cancelText="No"
+              disabled={dataSource.length === 0}
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                className="no-hover-button"
+                disabled={dataSource.length === 0}
+              >
+                Delete All
+              </Button>
+            </Popconfirm>
+          </Space>
+        )}
       </div>
 
       <Form form={form} component={false}>

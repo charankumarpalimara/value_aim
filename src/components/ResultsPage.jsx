@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
+import valueAimImage from "../assets/value_aim.png"
 import "./ResultsPage.css";
 import "./ResultsPage-tabs.css";
 import JourneyMatrixTab from "./tabs/JourneyMatrixTab";
@@ -376,10 +377,7 @@ function ResultsPage() {
             <div className="sidebar-top">
               <img src={logoImage} alt="Logo" className="sidebar-logo" />
               <div className="sidebar-icon-collapsed">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <rect x="2" y="2" width="28" height="28" rx="4" fill="#201F47" />
-                  <text x="16" y="20" fontSize="16" fill="white" fontWeight="bold" textAnchor="middle">V</text>
-                </svg>
+                <img src={valueAimImage} alt="Value Aim" style={{ width: '40px', height: '40px' }} />
               </div>
               <button className="close-btn" onClick={closeSidebar} aria-label="Close sidebar">×</button>
             </div>
@@ -598,7 +596,7 @@ function ResultsPage() {
                 {/* Profile Menu Dropdown */}
                 {showProfileMenu && (
                   <div className="profile-menu">
-                    <button className="profile-menu-item" >
+                    <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Profile'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                       <div className="profile-menu-header">
                         <div className="profile-menu-avatar">
                           {userProfile.avatar ? (
@@ -625,13 +623,7 @@ function ResultsPage() {
                     <div className="profile-menu-divider"></div>
 
                     <div className="profile-menu-items">
-                      {/* <button className="profile-menu-item" onClick={() => { setActiveSidebarOption('Profile'); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M8 8C9.65685 8 11 6.65685 11 5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5C5 6.65685 6.34315 8 8 8Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                          <path d="M3 14C3 11.7909 4.79086 10 7 10H9C11.2091 10 13 11.7909 13 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        </svg>
-                        <span>My Profile</span>
-                      </button> */}
+        
 
                       <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Organization Details'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

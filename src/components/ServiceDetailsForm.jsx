@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message } from 'antd';
-import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined } from '@ant-design/icons';
+import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message, Popconfirm } from 'antd';
+import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { serviceAPI } from '../utils/api';
 import './ServiceDetailsForm.css';
 import logo from '../assets/Amplify-Value-as-subtitle-3.png';
@@ -168,9 +168,25 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       setDataSource([...dataSource, newData]);
       addForm.resetFields();
       setIsModalVisible(false);
+      message.success('Service added successfully');
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
+  };
+
+  const handleDelete = (key) => {
+    const newData = dataSource.filter(item => item.key !== key);
+    setDataSource(newData);
+    message.warning('Service deleted successfully');
+  };
+
+  const handleBulkDelete = () => {
+    if (dataSource.length === 0) {
+      message.warning('No services to delete');
+      return;
+    }
+    setDataSource([]);
+    message.warning('All services deleted successfully');
   };
 
   const handleModalCancel = () => {
@@ -597,42 +613,63 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         );
       },
     },
-    // {
-    //   title: 'Description',
-    //   dataIndex: 'description',
-    //   key: 'description',
-    //   width: 200,
-    //   sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
-    //   render: (text, record) => {
-    //     const editable = isEditingCell(record, 'description');
-    //     return editable ? (
-    //       <Form.Item
-    //         name="description"
-    //         style={{ margin: 0 }}
-    //         rules={[{ required: false }]}
-    //       >
-    //         <TextArea 
-    //           rows={2} 
-    //           placeholder="Enter description"
-    //           autoFocus
-    //           onBlur={() => saveCell(record.key, 'description')}
-    //         />
-    //       </Form.Item>
-    //     ) : (
-    //       <div 
-    //         onClick={() => editCell(record, 'description')} 
-    //         style={{ 
-    //           cursor: isEditMode ? 'pointer' : 'default', 
-    //           minHeight: '32px', 
-    //           padding: '4px',
-    //           backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-    //         }}
-    //       >
-    //         {text || '-'}
-    //       </div>
-    //     );
-    //   },
-    // },
+    {
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      width: 200,
+      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      render: (text, record) => {
+        const editable = isEditingCell(record, 'description');
+        return editable ? (
+          <Form.Item
+            name="description"
+            style={{ margin: 0 }}
+            rules={[{ required: false }]}
+          >
+            <TextArea 
+              rows={2} 
+              placeholder="Enter description"
+              autoFocus
+              onBlur={() => saveCell(record.key, 'description')}
+            />
+          </Form.Item>
+        ) : (
+          <div 
+            onClick={() => editCell(record, 'description')} 
+            style={{ 
+              cursor: isEditMode ? 'pointer' : 'default', 
+              minHeight: '32px', 
+              padding: '4px',
+              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+            }}
+          >
+            {text || '-'}
+          </div>
+        );
+      },
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      render: (_, record) => (
+        <Popconfirm
+          title="Delete Service"
+          description="Are you sure you want to delete this service?"
+          onConfirm={() => handleDelete(record.key)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button 
+            type="text" 
+            danger 
+            icon={<DeleteOutlined />}
+            size="small"
+          />
+        </Popconfirm>
+      ),
+    },
     // {
     //   title: 'Status',
     //   key: 'status',
@@ -687,6 +724,22 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           >
             {isEditMode ? 'Done Editing' : 'Edit Services'}
           </Button>
+          <Popconfirm
+            title="Delete All Services"
+            description="Are you sure you want to delete all services? This action cannot be undone."
+            onConfirm={handleBulkDelete}
+            okText="Yes"
+            cancelText="No"
+            disabled={dataSource.length === 0}
+          >
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              disabled={dataSource.length === 0}
+            >
+              Delete All
+            </Button>
+          </Popconfirm>
         </Space>
       </div>
 

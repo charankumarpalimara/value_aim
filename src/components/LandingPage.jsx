@@ -18,7 +18,7 @@ function LandingPage() {
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
-  const [signupOtp, setSignupOtp] = useState(['', '', '', '', '', '']);
+  const [signupOtp, setSignupOtp] = useState('');
   const [signupFullName, setSignupFullName] = useState('');
   const [signupOtpTimer, setSignupOtpTimer] = useState(0);
   const [isSubmittingSignup, setIsSubmittingSignup] = useState(false);
@@ -283,9 +283,8 @@ function LandingPage() {
           setSignupEmail('');
           setSignupPassword('');
           setSignupConfirmPassword('');
-          setSignupOtp(['', '', '', '', '', '']);
+          setSignupOtp('');
           setSignupFullName('');
-          setSignupOtpTimer(0);
           setEmailRestricted(false);
           setEmailRestrictionMessage('');
         }}>
@@ -300,9 +299,8 @@ function LandingPage() {
                   setSignupEmail('');
                   setSignupPassword('');
                   setSignupConfirmPassword('');
-                  setSignupOtp(['', '', '', '', '', '']);
+                  setSignupOtp('');
                   setSignupFullName('');
-                  setSignupOtpTimer(0);
                   setEmailRestricted(false);
                   setEmailRestrictionMessage('');
                 }}
@@ -465,9 +463,8 @@ function LandingPage() {
                         });
                         const result = await response.json();
                         if (result.success) {
-                          setSignupOtpTimer(300);
                           setSignupStep(2);
-                          setTimeout(() => document.getElementById('signup-otp-0')?.focus(), 100);
+                          setTimeout(() => document.getElementById('signup-otp-input')?.focus(), 100);
                         } else {
                           alert('Failed to send OTP');
                         }
@@ -492,74 +489,59 @@ function LandingPage() {
                     Enter the verification code sent to <strong>{signupEmail}</strong>
                   </p>
                   
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '20px' }}>
-                    {signupOtp.map((digit, index) => (
-                      <input
-                        key={index}
-                        id={`signup-otp-${index}`}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        value={digit}
-                        onChange={(e) => {
-                          if (e.target.value.length > 1) return;
-                          const newOtp = [...signupOtp];
-                          newOtp[index] = e.target.value;
-                          setSignupOtp(newOtp);
-                          if (e.target.value && index < 5) {
-                            document.getElementById(`signup-otp-${index + 1}`)?.focus();
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Backspace' && !signupOtp[index] && index > 0) {
-                            document.getElementById(`signup-otp-${index - 1}`)?.focus();
-                          }
-                        }}
-                        onPaste={(e) => {
-                          e.preventDefault();
-                          const pastedData = e.clipboardData.getData('text').trim();
-                          if (/^\d{6}$/.test(pastedData)) {
-                            setSignupOtp(pastedData.split(''));
-                            document.getElementById('signup-otp-5')?.focus();
-                          }
-                        }}
-                        className="signup-input"
-                        style={{ width: '40px', height: '50px', textAlign: 'center', fontSize: '24px', padding: '0' }}
-                      />
-                    ))}
-                  </div>
-
-                  {signupOtpTimer > 0 && (
-                    <div style={{ textAlign: 'center', marginBottom: '16px', color: '#666', fontSize: '14px' }}>
-                      Code expires in {Math.floor(signupOtpTimer / 60)}:{(signupOtpTimer % 60).toString().padStart(2, '0')}
-                    </div>
-                  )}
-
-                  {signupOtpTimer === 0 && (
-                    <button
-                      onClick={async () => {
-                        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
-                        });
-                        if (response.ok) {
-                          setSignupOtpTimer(300);
-                          setSignupOtp(['', '', '', '', '', '']);
-                          alert('OTP resent!');
+                  <div style={{ marginBottom: '20px' }}>
+                    <input
+                      id="signup-otp-input"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={signupOtp}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, ''); // Only allow digits
+                        setSignupOtp(value);
+                      }}
+                      onPaste={(e) => {
+                        e.preventDefault();
+                        const pastedData = e.clipboardData.getData('text').trim().replace(/\D/g, '');
+                        if (pastedData.length <= 6) {
+                          setSignupOtp(pastedData);
                         }
                       }}
-                      className="signup-login-btn"
-                      style={{ fontSize: '14px', width: '100%' }}
-                    >
-                      Resend Code
-                    </button>
-                  )}
+                      className="signup-input"
+                      style={{ 
+                        width: '100%', 
+                        height: '50px', 
+                        textAlign: 'center', 
+                        fontSize: '24px',
+                        letterSpacing: '8px'
+                      }}
+                      placeholder="000000"
+                      autoFocus
+                    />
+                  </div>
+
+                  <button
+                    onClick={async () => {
+                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
+                      });
+                      if (response.ok) {
+                        setSignupOtp('');
+                        alert('OTP resent!');
+                      }
+                    }}
+                    className="signup-login-btn"
+                    style={{ fontSize: '14px', width: '100%', marginBottom: '16px' }}
+                  >
+                    Resend Code
+                  </button>
                   
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
-                      const otpValue = signupOtp.join('');
+                      const otpValue = signupOtp;
                       if (otpValue.length !== 6) {
                         alert('Please enter the complete 6-digit code');
                         return;
@@ -584,7 +566,7 @@ function LandingPage() {
                     }}
                     className="signup-submit-btn"
                     style={{ width: '100%', marginTop: '8px' }}
-                    disabled={signupOtp.join('').length !== 6}
+                    disabled={signupOtp.length !== 6}
                   >
                     Verify
                   </button>
