@@ -597,42 +597,42 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         );
       },
     },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      width: 200,
-      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
-      render: (text, record) => {
-        const editable = isEditingCell(record, 'description');
-        return editable ? (
-          <Form.Item
-            name="description"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <TextArea 
-              rows={2} 
-              placeholder="Enter description"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'description')}
-            />
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'description')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            {text || '-'}
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: 'Description',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    //   width: 200,
+    //   sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+    //   render: (text, record) => {
+    //     const editable = isEditingCell(record, 'description');
+    //     return editable ? (
+    //       <Form.Item
+    //         name="description"
+    //         style={{ margin: 0 }}
+    //         rules={[{ required: false }]}
+    //       >
+    //         <TextArea 
+    //           rows={2} 
+    //           placeholder="Enter description"
+    //           autoFocus
+    //           onBlur={() => saveCell(record.key, 'description')}
+    //         />
+    //       </Form.Item>
+    //     ) : (
+    //       <div 
+    //         onClick={() => editCell(record, 'description')} 
+    //         style={{ 
+    //           cursor: isEditMode ? 'pointer' : 'default', 
+    //           minHeight: '32px', 
+    //           padding: '4px',
+    //           backgroundColor: isEditMode ? '#fafafa' : 'transparent'
+    //         }}
+    //       >
+    //         {text || '-'}
+    //       </div>
+    //     );
+    //   },
+    // },
     // {
     //   title: 'Status',
     //   key: 'status',

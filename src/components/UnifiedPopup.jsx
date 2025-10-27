@@ -238,7 +238,7 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: interestList.map(item => ({ text: item, value: item })),
+      // filters: interestList.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.interests?.includes(value),
       render: (interests) => (
         <Space wrap>
@@ -256,7 +256,7 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: keywordList.map(item => ({ text: item, value: item })),
+      // filters: keywordList.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.keywords?.includes(value),
       render: (keywords) => (
         <Space wrap>
@@ -274,13 +274,13 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
-      onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
-      render: (adjacency) => (
-        <Space wrap>
-          {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
-        </Space>
-      ),
+      // filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
+      // onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
+      // render: (adjacency) => (
+      //   <Space wrap>
+      //     {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
+      //   </Space>
+      // ),
     },
     {
       title: 'Target Industry',
@@ -292,7 +292,7 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: industryOptions.map(item => ({ text: item, value: item })),
+      // filters: industryOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.targetIndustry?.includes(value),
       render: (industries) => (
         <Space wrap>
@@ -312,7 +312,7 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: functionOptions.map(item => ({ text: item, value: item })),
+      // filters: functionOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.functionType?.includes(value),
       render: (functions) => (
         <Space wrap>
@@ -332,7 +332,7 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
+      // filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.targetSegment?.includes(value),
       render: (text) => (
         <Space wrap>
@@ -355,14 +355,14 @@ const ServiceManagerContent = () => {
       onFilter: (value, record) => record.offerStatus === value,
       render: (text) => <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>,
     },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
-      sortDirections: ['ascend', 'descend'],
-      render: (text) => text || '-',
-    },
+    // {
+    //   title: 'Description',
+    //   dataIndex: 'description',
+    //   key: 'description',
+    //   sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+    //   sortDirections: ['ascend', 'descend'],
+    //   render: (text) => text || '-',
+    // },
   ];
 
   const filteredData = dataSource.filter((item) => {
