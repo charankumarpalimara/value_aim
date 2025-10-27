@@ -260,6 +260,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.interests?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: interestList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.interests?.includes(value),
       render: (interests, record) => {
         const editable = isEditingCell(record, 'interests');
         return editable ? (
@@ -309,6 +312,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.keywords?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: keywordList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.keywords?.includes(value),
       render: (keywords, record) => {
         const editable = isEditingCell(record, 'keywords');
         return editable ? (
@@ -358,6 +364,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.adjacencyExpansion?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
       render: (adjacency, record) => {
         const editable = isEditingCell(record, 'adjacencyExpansion');
         return editable ? (
@@ -405,6 +414,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.targetIndustry?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: industryOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.targetIndustry?.includes(value),
       render: (industries, record) => {
         const editable = isEditingCell(record, 'targetIndustry');
         return editable ? (
@@ -454,6 +466,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.functionType?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: functionOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.functionType?.includes(value),
       render: (functions, record) => {
         const editable = isEditingCell(record, 'functionType');
         return editable ? (
@@ -503,6 +518,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         const bStr = b.targetSegment?.join(', ') || '';
         return aStr.localeCompare(bStr);
       },
+      sortDirections: ['ascend', 'descend'],
+      filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
+      onFilter: (value, record) => record.targetSegment?.includes(value),
       render: (text, record) => {
         const editable = isEditingCell(record, 'targetSegment');
         return editable ? (
@@ -548,6 +566,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       key: 'offerStatus',
       width: 120,
       sorter: (a, b) => (a.offerStatus || '').localeCompare(b.offerStatus || ''),
+      sortDirections: ['ascend', 'descend'],
       filters: [
         { text: 'Active', value: 'Active' },
         { text: 'Inactive', value: 'Inactive' }
@@ -603,6 +622,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       key: 'description',
       width: 200,
       sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
+      sortDirections: ['ascend', 'descend'],
       render: (text, record) => {
         const editable = isEditingCell(record, 'description');
         return editable ? (

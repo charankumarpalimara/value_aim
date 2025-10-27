@@ -990,6 +990,128 @@ const ServiceManagerTab = () => {
       </Form>
                 </div>
 
+      <Modal
+        title="Add New Service"
+        open={isModalVisible}
+        onOk={handleModalOk}
+        onCancel={handleModalCancel}
+        width={800}
+        okText="Add"
+        cancelText="Cancel"
+      >
+        <Form form={addForm} layout="vertical">
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <Form.Item
+              name="interests"
+              label="Product/Service Offerings"
+              rules={[{ required: true, message: 'Please select offerings' }]}
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select
+                mode="tags"
+                placeholder="Select or type offerings"
+                tokenSeparators={[',']}
+              >
+                {interestList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="keywords"
+              label="Keywords"
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select
+                mode="tags"
+                placeholder="Select or type keywords"
+                tokenSeparators={[',']}
+              >
+                {keywordList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <Form.Item
+              name="adjacencyExpansion"
+              label="Adjacency Expansion"
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select adjacency"
+              >
+                {adjacencyExpansionList.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="targetIndustry"
+              label="Target Industry"
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select 
+                mode="multiple"
+                placeholder="Select industries"
+              >
+                {industryOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
+
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <Form.Item
+              name="functionType"
+              label="Function"
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select 
+                mode="multiple"
+                placeholder="Select functions"
+              >
+                {functionOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="targetSegment"
+              label="Target Segment(s)"
+              style={{ flex: 1, minWidth: '200px' }}
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select segments"
+              >
+                {targetSegmentOptions.map(item => (
+                  <Option key={item} value={item}>{item}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            name="offerStatus"
+            label="Status"
+            valuePropName="checked"
+            getValueFromEvent={(checked) => checked ? 'Active' : 'Inactive'}
+            getValueProps={(value) => ({ checked: value === 'Active' })}
+            initialValue="Active"
+          >
+            <Switch 
+              checkedChildren="Active" 
+              unCheckedChildren="Inactive"
+            />
+          </Form.Item>
 
               </div>
             </Modal>
