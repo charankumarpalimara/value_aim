@@ -37,6 +37,7 @@ api.interceptors.response.use(
         // Token expired or invalid
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('tokenExpiration');
         window.location.href = '/login';
       }
     }
@@ -61,6 +62,10 @@ export const authAPI = {
     if (response.data.success && response.data.data.token) {
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data));
+      // Store token expiration date (7 days from now)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+      localStorage.setItem('tokenExpiration', expirationDate.toISOString());
     }
     return response.data;
   },
@@ -71,6 +76,10 @@ export const authAPI = {
     if (response.data.success && response.data.data.token) {
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data));
+      // Store token expiration date (7 days from now)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+      localStorage.setItem('tokenExpiration', expirationDate.toISOString());
     }
     return response.data;
   },
@@ -97,6 +106,7 @@ export const authAPI = {
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('tokenExpiration');
     window.location.href = '/';
   }
 };
