@@ -26,6 +26,8 @@ function LoginPage() {
   const [signupOtp, setSignupOtp] = useState('');
   const [signupFirstName, setSignupFirstName] = useState('');
   const [signupLastName, setSignupLastName] = useState('');
+  const [signupProfilePhoto, setSignupProfilePhoto] = useState(null);
+  const [signupProfilePhotoPreview, setSignupProfilePhotoPreview] = useState(null);
   const [signupOtpTimer, setSignupOtpTimer] = useState(0);
   const [isSubmittingSignup, setIsSubmittingSignup] = useState(false);
   const [isVerifyingSignupOtp, setIsVerifyingSignupOtp] = useState(false);
@@ -38,6 +40,12 @@ function LoginPage() {
   const [isCheckingOtpEmail, setIsCheckingOtpEmail] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  
+  // Signup form errors
+  const [signupPasswordError, setSignupPasswordError] = useState(false);
+  const [signupPasswordErrorMessage, setSignupPasswordErrorMessage] = useState('');
+  const [signupConfirmPasswordError, setSignupConfirmPasswordError] = useState(false);
+  const [signupConfirmPasswordErrorMessage, setSignupConfirmPasswordErrorMessage] = useState('');
   
   // Email restrictions
   const [emailRestricted, setEmailRestricted] = useState(false);
@@ -164,11 +172,19 @@ function LoginPage() {
       if (loginResponse.success) {
         console.log('User logged in successfully:', loginResponse.data);
         
+        // Construct full name from firstName and lastName if available
+        const displayName = loginResponse.data.firstName && loginResponse.data.lastName 
+          ? `${loginResponse.data.firstName} ${loginResponse.data.lastName}` 
+          : loginResponse.data.name || email.split('@')[0];
+        
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify({
-          name: loginResponse.data.name || email.split('@')[0],
+          name: displayName,
+          firstName: loginResponse.data.firstName || displayName.split(' ')[0],
+          lastName: loginResponse.data.lastName || displayName.split(' ').slice(1).join(' '),
           email: email,
           provider: 'email',
+          picture: loginResponse.data.picture || null,
           plan: loginResponse.data.plan || 'Free Plan'
         }));
         
@@ -278,11 +294,19 @@ function LoginPage() {
       });
 
       if (loginResponse.success) {
+        // Construct full name from firstName and lastName if available
+        const displayName = loginResponse.data.firstName && loginResponse.data.lastName 
+          ? `${loginResponse.data.firstName} ${loginResponse.data.lastName}` 
+          : loginResponse.data.name || emailAddress.split('@')[0];
+        
         // Store user data
         localStorage.setItem('user', JSON.stringify({
-          name: loginResponse.data.name || emailAddress.split('@')[0],
+          name: displayName,
+          firstName: loginResponse.data.firstName || displayName.split(' ')[0],
+          lastName: loginResponse.data.lastName || displayName.split(' ').slice(1).join(' '),
           email: emailAddress,
           provider: 'email',
+          picture: loginResponse.data.picture || null,
           plan: loginResponse.data.plan || 'Free Plan'
         }));
 
@@ -563,6 +587,8 @@ function LoginPage() {
           setSignupOtp('');
           setSignupFirstName('');
           setSignupLastName('');
+          setSignupProfilePhoto(null);
+          setSignupProfilePhotoPreview(null);
           setEmailRestricted(false);
           setEmailRestrictionMessage('');
         }}>
@@ -580,6 +606,8 @@ function LoginPage() {
                   setSignupOtp('');
                   setSignupFirstName('');
                   setSignupLastName('');
+                  setSignupProfilePhoto(null);
+                  setSignupProfilePhotoPreview(null);
                   setEmailRestricted(false);
                   setEmailRestrictionMessage('');
                 }}
@@ -663,9 +691,18 @@ function LoginPage() {
                       type={showSignupPassword ? "text" : "password"}
                       placeholder="Password *"
                       value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
+                      onChange={(e) => {
+                        setSignupPassword(e.target.value);
+                        if (signupPasswordError) {
+                          setSignupPasswordError(false);
+                          setSignupPasswordErrorMessage('');
+                        }
+                      }}
                       className="signup-input"
-                      style={{ paddingRight: '40px' }}
+                      style={{ 
+                        paddingRight: '40px',
+                        borderColor: signupPasswordError ? '#ff4d4f' : ''
+                      }}
                     />
                     <span
                       onClick={() => setShowSignupPassword(!showSignupPassword)}
@@ -681,6 +718,15 @@ function LoginPage() {
                     >
                       {showSignupPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
+                    {signupPasswordErrorMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {signupPasswordErrorMessage}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="signup-form-group" style={{ position: 'relative' }}>
@@ -688,9 +734,18 @@ function LoginPage() {
                       type={showSignupConfirmPassword ? "text" : "password"}
                       placeholder="Confirm Password *"
                       value={signupConfirmPassword}
-                      onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                      onChange={(e) => {
+                        setSignupConfirmPassword(e.target.value);
+                        if (signupConfirmPasswordError) {
+                          setSignupConfirmPasswordError(false);
+                          setSignupConfirmPasswordErrorMessage('');
+                        }
+                      }}
                       className="signup-input"
-                      style={{ paddingRight: '40px' }}
+                      style={{ 
+                        paddingRight: '40px',
+                        borderColor: signupConfirmPasswordError ? '#ff4d4f' : ''
+                      }}
                     />
                     <span
                       onClick={() => setShowSignupConfirmPassword(!showSignupConfirmPassword)}
@@ -706,21 +761,56 @@ function LoginPage() {
                     >
                       {showSignupConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
+                    {signupConfirmPasswordErrorMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {signupConfirmPasswordErrorMessage}
+                      </div>
+                    )}
                   </div>
                   
                   <button 
                     onClick={async (e) => {
                       e.preventDefault();
+                      
+                      // Reset all errors
+                      setSignupPasswordError(false);
+                      setSignupPasswordErrorMessage('');
+                      setSignupConfirmPasswordError(false);
+                      setSignupConfirmPasswordErrorMessage('');
+                      
+                      // Validate all fields
+                      let hasError = false;
+                      
                       if (!signupEmail.trim() || !signupPassword || !signupConfirmPassword) {
-                        alert('Please fill all fields');
-                        return;
+                        if (!signupPassword) {
+                          setSignupPasswordError(true);
+                          setSignupPasswordErrorMessage('Password is required');
+                          hasError = true;
+                        }
+                        if (!signupConfirmPassword) {
+                          setSignupConfirmPasswordError(true);
+                          setSignupConfirmPasswordErrorMessage('Please confirm your password');
+                          hasError = true;
+                        }
+                        if (!signupEmail.trim()) {
+                          alert('Please fill all fields');
+                        }
+                        if (hasError) return;
                       }
-                      if (signupPassword !== signupConfirmPassword) {
-                        alert('Passwords do not match');
-                        return;
-                      }
+                      
                       if (signupPassword.length < 6) {
-                        alert('Password must be at least 6 characters');
+                        setSignupPasswordError(true);
+                        setSignupPasswordErrorMessage('Password must be at least 6 characters');
+                        return;
+                      }
+                      
+                      if (signupPassword !== signupConfirmPassword) {
+                        setSignupConfirmPasswordError(true);
+                        setSignupConfirmPasswordErrorMessage('Passwords do not match');
                         return;
                       }
                       
@@ -812,7 +902,7 @@ function LoginPage() {
                         });
                         if (response.ok) {
                         setSignupOtp('');
-                          alert('OTP resent!');
+                          // alert('OTP resent!');
                         }
                       }}
                       className="signup-login-btn"
@@ -874,7 +964,6 @@ function LoginPage() {
                       value={signupFirstName}
                       onChange={(e) => setSignupFirstName(e.target.value)}
                       className="signup-input"
-                      autoFocus
                     />
                   </div>
                   
@@ -887,6 +976,122 @@ function LoginPage() {
                       className="signup-input"
                     />
                   </div>
+
+                  <div className="signup-form-group" style={{ marginBottom: '20px' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '13px', 
+                      color: '#666', 
+                      marginBottom: '8px',
+                      fontWeight: '500'
+                    }}>
+                      Profile Photo (Optional)
+                    </label>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{ 
+                        width: '80px', 
+                        height: '80px', 
+                        borderRadius: '50%',
+                        overflow: 'hidden',
+                        border: '2px solid #201F47',
+                        flexShrink: 0,
+                        background: signupProfilePhotoPreview ? 'transparent' : '#f5f5f5',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {signupProfilePhotoPreview ? (
+                          <img 
+                            src={signupProfilePhotoPreview} 
+                            alt="Preview" 
+                            style={{ 
+                              width: '100%', 
+                              height: '100%', 
+                              objectFit: 'cover' 
+                            }} 
+                          />
+                        ) : (
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="8" r="4" stroke="#999" strokeWidth="1.5" fill="none"/>
+                            <path d="M6 21C6 17.134 8.68629 14 12 14C15.3137 14 18 17.134 18 21" stroke="#999" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                          </svg>
+                        )}
+                      </div>
+                      
+                      <div style={{ flex: 1 }}>
+                        <input
+                          type="file"
+                          id="login-signup-profile-photo"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              if (!file.type.startsWith('image/')) {
+                                alert('Please select an image file');
+                                return;
+                              }
+                              if (file.size > 5 * 1024 * 1024) {
+                                alert('Image size must be less than 5MB');
+                                return;
+                              }
+                              setSignupProfilePhoto(file);
+                              setSignupProfilePhotoPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          style={{ display: 'none' }}
+                        />
+                        <label 
+                          htmlFor="login-signup-profile-photo"
+                          style={{
+                            display: 'inline-block',
+                            padding: '8px 16px',
+                            background: '#f5f5f5',
+                            border: '1px solid #d9d9d9',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '13px',
+                            color: '#333',
+                            fontWeight: '500',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = '#e8e8e8';
+                            e.target.style.borderColor = '#201F47';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = '#f5f5f5';
+                            e.target.style.borderColor = '#d9d9d9';
+                          }}
+                        >
+                          {signupProfilePhoto ? 'Change Photo' : 'Choose Photo'}
+                        </label>
+                        {signupProfilePhoto && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSignupProfilePhoto(null);
+                              setSignupProfilePhotoPreview(null);
+                            }}
+                            style={{
+                              marginLeft: '8px',
+                              padding: '8px 16px',
+                              background: 'transparent',
+                              border: '1px solid #ff4d4f',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              fontSize: '13px',
+                              color: '#ff4d4f',
+                              fontWeight: '500',
+                              marginTop:"10px"
+                            }}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                   
                   <button
                     onClick={async (e) => {
@@ -898,14 +1103,29 @@ function LoginPage() {
                       
                       setIsSubmittingSignup(true);
                       try {
-                        const response = await authAPI.register({
-                          firstName: signupFirstName.trim(),
-                          lastName: signupLastName.trim(),
-                          name: `${signupFirstName.trim()} ${signupLastName.trim()}`, // Keep full name for backward compatibility
-                          email: signupEmail,
-                          password: signupPassword,
-                          provider: 'email'
-                        });
+                        // Create FormData if there's a profile photo
+                        let registrationData;
+                        if (signupProfilePhoto) {
+                          registrationData = new FormData();
+                          registrationData.append('firstName', signupFirstName.trim());
+                          registrationData.append('lastName', signupLastName.trim());
+                          registrationData.append('name', `${signupFirstName.trim()} ${signupLastName.trim()}`);
+                          registrationData.append('email', signupEmail);
+                          registrationData.append('password', signupPassword);
+                          registrationData.append('provider', 'email');
+                          registrationData.append('profileImage', signupProfilePhoto, signupProfilePhoto.name);
+                        } else {
+                          registrationData = {
+                            firstName: signupFirstName.trim(),
+                            lastName: signupLastName.trim(),
+                            name: `${signupFirstName.trim()} ${signupLastName.trim()}`,
+                            email: signupEmail,
+                            password: signupPassword,
+                            provider: 'email'
+                          };
+                        }
+                        
+                        const response = await authAPI.register(registrationData);
                         
                         if (response.success) {
                           localStorage.setItem('user', JSON.stringify({
@@ -914,15 +1134,21 @@ function LoginPage() {
                             lastName: signupLastName.trim(),
                             email: signupEmail,
                             provider: 'email',
+                            picture: response.data.picture || null,
                             plan: 'Free Plan'
                           }));
                           localStorage.setItem('token', response.data.token);
                           setShowSignupModal(false);
                           setSignupStep(1);
+                          // Reset form fields
+                          setSignupFirstName('');
+                          setSignupLastName('');
+                          setSignupProfilePhoto(null);
+                          setSignupProfilePhotoPreview(null);
                           navigate('/company-details');
                         }
-                      } catch {
-                        alert('Registration failed');
+                      } catch (error) {
+                        alert('Registration failed: ' + (error.message || 'Please try again'));
                       } finally {
                         setIsSubmittingSignup(false);
                       }

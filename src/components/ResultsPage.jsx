@@ -52,6 +52,8 @@ function ResultsPage() {
   const menuRef = useRef(null);
   const [userProfile, setUserProfile] = useState({
     name: "John Doe",
+    firstName: "John",
+    lastName: "Doe",
     email: "john.doe@company.com",
     avatar: null,
     plan: "Free Plan"
@@ -69,6 +71,8 @@ function ResultsPage() {
         if (!token || !storedUser) {
           setUserProfile({
             name: "John Doe",
+            firstName: "John",
+            lastName: "Doe",
             email: "john.doe@company.com",
             avatar: null,
             plan: "Free Plan"
@@ -81,8 +85,16 @@ function ResultsPage() {
         console.log('User data from localStorage:', user);
         const avatarUrl = user.picture || user.avatar || null;
         console.log('Avatar URL:', avatarUrl);
+        
+        // Construct full name from firstName and lastName, fallback to name field
+        const displayName = user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user.name || "John Doe";
+        
         setUserProfile({
-          name: user.name || "John Doe",
+          name: displayName,
+          firstName: user.firstName || user.name?.split(' ')[0] || "John",
+          lastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || "Doe",
           email: user.email || "john.doe@company.com",
           avatar: avatarUrl,
           plan: user.plan || "Free Plan"
@@ -95,8 +107,16 @@ function ResultsPage() {
           console.log('User data from API:', user);
           const avatarUrl = user.picture || user.avatar || null;
           console.log('Avatar URL from API:', avatarUrl);
+          
+          // Construct full name from firstName and lastName, fallback to name field
+          const displayName = user.firstName && user.lastName 
+            ? `${user.firstName} ${user.lastName}` 
+            : user.name || "John Doe";
+          
           setUserProfile({
-            name: user.name || "John Doe",
+            name: displayName,
+            firstName: user.firstName || user.name?.split(' ')[0] || "John",
+            lastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || "Doe",
             email: user.email || "john.doe@company.com",
             avatar: avatarUrl,
             plan: user.plan || "Free Plan"
@@ -107,6 +127,8 @@ function ResultsPage() {
         // On error, reset to default
         setUserProfile({
           name: "John Doe",
+          firstName: "John",
+          lastName: "Doe",
           email: "john.doe@company.com",
           avatar: null,
           plan: "Free Plan"
@@ -125,6 +147,8 @@ function ResultsPage() {
         if (!localStorage.getItem('token') || !localStorage.getItem('user')) {
           setUserProfile({
             name: "John Doe",
+            firstName: "John",
+            lastName: "Doe",
             email: "john.doe@company.com",
             avatar: null,
             plan: "Free Plan"
@@ -143,6 +167,8 @@ function ResultsPage() {
       if (!token || !storedUser) {
         setUserProfile({
           name: "John Doe",
+          firstName: "John",
+          lastName: "Doe",
           email: "john.doe@company.com",
           avatar: null,
           plan: "Free Plan"

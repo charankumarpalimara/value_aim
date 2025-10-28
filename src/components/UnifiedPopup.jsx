@@ -58,11 +58,13 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         top: isMobile ? '10px' : '20px',
         zIndex: 1000
       }}
+      styles={{
+        mask: { zIndex: 999 }
+      }}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
       className="unified-popup-modal"
       closable={true}
-      maskStyle={{ zIndex: 999 }}
     >
       <div style={{ display: 'flex', height: '70vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}

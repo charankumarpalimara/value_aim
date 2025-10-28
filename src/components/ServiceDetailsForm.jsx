@@ -20,6 +20,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const interestList = [
@@ -154,6 +155,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const toggleEditMode = () => {
     setIsEditMode(!isEditMode);
     setEditingCell({ key: '', dataIndex: '' });
+    setSelectedRowKeys([]);
   };
 
   const showModal = () => {
@@ -170,6 +172,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       setDataSource([...dataSource, newData]);
       addForm.resetFields();
       setIsModalVisible(false);
+      setSelectedRowKeys([]);
       message.success('Service added successfully');
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
@@ -182,13 +185,23 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     message.warning('Service deleted successfully');
   };
 
-  const handleBulkDelete = () => {
-    if (dataSource.length === 0) {
-      message.warning('No services to delete');
+  const handleSelectedDelete = () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('Please select services to delete');
       return;
     }
-    setDataSource([]);
-    message.warning('All services deleted successfully');
+    const newData = dataSource.filter(item => !selectedRowKeys.includes(item.key));
+    setDataSource(newData);
+    setSelectedRowKeys([]);
+    message.warning(`${selectedRowKeys.length} service(s) deleted successfully`);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: setSelectedRowKeys,
+    getCheckboxProps: (record) => ({
+      name: record.key,
+    }),
   };
 
   const handleModalCancel = () => {
@@ -740,20 +753,20 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
             <Popconfirm
-              title="Delete All Services"
-              description="Are you sure you want to delete all services? This action cannot be undone."
-              onConfirm={handleBulkDelete}
+              title="Delete Selected Services"
+              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
+              onConfirm={handleSelectedDelete}
               okText="Yes"
               cancelText="No"
-              disabled={dataSource.length === 0}
+              disabled={selectedRowKeys.length === 0}
             >
               <Button
                 danger
                 icon={<DeleteOutlined />}
                 style={{ width: '100%' }}
-                disabled={dataSource.length === 0}
+                disabled={selectedRowKeys.length === 0}
               >
-                Delete All
+                Delete ({selectedRowKeys.length})
               </Button>
             </Popconfirm>
           </div>
@@ -774,19 +787,19 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
             <Popconfirm
-              title="Delete All Services"
-              description="Are you sure you want to delete all services? This action cannot be undone."
-              onConfirm={handleBulkDelete}
+              title="Delete Selected Services"
+              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
+              onConfirm={handleSelectedDelete}
               okText="Yes"
               cancelText="No"
-              disabled={dataSource.length === 0}
+              disabled={selectedRowKeys.length === 0}
             >
               <Button
                 danger
                 icon={<DeleteOutlined />}
-                disabled={dataSource.length === 0}
+                disabled={selectedRowKeys.length === 0}
               >
-                Delete All
+                Delete ({selectedRowKeys.length})
               </Button>
             </Popconfirm>
           </Space>
@@ -798,6 +811,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           dataSource={filteredData}
           columns={columns}
           rowKey="key"
+          rowSelection={rowSelection}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

@@ -49,7 +49,15 @@ api.interceptors.response.use(
 export const authAPI = {
   // Register new user
   register: async (userData) => {
-    const response = await api.post('/auth/register', userData);
+    // If userData is FormData, we need to override the Content-Type header
+    const config = {};
+    if (userData instanceof FormData) {
+      config.headers = {
+        'Content-Type': 'multipart/form-data',
+      };
+    }
+    
+    const response = await api.post('/auth/register', userData, config);
     if (response.data.success && response.data.data.token) {
       localStorage.setItem('token', response.data.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.data));

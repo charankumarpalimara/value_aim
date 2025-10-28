@@ -13,6 +13,8 @@ const ProfileTab = () => {
   // Force refresh to clear cache
   const [userProfile, setUserProfile] = useState({
     name: 'John Doe',
+    firstName: 'John',
+    lastName: 'Doe',
     email: 'john.doe@company.com',
     picture: null,
     plan: 'Free Plan',
@@ -27,11 +29,25 @@ const ProfileTab = () => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const user = JSON.parse(storedUser);
-      setUserProfile(user);
+      
+      // Construct full name from firstName and lastName if available
+      const displayName = user.firstName && user.lastName 
+        ? `${user.firstName} ${user.lastName}` 
+        : user.name || 'John Doe';
+      
+      setUserProfile({
+        ...user,
+        name: displayName,
+        firstName: user.firstName || user.name?.split(' ')[0] || 'John',
+        lastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || 'Doe'
+      });
+      
       form.setFieldsValue({
-        name: user.name,
+        firstName: user.firstName || user.name?.split(' ')[0] || 'John',
+        lastName: user.lastName || user.name?.split(' ').slice(1).join(' ') || 'Doe',
         email: user.email
       });
+      
       if (user.picture) {
         setImagePreview(user.picture);
       }
@@ -77,7 +93,8 @@ const ProfileTab = () => {
 
       // Create FormData like Alantur project
       const formData = new FormData();
-      formData.append('name', values.name);
+      formData.append('firstName', values.firstName);
+      formData.append('lastName', values.lastName);
       formData.append('email', values.email);
       
       // Debug current state
@@ -139,9 +156,15 @@ const ProfileTab = () => {
         console.log('Backend response:', result);
         console.log('Picture from backend:', result.data.picture);
         
+        // Construct full name from firstName and lastName
+        const displayName = result.data.firstName && result.data.lastName 
+          ? `${result.data.firstName} ${result.data.lastName}` 
+          : result.data.name || userProfile.name;
+        
         const updatedProfile = {
           ...userProfile,
-          ...result.data
+          ...result.data,
+          name: displayName
         };
         
         setUserProfile(updatedProfile);
@@ -344,9 +367,11 @@ const ProfileTab = () => {
       <Card 
         title="Profile Information"
         style={{ marginBottom: '24px' }}
-        headStyle={{ 
-          background: '#fafafa',
-          borderBottom: '1px solid #e8e8e8'
+        styles={{ 
+          header: {
+            background: '#fafafa',
+            borderBottom: '1px solid #e8e8e8'
+          }
         }}
       >
         <div className="profile-content-wrapper">
@@ -415,13 +440,25 @@ const ProfileTab = () => {
               style={{ maxWidth: isMobile ? '100%' : '500px' }}
             >
               <Form.Item
-                label="Full Name *"
-                name="name"
-                rules={[{ required: true, message: 'Please enter your name' }]}
+                label="First Name *"
+                name="firstName"
+                rules={[{ required: true, message: 'Please enter your first name' }]}
               >
                 <Input 
                   prefix={<UserOutlined />} 
-                  placeholder="Enter your full name"
+                  placeholder="Enter your first name"
+                  size="large"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Last Name *"
+                name="lastName"
+                rules={[{ required: true, message: 'Please enter your last name' }]}
+              >
+                <Input 
+                  prefix={<UserOutlined />} 
+                  placeholder="Enter your last name"
                   size="large"
                 />
               </Form.Item>
@@ -491,9 +528,11 @@ const ProfileTab = () => {
         <Card 
           title="Change Password"
           style={{ marginBottom: '24px' }}
-          headStyle={{ 
-            background: '#fafafa',
-            borderBottom: '1px solid #e8e8e8'
+          styles={{ 
+            header: {
+              background: '#fafafa',
+              borderBottom: '1px solid #e8e8e8'
+            }
           }}
         >
           <Form
@@ -570,9 +609,11 @@ const ProfileTab = () => {
       {/* Account Actions */}
       <Card 
         title="Account Actions"
-        headStyle={{ 
-          background: '#fafafa',
-          borderBottom: '1px solid #e8e8e8'
+        styles={{ 
+          header: {
+            background: '#fafafa',
+            borderBottom: '1px solid #e8e8e8'
+          }
         }}
       >
         <Space direction="vertical" size="small" style={{ width: '100%' }}>
