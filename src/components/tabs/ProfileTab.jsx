@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Avatar, Upload, message, Divider, Space, notification } from 'antd';
+import { Form, Input, Button, Card, Avatar, Upload, message, Divider, Space, notification, Modal } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { API_BASE_URL } from '../../config';
@@ -24,6 +24,8 @@ const ProfileTab = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [hasNewImage, setHasNewImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [pendingFormValues, setPendingFormValues] = useState(null);
 
   useEffect(() => {
     // Load user data from localStorage or API
@@ -65,10 +67,16 @@ const ProfileTab = () => {
     }
   }, [imagePreview]);
 
-  const handleProfileUpdate = async (values) => {
+  const handleFormSubmit = (values) => {
+    console.log('Form submitted, showing confirmation modal');
+    setPendingFormValues(values);
+    setIsConfirmModalVisible(true);
+  };
+
+  const handleProfileUpdate = async () => {
     console.log('=== HANDLE PROFILE UPDATE CALLED ===');
     console.log('=== FORM SUBMISSION DEBUG ===');
-    console.log('Form values:', values);
+    console.log('Form values:', pendingFormValues);
     console.log('Form submitted successfully');
     console.log('Current loading state:', loading);
     
@@ -78,6 +86,7 @@ const ProfileTab = () => {
       return;
     }
     
+    const values = pendingFormValues;
     setLoading(true);
     console.log('handleProfileUpdate called with values:', values);
     
@@ -89,6 +98,8 @@ const ProfileTab = () => {
       if (!token) {
         message.error('Please log in to update profile');
         setLoading(false);
+        setIsConfirmModalVisible(false);
+        setPendingFormValues(null);
         return;
       }
 
@@ -181,11 +192,12 @@ const ProfileTab = () => {
         setHasNewImage(false);
         setSelectedFile(null);
         
+        // Close confirmation modal
+        setIsConfirmModalVisible(false);
+        setPendingFormValues(null);
+        
         // Show success notification popup
         console.log('Showing success notification...');
-        
-        // Try alert first to verify we reach this point
-        alert('Profile updated successfully!');
         
         try {
           notification.success({
@@ -209,6 +221,10 @@ const ProfileTab = () => {
         console.log('Response status:', response.status);
         console.log('Response statusText:', response.statusText);
         
+        // Close confirmation modal
+        setIsConfirmModalVisible(false);
+        setPendingFormValues(null);
+        
         const errorData = await response.json();
         console.log('Error data:', errorData);
         try {
@@ -227,6 +243,10 @@ const ProfileTab = () => {
         }
       }
     } catch (error) {
+      // Close confirmation modal
+      setIsConfirmModalVisible(false);
+      setPendingFormValues(null);
+      
       notification.error({
         message: 'Update Failed',
         description: 'Failed to update profile. Please check your connection and try again.',
@@ -437,7 +457,7 @@ const ProfileTab = () => {
             <Form
               form={form}
               layout="vertical"
-              onFinish={handleProfileUpdate}
+              onFinish={handleFormSubmit}
               style={{ maxWidth: isMobile ? '100%' : '500px' }}
             >
               <Form.Item
@@ -664,6 +684,23 @@ const ProfileTab = () => {
           </div>
         </div>
       </Card>
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Save Profile Changes"
+        open={isConfirmModalVisible}
+        onOk={handleProfileUpdate}
+        onCancel={() => {
+          setIsConfirmModalVisible(false);
+          setPendingFormValues(null);
+        }}
+        okText="Yes"
+        cancelText="No"
+        centered
+        confirmLoading={loading}
+      >
+        <p>Are you sure you want to save these profile changes?</p>
+      </Modal>
     </div>
   );
 };

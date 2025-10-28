@@ -309,14 +309,14 @@ const OrganizationDetailsTab = () => {
             rules={[
               { required: true, message: 'Please enter website name' },
               { 
-                pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/, 
-                message: 'Please enter a valid domain (e.g., example.com or my-site.org)' 
+                pattern: /^(www\.)?[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/, 
+                message: 'Please enter a valid domain (e.g., example.com or www.example.com)' 
               }
             ]}
           >
             <Input 
               prefix={<GlobalOutlined />}
-              placeholder="example.com"
+              placeholder="example.com or www.example.com"
               size="large"
             />
           </Form.Item>

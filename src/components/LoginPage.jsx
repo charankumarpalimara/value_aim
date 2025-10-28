@@ -52,6 +52,10 @@ function LoginPage() {
   const [signupPasswordErrorMessage, setSignupPasswordErrorMessage] = useState('');
   const [signupConfirmPasswordError, setSignupConfirmPasswordError] = useState(false);
   const [signupConfirmPasswordErrorMessage, setSignupConfirmPasswordErrorMessage] = useState('');
+  const [signupFirstNameError, setSignupFirstNameError] = useState(false);
+  const [signupFirstNameErrorMessage, setSignupFirstNameErrorMessage] = useState('');
+  const [signupLastNameError, setSignupLastNameError] = useState(false);
+  const [signupLastNameErrorMessage, setSignupLastNameErrorMessage] = useState('');
   
   // Email restrictions
   const [emailRestricted, setEmailRestricted] = useState(false);
@@ -631,6 +635,10 @@ function LoginPage() {
           setEmailRestrictionMessage('');
           setSignupOtpError(false);
           setSignupOtpErrorMessage('');
+          setSignupFirstNameError(false);
+          setSignupFirstNameErrorMessage('');
+          setSignupLastNameError(false);
+          setSignupLastNameErrorMessage('');
         }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
@@ -652,6 +660,10 @@ function LoginPage() {
                   setEmailRestrictionMessage('');
                   setSignupOtpError(false);
                   setSignupOtpErrorMessage('');
+                  setSignupFirstNameError(false);
+                  setSignupFirstNameErrorMessage('');
+                  setSignupLastNameError(false);
+                  setSignupLastNameErrorMessage('');
                 }}
               >
                 ×
@@ -1027,9 +1039,27 @@ function LoginPage() {
                       type="text"
                       placeholder="First Name *"
                       value={signupFirstName}
-                      onChange={(e) => setSignupFirstName(e.target.value)}
+                      onChange={(e) => {
+                        setSignupFirstName(e.target.value);
+                        if (signupFirstNameError) {
+                          setSignupFirstNameError(false);
+                          setSignupFirstNameErrorMessage('');
+                        }
+                      }}
                       className="signup-input"
+                      style={{ 
+                        borderColor: signupFirstNameError ? '#ff4d4f' : ''
+                      }}
                     />
+                    {signupFirstNameErrorMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {signupFirstNameErrorMessage}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="signup-form-group">
@@ -1037,9 +1067,27 @@ function LoginPage() {
                       type="text"
                       placeholder="Last Name *"
                       value={signupLastName}
-                      onChange={(e) => setSignupLastName(e.target.value)}
+                      onChange={(e) => {
+                        setSignupLastName(e.target.value);
+                        if (signupLastNameError) {
+                          setSignupLastNameError(false);
+                          setSignupLastNameErrorMessage('');
+                        }
+                      }}
                       className="signup-input"
+                      style={{ 
+                        borderColor: signupLastNameError ? '#ff4d4f' : ''
+                      }}
                     />
+                    {signupLastNameErrorMessage && (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: '#ff4d4f',
+                        marginTop: '4px'
+                      }}>
+                        {signupLastNameErrorMessage}
+                      </div>
+                    )}
                   </div>
 
                   <div className="signup-form-group" style={{ marginBottom: '20px' }}>
@@ -1161,10 +1209,29 @@ function LoginPage() {
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
-                      if (!signupFirstName.trim() || !signupLastName.trim()) {
-                        alert('Please enter both first name and last name');
-                        return;
+                      
+                      // Reset errors
+                      setSignupFirstNameError(false);
+                      setSignupFirstNameErrorMessage('');
+                      setSignupLastNameError(false);
+                      setSignupLastNameErrorMessage('');
+                      
+                      // Validate first name and last name
+                      let hasError = false;
+                      
+                      if (!signupFirstName.trim()) {
+                        setSignupFirstNameError(true);
+                        setSignupFirstNameErrorMessage('First name is required');
+                        hasError = true;
                       }
+                      
+                      if (!signupLastName.trim()) {
+                        setSignupLastNameError(true);
+                        setSignupLastNameErrorMessage('Last name is required');
+                        hasError = true;
+                      }
+                      
+                      if (hasError) return;
                       
                       setIsSubmittingSignup(true);
                       try {

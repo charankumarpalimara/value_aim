@@ -18,14 +18,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const [addForm] = Form.useForm();
   const [searchText, setSearchText] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [isAddConfirmModalVisible, setIsAddConfirmModalVisible] = useState(false);
-  const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
   const [isMultiDeleteConfirmModalVisible, setIsMultiDeleteConfirmModalVisible] = useState(false);
-  const [deleteKey, setDeleteKey] = useState(null);
+  const [isDoneEditingConfirmModalVisible, setIsDoneEditingConfirmModalVisible] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState({});
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const interestList = [
@@ -130,37 +129,89 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     'Data Governance'
   ];
 
-  const isEditingCell = (record, dataIndex) => 
-    isEditMode && editingCell.key === record.key && editingCell.dataIndex === dataIndex;
-
-  const editCell = (record, dataIndex) => {
-    if (!isEditMode) return; // Only allow editing if edit mode is on
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-    setEditingCell({ key: record.key, dataIndex });
-  };
-
-  const saveCell = async (key, dataIndex) => {
-    try {
-      const values = await form.validateFields([dataIndex]);
-      const newData = [...dataSource];
-      const index = newData.findIndex((item) => key === item.key);
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, { ...item, ...values });
-        setDataSource(newData);
-        setEditingCell({ key: '', dataIndex: '' });
+  const handleInlineEdit = (record, field, value) => {
+    console.log('Storing pending change:', { key: record.key, field, value });
+    
+    // Store the change in pendingChanges state
+    setPendingChanges(prev => ({
+      ...prev,
+      [record.key]: {
+        ...prev[record.key],
+        [field]: value
       }
-    } catch (errInfo) {
-      console.log('Validate Failed:', errInfo);
-    }
+    }));
+
+    // Update the local dataSource to reflect the change in UI
+    setDataSource(prevData => 
+      prevData.map(item => 
+        item.key === record.key 
+          ? { ...item, [field]: value }
+          : item
+      )
+    );
   };
 
   const toggleEditMode = () => {
-    setIsEditMode(!isEditMode);
-    setEditingCell({ key: '', dataIndex: '' });
+    if (isEditMode) {
+      // Show confirmation modal when exiting edit mode
+      if (Object.keys(pendingChanges).length > 0) {
+        setIsDoneEditingConfirmModalVisible(true);
+      } else {
+        // No changes, just exit edit mode
+        setIsEditMode(false);
+        setSelectedRowKeys([]);
+        message.info('Edit mode closed');
+      }
+    } else {
+      // Enter edit mode directly and clear any previous pending changes
+      setPendingChanges({});
+      setIsEditMode(true);
+      setSelectedRowKeys([]);
+    }
+  };
+
+  const handleCancelDoneEditing = () => {
+    // Discard changes and reload original data
+    setIsDoneEditingConfirmModalVisible(false);
+    setPendingChanges({});
+    setIsEditMode(false);
     setSelectedRowKeys([]);
+    // Reload original data - in this case, we'll just reset from a backup or reload
+    message.info('Changes discarded');
+  };
+
+  const confirmDoneEditing = () => {
+    try {
+      // Check if there are any pending changes
+      if (Object.keys(pendingChanges).length === 0) {
+        setIsEditMode(false);
+        setSelectedRowKeys([]);
+        setIsDoneEditingConfirmModalVisible(false);
+        message.info('No changes to save');
+        return;
+      }
+
+      console.log('Applying pending changes:', pendingChanges);
+
+      // Apply all pending changes to the dataSource
+      const updatedData = dataSource.map(item => {
+        if (pendingChanges[item.key]) {
+          return { ...item, ...pendingChanges[item.key] };
+        }
+        return item;
+      });
+
+      setDataSource(updatedData);
+      setIsEditMode(false);
+      setSelectedRowKeys([]);
+      setIsDoneEditingConfirmModalVisible(false);
+      setPendingChanges({});
+      message.success('All changes saved successfully!');
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setIsDoneEditingConfirmModalVisible(false);
+      message.error('Failed to save some changes. Please try again.');
+    }
   };
 
   const showModal = () => {
@@ -189,19 +240,6 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsAddConfirmModalVisible(false);
     setSelectedRowKeys([]);
     message.success('Service added successfully!');
-  };
-
-  const handleDelete = (key) => {
-    setDeleteKey(key);
-    setIsDeleteConfirmModalVisible(true);
-  };
-
-  const confirmDelete = () => {
-    const newData = dataSource.filter(item => item.key !== deleteKey);
-    setDataSource(newData);
-    setIsDeleteConfirmModalVisible(false);
-    setDeleteKey(null);
-    message.success('Service deleted successfully!');
   };
 
   const handleSelectedDelete = () => {
@@ -316,40 +354,28 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (interests, record) => {
-        const editable = isEditingCell(record, 'interests');
-        return editable ? (
-          <Form.Item
-            name="interests"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
+        if (isEditMode) {
+          return (
             <Select
               mode="tags"
-              style={{ width: '100%' }}
+              defaultValue={interests}
               placeholder="Select or type offerings"
               tokenSeparators={[',']}
-              autoFocus
-              onBlur={() => saveCell(record.key, 'interests')}
-              onPressEnter={() => saveCell(record.key, 'interests')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Interests changed:', value);
+                handleInlineEdit(record, 'interests', value);
+              }}
             >
               {interestList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'interests')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
           </div>
         );
       },
@@ -365,40 +391,28 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (keywords, record) => {
-        const editable = isEditingCell(record, 'keywords');
-        return editable ? (
-          <Form.Item
-            name="keywords"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
+        if (isEditMode) {
+          return (
             <Select
               mode="tags"
-              style={{ width: '100%' }}
+              defaultValue={keywords}
               placeholder="Select or type keywords"
               tokenSeparators={[',']}
-              autoFocus
-              onBlur={() => saveCell(record.key, 'keywords')}
-              onPressEnter={() => saveCell(record.key, 'keywords')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Keywords changed:', value);
+                handleInlineEdit(record, 'keywords', value);
+              }}
             >
               {keywordList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'keywords')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
           </div>
         );
       },
@@ -414,38 +428,27 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (adjacency, record) => {
-        const editable = isEditingCell(record, 'adjacencyExpansion');
-        return editable ? (
-          <Form.Item
-            name="adjacencyExpansion"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
+        if (isEditMode) {
+          return (
             <Select
               mode="multiple"
-              style={{ width: '100%' }}
+              defaultValue={adjacency}
               placeholder="Select adjacency"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'adjacencyExpansion')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Adjacency changed:', value);
+                handleInlineEdit(record, 'adjacencyExpansion', value);
+              }}
             >
               {adjacencyExpansionList.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'adjacencyExpansion')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
           </div>
         );
       },
@@ -461,40 +464,29 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (industries, record) => {
-        const editable = isEditingCell(record, 'targetIndustry');
-        return editable ? (
-          <Form.Item
-            name="targetIndustry"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <Select 
+        if (isEditMode) {
+          return (
+            <Select
               mode="multiple"
-              style={{ width: '100%' }} 
+              defaultValue={industries}
               placeholder="Select industries"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'targetIndustry')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Industries changed:', value);
+                handleInlineEdit(record, 'targetIndustry', value);
+              }}
             >
               {industryOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'targetIndustry')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
-                <Tag key={industry} color="cyan">{industry}</Tag>
-              )) : '-'}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
+              <Tag key={industry} color="cyan">{industry}</Tag>
+            )) : '-'}
           </div>
         );
       },
@@ -510,40 +502,29 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (functions, record) => {
-        const editable = isEditingCell(record, 'functionType');
-        return editable ? (
-          <Form.Item
-            name="functionType"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <Select 
+        if (isEditMode) {
+          return (
+            <Select
               mode="multiple"
-              style={{ width: '100%' }} 
+              defaultValue={functions}
               placeholder="Select functions"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'functionType')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Functions changed:', value);
+                handleInlineEdit(record, 'functionType', value);
+              }}
             >
               {functionOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'functionType')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
-                <Tag key={func} color="magenta">{func}</Tag>
-              )) : '-'}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
+              <Tag key={func} color="magenta">{func}</Tag>
+            )) : '-'}
           </div>
         );
       },
@@ -559,40 +540,29 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         return aStr.localeCompare(bStr);
       },
       render: (text, record) => {
-        const editable = isEditingCell(record, 'targetSegment');
-        return editable ? (
-          <Form.Item
-            name="targetSegment"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <Select 
+        if (isEditMode) {
+          return (
+            <Select
               mode="multiple"
-              style={{ width: '100%' }} 
+              defaultValue={text}
               placeholder="Select segments"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'targetSegment')}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Segments changed:', value);
+                handleInlineEdit(record, 'targetSegment', value);
+              }}
             >
               {targetSegmentOptions.map(item => (
                 <Option key={item} value={item}>{item}</Option>
               ))}
             </Select>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'targetSegment')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Space wrap>
-              {Array.isArray(text) && text.length > 0 ? text.map(segment => (
-                <Tag key={segment} color="orange">{segment}</Tag>
-              )) : '-'}
-            </Space>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(text) && text.length > 0 ? text.map(segment => (
+              <Tag key={segment} color="orange">{segment}</Tag>
+            )) : '-'}
           </div>
         );
       },
@@ -609,47 +579,22 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       ],
       onFilter: (value, record) => record.offerStatus === value,
       render: (text, record) => {
-        const editable = isEditingCell(record, 'offerStatus');
-        return editable ? (
-          <Form.Item
-            name="offerStatus"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <Space>
-              <Switch 
-                checkedChildren="Active" 
-                unCheckedChildren="Inactive"
-                checked={record.offerStatus === 'Active'}
-                autoFocus
-                onChange={async (checked) => {
-                  const newStatus = checked ? 'Active' : 'Inactive';
-                  const newData = [...dataSource];
-                  const index = newData.findIndex((item) => record.key === item.key);
-                  if (index > -1) {
-                    newData[index].offerStatus = newStatus;
-                    setDataSource(newData);
-                    setEditingCell({ key: '', dataIndex: '' });
-                  }
-                }}
-              />
-            </Space>
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'offerStatus')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>
-          </div>
-        );
+        if (isEditMode) {
+          return (
+            <Select
+              defaultValue={text}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Status changed:', value);
+                handleInlineEdit(record, 'offerStatus', value);
+              }}
+            >
+              <Option value="Active">Active</Option>
+              <Option value="Inactive">Inactive</Option>
+            </Select>
+          );
+        }
+        return <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>;
       },
     },
     {
@@ -659,49 +604,37 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       width: 200,
       sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
       render: (text, record) => {
-        const editable = isEditingCell(record, 'description');
-        return editable ? (
-          <Form.Item
-            name="description"
-            style={{ margin: 0 }}
-            rules={[{ required: false }]}
-          >
-            <TextArea 
-              rows={2} 
+        if (isEditMode) {
+          return (
+            <TextArea
+              defaultValue={text}
+              rows={2}
               placeholder="Enter description"
-              autoFocus
-              onBlur={() => saveCell(record.key, 'description')}
+              style={{ width: '100%' }}
+              onBlur={(e) => {
+                console.log('Description changed:', e.target.value);
+                handleInlineEdit(record, 'description', e.target.value);
+              }}
             />
-          </Form.Item>
-        ) : (
-          <div 
-            onClick={() => editCell(record, 'description')} 
-            style={{ 
-              cursor: isEditMode ? 'pointer' : 'default', 
-              minHeight: '32px', 
-              padding: '4px',
-              backgroundColor: isEditMode ? '#fafafa' : 'transparent'
-            }}
-          >
-            {text || '-'}
-          </div>
-        );
+          );
+        }
+        return text || '-';
       },
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      render: (_, record) => (
-        <Button 
-          type="text" 
-          danger 
-          icon={<DeleteOutlined />}
-          size="small"
-          onClick={() => handleDelete(record.key)}
-        />
-      ),
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'actions',
+    //   width: 100,
+    //   render: (_, record) => (
+    //     <Button 
+    //       type="text" 
+    //       danger 
+    //       icon={<DeleteOutlined />}
+    //       size="small"
+    //       onClick={() => handleDelete(record.key)}
+    //     />
+    //   ),
+    // },
     // {
     //   title: 'Status',
     //   key: 'status',
@@ -1014,22 +947,6 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           <p>Are you sure you want to add this service?</p>
         </Modal>
 
-        {/* Confirmation Modal for Delete Single Service */}
-        <Modal
-          title="Delete Service"
-          open={isDeleteConfirmModalVisible}
-          onOk={confirmDelete}
-          onCancel={() => {
-            setIsDeleteConfirmModalVisible(false);
-            setDeleteKey(null);
-          }}
-          okText="Yes"
-          cancelText="No"
-          centered
-        >
-          <p>Are you sure you want to delete this service?</p>
-        </Modal>
-
         {/* Confirmation Modal for Delete Multiple Services */}
         <Modal
           title="Delete Selected Services"
@@ -1041,6 +958,22 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           centered
         >
           <p>Are you sure you want to delete {selectedRowKeys.length} selected service(s)? This action cannot be undone.</p>
+        </Modal>
+
+        {/* Confirmation Modal for Done Editing */}
+        <Modal
+          title="Save Changes"
+          open={isDoneEditingConfirmModalVisible}
+          onOk={confirmDoneEditing}
+          onCancel={handleCancelDoneEditing}
+          okText="Save"
+          cancelText="Discard"
+          centered
+        >
+          <p>Do you want to save all your changes?</p>
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+            Click "Save" to save changes or "Discard" to cancel without saving.
+          </p>
         </Modal>
       </div>
     </div>
