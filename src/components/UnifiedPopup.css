@@ -11,6 +11,16 @@
   overflow: hidden;
 }
 
+/* Hide all scrollbars in popup content */
+.unified-popup-modal .ant-modal-body *::-webkit-scrollbar {
+  display: none;
+}
+
+.unified-popup-modal .ant-modal-body * {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 .unified-popup-modal .ant-modal-header {
   border-bottom: 1px solid #e8e8e8;
   padding: 16px 24px;
@@ -40,7 +50,7 @@
 
 .popup-tab:hover:not(.active) {
   background-color: #201F47 !important;
-  color: #1890ff !important;
+  color: #fff !important;
 }
 
 /* Desktop - Vertical Tabs */
@@ -68,7 +78,7 @@
   
   .popup-tab:hover:not(.active) {
     background-color: #201F47 !important;
-    color: #1890ff !important;
+    color: #fff !important;
   }
   
   /* Ensure inactive tabs don't get background color on text */
@@ -131,7 +141,7 @@
   
   .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:hover {
     background-color: #201F47 !important;
-    color: #1890ff !important;
+    color: #fff !important;
   }
   
   .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div[style*="background-color: #201F47"] {

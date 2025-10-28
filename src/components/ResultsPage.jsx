@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
+import { Modal, message } from 'antd';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import valueAimImage from "../assets/value_aim_icon_transparent.png"
 import "./ResultsPage.css";
@@ -48,6 +49,7 @@ function ResultsPage() {
   const [menuPosition, setMenuPosition] = useState({ top: 'auto', bottom: 'auto', left: 'auto', right: 'auto' });
   const [isMainPopupVisible, setIsMainPopupVisible] = useState(false);
   const [activePopupScreen, setActivePopupScreen] = useState('Service Manager');
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
   const plusButtonRef = useRef(null);
   const menuRef = useRef(null);
   const [userProfile, setUserProfile] = useState({
@@ -328,17 +330,27 @@ function ResultsPage() {
 
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      // Clear both localStorage and sessionStorage
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Dispatch custom event to notify React components
-      window.dispatchEvent(new Event('localStorageCleared'));
-      
-      // Navigate to landing page using React Router
+    setIsLogoutModalVisible(true);
+  };
+
+  const confirmLogout = () => {
+    // Clear both localStorage and sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Dispatch custom event to notify React components
+    window.dispatchEvent(new Event('localStorageCleared'));
+    
+    // Show success message
+    message.success('Logged out successfully!');
+    
+    // Close modal
+    setIsLogoutModalVisible(false);
+    
+    // Navigate to landing page using React Router
+    setTimeout(() => {
       navigate('/', { replace: true });
-    }
+    }, 500); // Small delay to show the message
   };
 
 
@@ -1049,6 +1061,19 @@ function ResultsPage() {
           </div>
         </main>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        title="Logout"
+        open={isLogoutModalVisible}
+        onOk={confirmLogout}
+        onCancel={() => setIsLogoutModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        <p>Are you sure you want to logout?</p>
+      </Modal>
     </div>
   );
 }

@@ -10,6 +10,7 @@ const ProfileTab = () => {
   const [passwordForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isLargeScreen = useMediaQuery({ minWidth: 781 });
   // Force refresh to clear cache
   const [userProfile, setUserProfile] = useState({
     name: 'John Doe',
@@ -342,10 +343,10 @@ const ProfileTab = () => {
       margin: '0', 
       padding: isMobile ? '16px' : '24px',
       background: '#fff',
-      minHeight: 'auto',
-      overflow: 'auto'
+      height: '100%',
+      overflowY: 'auto'
     }}>
-      <h1 style={{ 
+      {/* <h1 style={{ 
         fontSize: isMobile ? '18px' : '18px', 
         fontWeight: '600', 
         marginBottom: '8px',
@@ -361,7 +362,7 @@ const ProfileTab = () => {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }}>
         Manage your account settings and preferences
-      </p>
+      </p> */}
 
       {/* Profile Information Card */}
       <Card 
@@ -616,25 +617,35 @@ const ProfileTab = () => {
           }
         }}
       >
-        <Space direction="vertical" size="small" style={{ width: '100%' }}>
-          <div className="action-item">
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: isLargeScreen ? 'row' : 'column',
+          gap: isLargeScreen ? '24px' : '12px',
+          width: '100%'
+        }}>
+          <div className="action-item" style={{ flex: isLargeScreen ? 1 : 'auto' }}>
             <Button 
               type="default"
               onClick={() => {
                 // TODO: Implement plan upgrade
                 message.info('Plan upgrade coming soon!');
               }}
+              style={{ width: '100%' }}
             >
               Upgrade to Pro Plan
             </Button>
-            <div className="action-description">
+            <div className="action-description" style={{ marginTop: '8px' }}>
               Get access to advanced features and unlimited usage
             </div>
           </div>
 
-          <Divider style={{ margin: '12px 0' }} />
+          {isLargeScreen ? (
+            <Divider type="vertical" style={{ height: 'auto', margin: '0' }} />
+          ) : (
+            <Divider style={{ margin: '12px 0' }} />
+          )}
 
-          <div className="action-item">
+          <div className="action-item" style={{ flex: isLargeScreen ? 1 : 'auto' }}>
             <Button 
               danger
               onClick={() => {
@@ -643,14 +654,15 @@ const ProfileTab = () => {
                   message.error('Account deletion is not yet implemented');
                 }
               }}
+              style={{ width: '100%' }}
             >
               Delete Account
             </Button>
-            <div className="action-description danger">
+            <div className="action-description danger" style={{ marginTop: '8px' }}>
               Permanently delete your account and all associated data
             </div>
           </div>
-        </Space>
+        </div>
       </Card>
     </div>
   );

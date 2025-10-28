@@ -41,6 +41,12 @@ function LoginPage() {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   
+  // OTP errors
+  const [otpError, setOtpError] = useState(false);
+  const [otpErrorMessage, setOtpErrorMessage] = useState('');
+  const [signupOtpError, setSignupOtpError] = useState(false);
+  const [signupOtpErrorMessage, setSignupOtpErrorMessage] = useState('');
+  
   // Signup form errors
   const [signupPasswordError, setSignupPasswordError] = useState(false);
   const [signupPasswordErrorMessage, setSignupPasswordErrorMessage] = useState('');
@@ -125,13 +131,18 @@ function LoginPage() {
   }, [signupOtpTimer]);
 
   const handlePasswordLogin = async () => {
+    // Reset errors
+    setPasswordError(false);
+    setPasswordErrorMessage('');
+
     if (!email.trim()) {
       alert('Please enter your email address');
       return;
     }
 
     if (!password.trim()) {
-      alert('Please enter your password');
+      setPasswordError(true);
+      setPasswordErrorMessage('Password is required');
       return;
     }
 
@@ -140,10 +151,6 @@ function LoginPage() {
       alert('Please enter a valid email address');
       return;
     }
-
-    // Reset password error state
-    setPasswordError(false);
-    setPasswordErrorMessage('');
 
     setIsLoggingIn(true);
     try {
@@ -256,8 +263,13 @@ function LoginPage() {
   };
 
   const handleVerifyOtpForEmail = async (emailAddress) => {
+    // Reset errors
+    setOtpError(false);
+    setOtpErrorMessage('');
+
     if (otp.length !== 6) {
-      alert('Please enter the complete 6-digit code');
+      setOtpError(true);
+      setOtpErrorMessage('Please enter the complete 6-digit code');
       return;
     }
 
@@ -315,6 +327,8 @@ function LoginPage() {
         // Close modal and navigate
         setPassword('');
         setOtp('');
+        setOtpError(false);
+        setOtpErrorMessage('');
         setShowTryAnotherWay(false);
         setShowOtpOption(false);
         setOtpEmail('');
@@ -324,7 +338,8 @@ function LoginPage() {
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
-      alert('Invalid OTP. Please try again.');
+      setOtpError(true);
+      setOtpErrorMessage('Invalid OTP. Please try again.');
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -366,7 +381,10 @@ function LoginPage() {
                     }
                   }}
                   className="email-input"
-                  style={{ marginTop: '12px' }}
+                  style={{ 
+                    marginTop: '12px',
+                    borderColor: passwordError ? '#ff4d4f' : ''
+                  }}
                 />
                 {passwordErrorMessage && (
                   <div style={{
@@ -470,6 +488,8 @@ function LoginPage() {
                           setShowOtpOption(false);
                           setOtpEmail('');
                           setOtp('');
+                          setOtpError(false);
+                          setOtpErrorMessage('');
                         }}
                         className="signup-login-btn"
                         style={{ flex: 1 }}
@@ -499,6 +519,11 @@ function LoginPage() {
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, ''); // Only allow digits
                           setOtp(value);
+                          // Clear error when user types
+                          if (otpError) {
+                            setOtpError(false);
+                            setOtpErrorMessage('');
+                          }
                         }}
                         onPaste={(e) => {
                           e.preventDefault();
@@ -513,11 +538,22 @@ function LoginPage() {
                           height: '50px',
                           textAlign: 'center',
                           fontSize: '24px',
-                          letterSpacing: '8px'
+                          letterSpacing: '8px',
+                          borderColor: otpError ? '#ff4d4f' : ''
                         }}
                         placeholder="000000"
                         autoFocus
                       />
+                      {otpErrorMessage && (
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#ff4d4f',
+                          marginTop: '4px',
+                          textAlign: 'center'
+                        }}>
+                          {otpErrorMessage}
+                        </div>
+                      )}
           </div>
 
                     {/* Resend Button */}
@@ -560,6 +596,8 @@ function LoginPage() {
                           e.stopPropagation();
                           setShowOtpOption(false);
                           setOtp('');
+                          setOtpError(false);
+                          setOtpErrorMessage('');
                         }}
                         className="signup-login-btn"
                         style={{ fontSize: '14px' }}
@@ -591,6 +629,8 @@ function LoginPage() {
           setSignupProfilePhotoPreview(null);
           setEmailRestricted(false);
           setEmailRestrictionMessage('');
+          setSignupOtpError(false);
+          setSignupOtpErrorMessage('');
         }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
@@ -610,6 +650,8 @@ function LoginPage() {
                   setSignupProfilePhotoPreview(null);
                   setEmailRestricted(false);
                   setEmailRestrictionMessage('');
+                  setSignupOtpError(false);
+                  setSignupOtpErrorMessage('');
                 }}
               >
                 ×
@@ -872,6 +914,11 @@ function LoginPage() {
                         onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, ''); // Only allow digits
                         setSignupOtp(value);
+                        // Clear error when user types
+                        if (signupOtpError) {
+                          setSignupOtpError(false);
+                          setSignupOtpErrorMessage('');
+                        }
                         }}
                         onPaste={(e) => {
                           e.preventDefault();
@@ -886,11 +933,22 @@ function LoginPage() {
                         height: '50px',
                         textAlign: 'center',
                         fontSize: '24px',
-                        letterSpacing: '8px'
+                        letterSpacing: '8px',
+                        borderColor: signupOtpError ? '#ff4d4f' : ''
                       }}
                       placeholder="000000"
                       autoFocus
                     />
+                    {signupOtpErrorMessage && (
+                      <div style={{
+                        fontSize: '12px',
+                        color: '#ff4d4f',
+                        marginTop: '4px',
+                        textAlign: 'center'
+                      }}>
+                        {signupOtpErrorMessage}
+                      </div>
+                    )}
                   </div>
 
                     <button
@@ -914,9 +972,14 @@ function LoginPage() {
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
+                      // Reset errors
+                      setSignupOtpError(false);
+                      setSignupOtpErrorMessage('');
+
                       const otpValue = signupOtp;
                       if (otpValue.length !== 6) {
-                        alert('Please enter the complete 6-digit code');
+                        setSignupOtpError(true);
+                        setSignupOtpErrorMessage('Please enter the complete 6-digit code');
                         return;
                       }
                       
@@ -937,11 +1000,13 @@ function LoginPage() {
                           setTimeout(() => document.querySelector('.signup-input')?.focus(), 100);
                         } else {
                           console.log('OTP verification failed:', result.message);
-                          alert(result.message || 'Invalid OTP');
+                          setSignupOtpError(true);
+                          setSignupOtpErrorMessage(result.message || 'Invalid OTP');
                         }
                       } catch (error) {
                         console.error('OTP verification error:', error);
-                        alert('Failed to verify OTP. Please try again.');
+                        setSignupOtpError(true);
+                        setSignupOtpErrorMessage('Failed to verify OTP. Please try again.');
                       } finally {
                         setIsVerifyingSignupOtp(false);
                       }

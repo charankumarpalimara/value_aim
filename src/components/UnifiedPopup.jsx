@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Popconfirm } from 'antd';
-import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch } from 'antd';
+import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { serviceAPI } from '../utils/api';
 
@@ -66,7 +66,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       className="unified-popup-modal"
       closable={true}
     >
-      <div style={{ display: 'flex', height: '70vh', flexDirection: isMobile ? 'column' : 'row' }}>
+      <div style={{ display: 'flex', height: '75vh', maxHeight: '75vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}
         <div style={{
           width: isMobile ? '100%' : '200px',
@@ -77,7 +77,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
           maxHeight: isMobile ? 'auto' : 'none',
           overflow: 'visible',
           zIndex: 10,
-          position: 'relative'
+          position: 'relative',
+          flexShrink: 0
         }}>
           <div style={{
             display: isMobile ? 'flex' : 'block',
@@ -134,7 +135,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                   onMouseEnter={(e) => {
                     if (activeScreen !== tab) {
                       e.target.style.backgroundColor = '#201F47';
-                      e.target.style.color = '#fff !important';
+                      e.target.style.color = '#fff';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -158,9 +159,10 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         <div style={{
           flex: 1,
           overflowY: 'auto',
+          overflowX: 'hidden',
           padding: '0',
-          height: isMobile ? 'calc(70vh - 60px)' : 'auto',
-          minHeight: isMobile ? '600px' : 'auto'
+          height: '100%',
+          maxHeight: '100%'
         }}>
           {renderContent()}
         </div>
@@ -180,6 +182,11 @@ const ServiceManagerContent = () => {
   const [editingService, setEditingService] = useState(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAddConfirmModalVisible, setIsAddConfirmModalVisible] = useState(false);
+  const [isEditConfirmModalVisible, setIsEditConfirmModalVisible] = useState(false);
+  const [isDoneEditingConfirmModalVisible, setIsDoneEditingConfirmModalVisible] = useState(false);
+  const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState({}); // Store pending inline edits
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const isAboveMobile = useMediaQuery({ maxWidth: 1100 });
 
@@ -244,48 +251,75 @@ const ServiceManagerContent = () => {
 
   const handleModalOk = async () => {
     try {
-      const values = await addForm.validateFields();
-
+      await addForm.validateFields();
+      
       if (editingService) {
-        // Update existing service
-        const response = await serviceAPI.update(editingService.id, values);
-        if (response.success) {
-          message.success('Service updated successfully');
-          addForm.resetFields();
-          setIsModalVisible(false);
-          setEditingService(null);
-          // Reload services from database
-          loadServices();
-        } else {
-          throw new Error(response.message || 'Failed to update service');
-        }
+        setIsEditConfirmModalVisible(true);
       } else {
-        // Create new service
-        const response = await serviceAPI.create(values);
-        if (response.success) {
-          message.success('Service added successfully');
-          addForm.resetFields();
-          setIsModalVisible(false);
-          // Reload services from database
-          loadServices();
-        } else {
-          throw new Error(response.message || 'Failed to save service');
-        }
+        setIsAddConfirmModalVisible(true);
       }
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
-      message.error(editingService ? 'Failed to update service. Please try again.' : 'Failed to add service. Please try again.');
+    }
+  };
+
+  const confirmAddService = async () => {
+    try {
+      const values = addForm.getFieldsValue();
+      const response = await serviceAPI.create(values);
+      if (response.success) {
+        addForm.resetFields();
+        setIsModalVisible(false);
+        setIsAddConfirmModalVisible(false);
+        setEditingService(null);
+        setSelectedRowKeys([]);
+        // Reload services from database
+        await loadServices();
+        message.success('Service added successfully!');
+      } else {
+        throw new Error(response.message || 'Failed to save service');
+      }
+    } catch (error) {
+      console.error('Error adding service:', error);
+      setIsAddConfirmModalVisible(false);
+      message.error('Failed to add service. Please try again.');
+    }
+  };
+
+  const confirmEditService = async () => {
+    try {
+      const values = addForm.getFieldsValue();
+      const response = await serviceAPI.update(editingService.id, values);
+      if (response.success) {
+        addForm.resetFields();
+        setIsModalVisible(false);
+        setIsEditConfirmModalVisible(false);
+        setEditingService(null);
+        setSelectedRowKeys([]);
+        // Reload services from database
+        await loadServices();
+        message.success('Service updated successfully!');
+      } else {
+        throw new Error(response.message || 'Failed to update service');
+      }
+    } catch (error) {
+      console.error('Error updating service:', error);
+      setIsEditConfirmModalVisible(false);
+      message.error('Failed to update service. Please try again.');
     }
   };
 
 
 
-  const handleSelectedDelete = async () => {
+  const handleSelectedDelete = () => {
     if (selectedRowKeys.length === 0) {
       message.warning('Please select services to delete');
       return;
     }
+    setIsDeleteConfirmModalVisible(true);
+  };
 
+  const confirmDelete = async () => {
     try {
       // Delete selected services one by one
       const deletePromises = selectedRowKeys.map(key => {
@@ -297,61 +331,126 @@ const ServiceManagerContent = () => {
       const successCount = results.filter(result => result.success).length;
 
       if (successCount > 0) {
-        message.warning(`${successCount} service(s) deleted successfully`);
         setSelectedRowKeys([]);
+        setIsDeleteConfirmModalVisible(false);
         // Reload services from database
-        loadServices();
+        await loadServices();
+        message.success(`${successCount} service(s) deleted successfully!`);
       } else {
         throw new Error('Failed to delete selected services');
       }
     } catch (error) {
       console.error('Error deleting selected services:', error);
+      setIsDeleteConfirmModalVisible(false);
       message.error('Failed to delete selected services. Please try again.');
     }
   };
 
-  const handleEditService = (record) => {
-    setEditingService(record);
-    // Set form values for editing
-    addForm.setFieldsValue({
-      interests: record.interests,
-      keywords: record.keywords,
-      adjacencyExpansion: record.adjacencyExpansion,
-      targetIndustry: record.targetIndustry,
-      functionType: record.functionType,
-      targetSegment: record.targetSegment,
-      offerStatus: record.offerStatus,
-      description: record.description
-    });
-    setIsModalVisible(true);
-  };
+  // Commented out as inline editing is being used instead
+  // const handleEditService = (record) => {
+  //   setEditingService(record);
+  //   // Set form values for editing
+  //   addForm.setFieldsValue({
+  //     interests: record.interests,
+  //     keywords: record.keywords,
+  //     adjacencyExpansion: record.adjacencyExpansion,
+  //     targetIndustry: record.targetIndustry,
+  //     functionType: record.functionType,
+  //     targetSegment: record.targetSegment,
+  //     offerStatus: record.offerStatus,
+  //     description: record.description
+  //   });
+  //   setIsModalVisible(true);
+  // };
 
-  const handleInlineEdit = async (record, field, value) => {
-    try {
-      console.log('Updating service:', { id: record.id, field, value });
-
-      // Only send the specific field that was updated
-      const updatedData = { [field]: value };
-      console.log('Updated data:', updatedData);
-
-      const response = await serviceAPI.update(record.id, updatedData);
-      console.log('API response:', response);
-
-      if (response.success) {
-        message.success('Service updated successfully');
-        loadServices();
-      } else {
-        throw new Error(response.message || 'Failed to update service');
+  const handleInlineEdit = (record, field, value) => {
+    console.log('Storing pending change:', { id: record.id, field, value });
+    
+    // Store the change in pendingChanges state
+    setPendingChanges(prev => ({
+      ...prev,
+      [record.id]: {
+        ...prev[record.id],
+        [field]: value
       }
-    } catch (error) {
-      console.error('Error updating service:', error);
-      message.error('Failed to update service. Please try again.');
-    }
+    }));
+
+    // Update the local dataSource to reflect the change in UI
+    setDataSource(prevData => 
+      prevData.map(item => 
+        item.id === record.id 
+          ? { ...item, [field]: value }
+          : item
+      )
+    );
   };
 
   const handleToggleEditMode = () => {
-    setIsEditMode(!isEditMode);
+    if (isEditMode) {
+      // Show confirmation modal when exiting edit mode
+      if (Object.keys(pendingChanges).length > 0) {
+        setIsDoneEditingConfirmModalVisible(true);
+      } else {
+        // No changes, just exit edit mode
+        setIsEditMode(false);
+        setSelectedRowKeys([]);
+        message.info('Edit mode closed');
+      }
+    } else {
+      // Enter edit mode directly and clear any previous pending changes
+      setPendingChanges({});
+      setIsEditMode(true);
+      setSelectedRowKeys([]);
+    }
+  };
+
+  const handleCancelDoneEditing = async () => {
+    // Discard changes and reload original data
+    setIsDoneEditingConfirmModalVisible(false);
+    setPendingChanges({});
+    setIsEditMode(false);
     setSelectedRowKeys([]);
+    await loadServices(); // Reload original data from database
+    message.info('Changes discarded');
+  };
+
+  const confirmDoneEditing = async () => {
+    try {
+      // Check if there are any pending changes
+      if (Object.keys(pendingChanges).length === 0) {
+        setIsEditMode(false);
+        setSelectedRowKeys([]);
+        setIsDoneEditingConfirmModalVisible(false);
+        message.info('No changes to save');
+        return;
+      }
+
+      console.log('Saving pending changes:', pendingChanges);
+
+      // Save all pending changes to the database
+      const savePromises = Object.entries(pendingChanges).map(([serviceId, changes]) => {
+        return serviceAPI.update(serviceId, changes);
+      });
+
+      const results = await Promise.all(savePromises);
+      const successCount = results.filter(result => result.success).length;
+
+      if (successCount === results.length) {
+        // All changes saved successfully
+        setIsEditMode(false);
+        setSelectedRowKeys([]);
+        setIsDoneEditingConfirmModalVisible(false);
+        setPendingChanges({}); // Clear pending changes
+        await loadServices(); // Reload from database
+        message.success('All changes saved successfully!');
+      } else {
+        throw new Error('Some changes failed to save');
+      }
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      setIsDoneEditingConfirmModalVisible(false);
+      message.error('Failed to save some changes. Please try again.');
+    }
   };
 
   const rowSelection = {
@@ -696,9 +795,8 @@ const ServiceManagerContent = () => {
   return (
     <div style={{
       padding: '24px',
-      height: isMobile ? '85vh' : '80vh',
-      overflowY: 'auto',
-      minHeight: isMobile ? '600px' : 'auto'
+      height: '100%',
+      overflowY: 'auto'
     }}>
       <style>
         {`
@@ -1308,7 +1406,7 @@ const ServiceManagerContent = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
             <Button
               type="primary"
-              icon={<EditOutlined />}
+              icon={<PlusOutlined />}
               onClick={() => setIsModalVisible(true)}
               style={{
                 width: '100%',
@@ -1316,7 +1414,7 @@ const ServiceManagerContent = () => {
               }}
               className="no-hover-button"
             >
-              Add New Service
+              Add
             </Button>
             <Button
               type={isEditMode ? "default" : "primary"}
@@ -1328,39 +1426,31 @@ const ServiceManagerContent = () => {
               }}
               className="no-hover-button"
             >
-              {isEditMode ? 'Done Editing' : 'Edit Services'}
+              {isEditMode ? 'Done Editing' : 'Edit'}
             </Button>
-            <Popconfirm
-              title="Delete Selected Services"
-              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
-              onConfirm={handleSelectedDelete}
-              okText="Yes"
-              cancelText="No"
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleSelectedDelete}
+              style={{
+                width: '100%',
+                ':hover': { backgroundColor: 'transparent' }
+              }}
+              className="no-hover-button"
               disabled={selectedRowKeys.length === 0}
             >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                style={{
-                  width: '100%',
-                  ':hover': { backgroundColor: 'transparent' }
-                }}
-                className="no-hover-button"
-                disabled={selectedRowKeys.length === 0}
-              >
-                Delete ({selectedRowKeys.length})
-              </Button>
-            </Popconfirm>
+              Delete ({selectedRowKeys.length})
+            </Button>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: isAboveMobile ? 'column' : 'row', gap: '8px', width: '100%' }}>
             <Button
               type="primary"
-              icon={<EditOutlined />}
+              icon={<PlusOutlined />}
               onClick={() => setIsModalVisible(true)}
               className="no-hover-button"
             >
-              Add New Service
+              Add New
             </Button>
             <Button
               type={isEditMode ? "default" : "primary"}
@@ -1368,25 +1458,17 @@ const ServiceManagerContent = () => {
               onClick={handleToggleEditMode}
               className="no-hover-button"
             >
-              {isEditMode ? 'Done Editing' : 'Edit Services'}
+              {isEditMode ? 'Done Editing' : 'Edit'}
             </Button>
-            <Popconfirm
-              title="Delete Selected Services"
-              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
-              onConfirm={handleSelectedDelete}
-              okText="Yes"
-              cancelText="No"
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleSelectedDelete}
+              className="no-hover-button"
               disabled={selectedRowKeys.length === 0}
             >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                className="no-hover-button"
-                disabled={selectedRowKeys.length === 0}
-              >
-                Delete ({selectedRowKeys.length})
-              </Button>
-            </Popconfirm>
+              Delete ({selectedRowKeys.length})
+            </Button>
           </div>
         )}
       </div>
@@ -1420,7 +1502,26 @@ const ServiceManagerContent = () => {
         width={800}
         okText={editingService ? "Update" : "Add"}
         cancelText="Cancel"
+        styles={{
+          body: {
+            maxHeight: '450px',
+            overflowY: 'auto',
+            paddingRight: '8px',
+            scrollbarWidth: 'none', // Firefox
+            msOverflowStyle: 'none', // IE and Edge
+          }
+        }}
+        style={{
+          top: 20
+        }}
       >
+        <style>
+          {`
+            .ant-modal-body::-webkit-scrollbar {
+              display: none; /* Chrome, Safari and Opera */
+            }
+          `}
+        </style>
         <Form form={addForm} layout="vertical">
           <Form.Item
             name="interests"
@@ -1530,6 +1631,64 @@ const ServiceManagerContent = () => {
             <TextArea rows={3} placeholder="Enter description" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Confirmation Modal for Add Service */}
+      <Modal
+        title="Add Service"
+        open={isAddConfirmModalVisible}
+        onOk={confirmAddService}
+        onCancel={() => setIsAddConfirmModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        <p>Are you sure you want to add this service?</p>
+      </Modal>
+
+      {/* Confirmation Modal for Edit Service */}
+      <Modal
+        title="Edit Service"
+        open={isEditConfirmModalVisible}
+        onOk={confirmEditService}
+        onCancel={() => setIsEditConfirmModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        <p>Are you sure you want to update this service?</p>
+      </Modal>
+
+      {/* Confirmation Modal for Done Editing */}
+      <Modal
+        title="Save Changes"
+        open={isDoneEditingConfirmModalVisible}
+        onOk={confirmDoneEditing}
+        onCancel={handleCancelDoneEditing}
+        okText="Save"
+        cancelText="Discard"
+        centered
+      >
+        <p>Do you want to save all your changes to the database?</p>
+        <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+          Click "Save" to save changes or "Discard" to cancel without saving.
+        </p>
+      </Modal>
+
+      {/* Confirmation Modal for Delete Selected Services */}
+      <Modal
+        title="Delete Selected Services"
+        open={isDeleteConfirmModalVisible}
+        onOk={confirmDelete}
+        onCancel={() => setIsDeleteConfirmModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+      >
+        <p>Are you sure you want to delete {selectedRowKeys.length} selected service(s)?</p>
+        <p style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '8px' }}>
+          This action cannot be undone.
+        </p>
       </Modal>
     </div>
   );

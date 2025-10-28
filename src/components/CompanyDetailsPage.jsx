@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { message, Modal } from 'antd';
 import { companyAPI } from "../utils/api";
 import Header from "./Header";
 import "./CompanyDetailsPage.css";
@@ -97,6 +98,7 @@ function CompanyDetailsPage({ onNext }) {
   const [showIndustryDropdown, setShowIndustryDropdown] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   
   const countryRef = useRef(null);
   const cityRef = useRef(null);
@@ -239,7 +241,7 @@ function CompanyDetailsPage({ onNext }) {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
-        alert('You are not logged in. Please log in again.');
+        message.error('You are not logged in. Please log in again.');
         navigate('/login');
         return;
       }
@@ -268,6 +270,7 @@ function CompanyDetailsPage({ onNext }) {
       
       if (response.success) {
         console.log('Company details saved successfully:', response.data);
+        message.warning('Company details saved successfully!');
         
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
@@ -290,12 +293,12 @@ function CompanyDetailsPage({ onNext }) {
       console.error('Error status:', error.response?.status);
       
       if (error.response?.status === 401) {
-        alert('Your session has expired. Please log in again.');
+        message.error('Your session has expired. Please log in again.');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
       } else {
-        alert(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+        message.error(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
       }
     } finally {
       setIsSubmitting(false);
@@ -550,11 +553,32 @@ function CompanyDetailsPage({ onNext }) {
             >
               Back
             </button> */}
-            <button className="save-btn" onClick={handleSave} disabled={isSubmitting} style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }}>
+            <button 
+              className="save-btn" 
+              disabled={isSubmitting} 
+              style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }}
+              onClick={() => setIsConfirmModalVisible(true)}
+            >
               {isSubmitting ? 'Saving...' : 'Continue'}
             </button>
           </div>
         </div>
+
+        {/* Confirmation Modal */}
+        <Modal
+          title="Save Company Details"
+          open={isConfirmModalVisible}
+          onOk={() => {
+            setIsConfirmModalVisible(false);
+            handleSave();
+          }}
+          onCancel={() => setIsConfirmModalVisible(false)}
+          okText="Yes"
+          cancelText="No"
+          centered
+        >
+          <p>Are you sure you want to save and continue?</p>
+        </Modal>
       </div>
     </div>
   );

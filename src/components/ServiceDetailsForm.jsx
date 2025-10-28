@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message, Popconfirm } from 'antd';
+import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message } from 'antd';
 import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { serviceAPI } from '../utils/api';
@@ -21,6 +21,11 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [isAddConfirmModalVisible, setIsAddConfirmModalVisible] = useState(false);
+  const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
+  const [isMultiDeleteConfirmModalVisible, setIsMultiDeleteConfirmModalVisible] = useState(false);
+  const [deleteKey, setDeleteKey] = useState(null);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const interestList = [
@@ -164,25 +169,39 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
 
   const handleModalOk = async () => {
     try {
-      const values = await addForm.validateFields();
-      const newData = {
-        key: Date.now().toString(),
-        ...values,
-      };
-      setDataSource([...dataSource, newData]);
-      addForm.resetFields();
-      setIsModalVisible(false);
-      setSelectedRowKeys([]);
-      message.success('Service added successfully');
+      await addForm.validateFields();
+      // Show confirmation modal instead of directly adding
+      setIsAddConfirmModalVisible(true);
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
   };
 
+  const confirmAddService = async () => {
+    const values = addForm.getFieldsValue();
+    const newData = {
+      key: Date.now().toString(),
+      ...values,
+    };
+    setDataSource([...dataSource, newData]);
+    addForm.resetFields();
+    setIsModalVisible(false);
+    setIsAddConfirmModalVisible(false);
+    setSelectedRowKeys([]);
+    message.success('Service added successfully!');
+  };
+
   const handleDelete = (key) => {
-    const newData = dataSource.filter(item => item.key !== key);
+    setDeleteKey(key);
+    setIsDeleteConfirmModalVisible(true);
+  };
+
+  const confirmDelete = () => {
+    const newData = dataSource.filter(item => item.key !== deleteKey);
     setDataSource(newData);
-    message.warning('Service deleted successfully');
+    setIsDeleteConfirmModalVisible(false);
+    setDeleteKey(null);
+    message.success('Service deleted successfully!');
   };
 
   const handleSelectedDelete = () => {
@@ -190,10 +209,15 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       message.warning('Please select services to delete');
       return;
     }
+    setIsMultiDeleteConfirmModalVisible(true);
+  };
+
+  const confirmMultiDelete = () => {
     const newData = dataSource.filter(item => !selectedRowKeys.includes(item.key));
     setDataSource(newData);
+    setIsMultiDeleteConfirmModalVisible(false);
+    message.success(`${selectedRowKeys.length} service(s) deleted successfully!`);
     setSelectedRowKeys([]);
-    message.warning(`${selectedRowKeys.length} service(s) deleted successfully`);
   };
 
   const rowSelection = {
@@ -239,7 +263,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       
       if (response.success) {
         console.log('Services saved successfully:', response.data);
-        message.success('Services saved successfully!');
+        message.warning('Services saved successfully!');
         
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
@@ -669,20 +693,13 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       key: 'actions',
       width: 100,
       render: (_, record) => (
-        <Popconfirm
-          title="Delete Service"
-          description="Are you sure you want to delete this service?"
-          onConfirm={() => handleDelete(record.key)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button 
-            type="text" 
-            danger 
-            icon={<DeleteOutlined />}
-            size="small"
-          />
-        </Popconfirm>
+        <Button 
+          type="text" 
+          danger 
+          icon={<DeleteOutlined />}
+          size="small"
+          onClick={() => handleDelete(record.key)}
+        />
       ),
     },
     // {
@@ -752,23 +769,15 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             >
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
-            <Popconfirm
-              title="Delete Selected Services"
-              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
-              onConfirm={handleSelectedDelete}
-              okText="Yes"
-              cancelText="No"
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              style={{ width: '100%' }}
               disabled={selectedRowKeys.length === 0}
+              onClick={handleSelectedDelete}
             >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                style={{ width: '100%' }}
-                disabled={selectedRowKeys.length === 0}
-              >
-                Delete ({selectedRowKeys.length})
-              </Button>
-            </Popconfirm>
+              Delete ({selectedRowKeys.length})
+            </Button>
           </div>
         ) : (
           <Space>
@@ -786,22 +795,14 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
             >
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
-            <Popconfirm
-              title="Delete Selected Services"
-              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
-              onConfirm={handleSelectedDelete}
-              okText="Yes"
-              cancelText="No"
+            <Button
+              danger
+              icon={<DeleteOutlined />}
               disabled={selectedRowKeys.length === 0}
+              onClick={handleSelectedDelete}
             >
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                disabled={selectedRowKeys.length === 0}
-              >
-                Delete ({selectedRowKeys.length})
-              </Button>
-            </Popconfirm>
+              Delete ({selectedRowKeys.length})
+            </Button>
           </Space>
         )}
       </div>
@@ -973,10 +974,74 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           <Button onClick={onBack} size="large">
             Back
           </Button>
-          <Button type="primary" onClick={handleSubmit} size="large" loading={isSubmitting} disabled={isSubmitting}>
+          <Button 
+            type="primary" 
+            size="large" 
+            loading={isSubmitting} 
+            disabled={isSubmitting}
+            onClick={() => setIsConfirmModalVisible(true)}
+          >
             {isSubmitting ? 'Saving...' : 'Continue'}
           </Button>
         </div>
+
+        {/* Confirmation Modal for Continue */}
+        <Modal
+          title="Save Service Details"
+          open={isConfirmModalVisible}
+          onOk={() => {
+            setIsConfirmModalVisible(false);
+            handleSubmit();
+          }}
+          onCancel={() => setIsConfirmModalVisible(false)}
+          okText="Yes"
+          cancelText="No"
+          centered
+        >
+          <p>Are you sure you want to save and continue?</p>
+        </Modal>
+
+        {/* Confirmation Modal for Add Service */}
+        <Modal
+          title="Add Service"
+          open={isAddConfirmModalVisible}
+          onOk={confirmAddService}
+          onCancel={() => setIsAddConfirmModalVisible(false)}
+          okText="Yes"
+          cancelText="No"
+          centered
+        >
+          <p>Are you sure you want to add this service?</p>
+        </Modal>
+
+        {/* Confirmation Modal for Delete Single Service */}
+        <Modal
+          title="Delete Service"
+          open={isDeleteConfirmModalVisible}
+          onOk={confirmDelete}
+          onCancel={() => {
+            setIsDeleteConfirmModalVisible(false);
+            setDeleteKey(null);
+          }}
+          okText="Yes"
+          cancelText="No"
+          centered
+        >
+          <p>Are you sure you want to delete this service?</p>
+        </Modal>
+
+        {/* Confirmation Modal for Delete Multiple Services */}
+        <Modal
+          title="Delete Selected Services"
+          open={isMultiDeleteConfirmModalVisible}
+          onOk={confirmMultiDelete}
+          onCancel={() => setIsMultiDeleteConfirmModalVisible(false)}
+          okText="Yes"
+          cancelText="No"
+          centered
+        >
+          <p>Are you sure you want to delete {selectedRowKeys.length} selected service(s)? This action cannot be undone.</p>
+        </Modal>
       </div>
     </div>
   );

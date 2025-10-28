@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Form, Input, Select, Button, Card, message, Row, Col, notification } from 'antd';
+import { Form, Input, Select, Button, Card, message, Row, Col, notification, Modal } from 'antd';
 import { SaveOutlined, BankOutlined, GlobalOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
 import { API_BASE_URL } from '../../config';
@@ -10,7 +10,9 @@ const { Option } = Select;
 const OrganizationDetailsTab = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState(null);
+  const [_formData, setFormData] = useState(null); // Prefix with _ to indicate intentionally unused
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [pendingFormValues, setPendingFormValues] = useState(null);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const industryOptions = [
@@ -58,6 +60,12 @@ const OrganizationDetailsTab = () => {
           if (result.success && result.data) {
             const companyData = result.data;
             console.log('Setting form fields with:', companyData);
+            
+            // Parse website URL if it exists - remove protocol and www
+            if (companyData.website) {
+              companyData.websiteName = companyData.website.replace(/^https?:\/\/(www\.)?/, '');
+            }
+            
             form.setFieldsValue(companyData);
             setFormData(companyData);
             
@@ -88,18 +96,38 @@ const OrganizationDetailsTab = () => {
   };
 
   const handleSubmit = async (values) => {
+    // Construct full website URL - add https:// if not present
+    const websiteName = values.websiteName?.trim();
+    if (websiteName) {
+      // Check if it already has a protocol
+      if (!/^https?:\/\//i.test(websiteName)) {
+        values.website = `https://${websiteName}`;
+      } else {
+        values.website = websiteName;
+      }
+    }
+    
+    // Store values and show confirmation modal
+    setPendingFormValues(values);
+    setIsConfirmModalVisible(true);
+  };
+
+  const confirmSave = async () => {
     try {
+      const values = pendingFormValues;
       console.log('Saving organization details:', values);
       
       // Get auth token
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
         message.error('Please log in to save organization details');
+        setIsConfirmModalVisible(false);
         return;
       }
 
       // Set loading state
       setLoading(true);
+      setIsConfirmModalVisible(false);
 
       // Prepare data for backend
       const organizationData = {
@@ -139,22 +167,23 @@ const OrganizationDetailsTab = () => {
         if (reloadResponse.ok) {
           const reloadResult = await reloadResponse.json();
           if (reloadResult.success && reloadResult.data) {
+            // Parse website URL if it exists - remove protocol and www
+            if (reloadResult.data.website) {
+              reloadResult.data.websiteName = reloadResult.data.website.replace(/^https?:\/\/(www\.)?/, '');
+            }
             form.setFieldsValue(reloadResult.data);
             setFormData(reloadResult.data);
           }
         }
         
-        // Alert to verify success
-        alert('Organization details saved successfully!');
-        
-        // Show success notification popup
+        // Show success notification
         notification.success({
-          message: 'Organization Updated',
-          description: 'Your organization details have been saved successfully!',
+          message: 'Success',
+          description: 'Organization details saved successfully!',
           placement: 'topRight',
-          duration: 4,
+          duration: 3,
           style: {
-            zIndex: 2000,
+            zIndex: 99999,
           },
           icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
         });
@@ -189,7 +218,11 @@ const OrganizationDetailsTab = () => {
   };
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ 
+      padding: '24px',
+      height: '100%',
+      overflowY: 'auto'
+    }}>
       <h3 style={{ 
         fontSize: '20px', 
         fontWeight: '600', 
@@ -205,11 +238,11 @@ const OrganizationDetailsTab = () => {
         onFinish={handleSubmit}
         autoComplete="off"
       >
-        {loading && (
+        {/* {loading && (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <div>Loading organization data...</div>
           </div>
-        )}
+        )} */}
         <div style={{ 
           display: 'flex', 
           gap: '16px', 
@@ -267,20 +300,23 @@ const OrganizationDetailsTab = () => {
         }}>
           <Form.Item 
             label="Website *" 
-            name="website" 
+            name="websiteName" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
               minWidth: isMobile ? '100%' : '200px',
               width: isMobile ? '100%' : 'auto'
             }}
             rules={[
-              { required: true, message: 'Please enter website URL' },
-              { type: 'url', message: 'Please enter a valid URL' }
+              { required: true, message: 'Please enter website name' },
+              { 
+                pattern: /^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/, 
+                message: 'Please enter a valid domain (e.g., example.com or my-site.org)' 
+              }
             ]}
           >
             <Input 
               prefix={<GlobalOutlined />}
-              placeholder="https://example.com"
+              placeholder="example.com"
               size="large"
             />
           </Form.Item>
@@ -364,13 +400,19 @@ const OrganizationDetailsTab = () => {
           </Form.Item>
         </div>
 
-        <Form.Item>
+        <Form.Item style={{ marginBottom: '20px', marginTop: '25px' }}>
           <Button 
             type="primary" 
             htmlType="submit"
             loading={loading}
             icon={<SaveOutlined />}
-            style={{ width: isMobile ? '100%' : 'auto' }}
+            size="large"
+            style={{ 
+              width: isMobile ? '100%' : 'auto',
+              minWidth: isMobile ? '100%' : '200px',
+              // height: isMobile ? '48px' : '30px',
+              // height:'48px'
+            }}
           >
             {loading ? 'Saving...' : 'Save Organization Details'}
           </Button>
@@ -436,6 +478,20 @@ const OrganizationDetailsTab = () => {
           </div>
         </div>
       )} */}
+
+      {/* Confirmation Modal */}
+      <Modal
+        title="Save Organization Details"
+        open={isConfirmModalVisible}
+        onOk={confirmSave}
+        onCancel={() => setIsConfirmModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+        confirmLoading={loading}
+      >
+        <p>Are you sure you want to save these organization details?</p>
+      </Modal>
     </div>
   );
 };
