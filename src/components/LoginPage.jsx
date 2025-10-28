@@ -188,15 +188,12 @@ function LoginPage() {
           ? `${loginResponse.data.firstName} ${loginResponse.data.lastName}` 
           : loginResponse.data.name || email.split('@')[0];
         
-        // Store user data in localStorage
+        // Store user data in localStorage (with all onboarding status fields)
         localStorage.setItem('user', JSON.stringify({
+          ...loginResponse.data,
           name: displayName,
-          firstName: loginResponse.data.firstName || displayName.split(' ')[0],
-          lastName: loginResponse.data.lastName || displayName.split(' ').slice(1).join(' '),
           email: email,
-          provider: 'email',
-          picture: loginResponse.data.picture || null,
-          plan: loginResponse.data.plan || 'Free Plan'
+          provider: 'email'
         }));
         
         // Store auth token
@@ -315,15 +312,12 @@ function LoginPage() {
           ? `${loginResponse.data.firstName} ${loginResponse.data.lastName}` 
           : loginResponse.data.name || emailAddress.split('@')[0];
         
-        // Store user data
+        // Store user data (with all onboarding status fields)
         localStorage.setItem('user', JSON.stringify({
+          ...loginResponse.data,
           name: displayName,
-          firstName: loginResponse.data.firstName || displayName.split(' ')[0],
-          lastName: loginResponse.data.lastName || displayName.split(' ').slice(1).join(' '),
           email: emailAddress,
-          provider: 'email',
-          picture: loginResponse.data.picture || null,
-          plan: loginResponse.data.plan || 'Free Plan'
+          provider: 'email'
         }));
 
         localStorage.setItem('token', loginResponse.data.token);
@@ -1260,14 +1254,14 @@ function LoginPage() {
                         const response = await authAPI.register(registrationData);
                         
                         if (response.success) {
+                          // Store complete user data with onboarding status
                           localStorage.setItem('user', JSON.stringify({
+                            ...response.data,
                             name: `${signupFirstName.trim()} ${signupLastName.trim()}`,
                             firstName: signupFirstName.trim(),
                             lastName: signupLastName.trim(),
                             email: signupEmail,
-                            provider: 'email',
-                            picture: response.data.picture || null,
-                            plan: 'Free Plan'
+                            provider: 'email'
                           }));
                           localStorage.setItem('token', response.data.token);
                           setShowSignupModal(false);

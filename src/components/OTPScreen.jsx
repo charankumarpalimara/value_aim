@@ -108,11 +108,12 @@ const OTPScreen = () => {
         
         if (loginResult.success) {
           // Store user data and token
+          // Store complete user data with all onboarding status fields
           localStorage.setItem('user', JSON.stringify({
+            ...loginResult.data,
             name: loginResult.data.name || email.split('@')[0],
             email: email,
-            provider: 'email',
-            plan: loginResult.data.plan || 'Free Plan'
+            provider: 'email'
           }));
           
           localStorage.setItem('token', loginResult.data.token);

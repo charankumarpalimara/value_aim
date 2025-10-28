@@ -939,14 +939,14 @@ function LandingPage() {
                         const response = await authAPI.register(registrationData);
                         
                         if (response.success) {
+                          // Store complete user data with onboarding status
                           localStorage.setItem('user', JSON.stringify({
+                            ...response.data,
                             name: `${signupFirstName.trim()} ${signupLastName.trim()}`,
                             firstName: signupFirstName.trim(),
                             lastName: signupLastName.trim(),
                             email: signupEmail,
-                            provider: 'email',
-                            picture: response.data.picture || null,
-                            plan: 'Free Plan'
+                            provider: 'email'
                           }));
                           localStorage.setItem('token', response.data.token);
                           setShowSignupModal(false);
