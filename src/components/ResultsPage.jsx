@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
-import valueAimImage from "../assets/value_aim.png"
+import valueAimImage from "../assets/value_aim_icon_transparent.png"
 import "./ResultsPage.css";
 import "./ResultsPage-tabs.css";
 import JourneyMatrixTab from "./tabs/JourneyMatrixTab";
@@ -634,13 +634,13 @@ function ResultsPage() {
                         <span>Organization Details</span>
                       </button>
 
-                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Service Manager'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
+                      <button className="profile-menu-item" onClick={() => { setActivePopupScreen('Your Services/ Products'); setIsMainPopupVisible(true); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                           <path d="M2 3H14V11H2V3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                           <path d="M2 6H14M5 3V6M11 3V6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           <path d="M4 9H6M4 12H6M8 9H10M8 12H10M12 9H12.01M12 12H12.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
-                        <span>Service Manager</span>
+                        <span>Your Services/ Products</span>
                       </button>
 
                       <div className="profile-menu-divider"></div>

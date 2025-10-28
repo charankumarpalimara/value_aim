@@ -17,23 +17,28 @@ function LoginPage() {
   const [otp, setOtp] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [otpTimer, setOtpTimer] = useState(0);
-
+  
   // Signup state
   const [signupStep, setSignupStep] = useState(1); // 1: email/password, 2: OTP, 3: full name
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupOtp, setSignupOtp] = useState('');
-  const [signupFullName, setSignupFullName] = useState('');
+  const [signupFirstName, setSignupFirstName] = useState('');
+  const [signupLastName, setSignupLastName] = useState('');
   const [signupOtpTimer, setSignupOtpTimer] = useState(0);
   const [isSubmittingSignup, setIsSubmittingSignup] = useState(false);
+  const [isVerifyingSignupOtp, setIsVerifyingSignupOtp] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [emailCheckMessage, setEmailCheckMessage] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
+  const [isCheckingOtpEmail, setIsCheckingOtpEmail] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  
   // Email restrictions
   const [emailRestricted, setEmailRestricted] = useState(false);
   const [emailRestrictionMessage, setEmailRestrictionMessage] = useState('');
@@ -41,7 +46,14 @@ function LoginPage() {
   // Email validation function
   const validateEmailRestrictions = (email) => {
     const domain = email.split('@')[1]?.toLowerCase();
-
+    
+    // If no domain exists, it's invalid
+    if (!domain) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Please enter a valid email address.');
+      return false;
+    }
+    
     // List of restricted domains (disposable emails, spam domains, etc.)
     const restrictedDomains = [
       // Disposable email services
@@ -61,28 +73,28 @@ function LoginPage() {
       // Invalid domains
       'localhost', 'invalid', 'test', 'example'
     ];
-
+    
     // Check if domain is restricted
     if (restrictedDomains.includes(domain)) {
       setEmailRestricted(true);
       setEmailRestrictionMessage('This email domain is not allowed. Please use a valid email address.');
       return false;
     }
-
+    
     // Check for suspicious patterns
-    if (domain && domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
+    if (domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
       setEmailRestricted(true);
       setEmailRestrictionMessage('Temporary or suspicious email domains are not allowed.');
       return false;
     }
-
+    
     // Check for valid domain structure
-    if (domain && !domain.includes('.')) {
+    if (!domain.includes('.')) {
       setEmailRestricted(true);
       setEmailRestrictionMessage('Please enter a valid email address with a proper domain.');
       return false;
     }
-
+    
     setEmailRestricted(false);
     setEmailRestrictionMessage('');
     return true;
@@ -121,32 +133,37 @@ function LoginPage() {
       return;
     }
 
+    // Reset password error state
+    setPasswordError(false);
+    setPasswordErrorMessage('');
+
     setIsLoggingIn(true);
     try {
       console.log('Checking if user exists:', email);
-
+      
       // First check if user exists
       const checkResponse = await authAPI.checkEmail(email.trim());
       console.log('Email check response:', checkResponse);
-
+      
       if (!checkResponse.exists) {
-        alert('This user does not exist. Please check your email or sign up for a new account.');
+        setPasswordError(true);
+        setPasswordErrorMessage('This user does not exist. Please check your email or sign up for a new account.');
         setIsLoggingIn(false);
-        return;
-      }
+      return;
+    }
 
       console.log('User exists, attempting password login');
-
+      
       // User exists, now try password login
       const loginResponse = await authAPI.login({
         email: email.trim(),
         password: password,
         provider: 'email'
       });
-
+      
       if (loginResponse.success) {
         console.log('User logged in successfully:', loginResponse.data);
-
+        
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify({
           name: loginResponse.data.name || email.split('@')[0],
@@ -154,30 +171,27 @@ function LoginPage() {
           provider: 'email',
           plan: loginResponse.data.plan || 'Free Plan'
         }));
-
+        
         // Store auth token
         localStorage.setItem('token', loginResponse.data.token);
-
+        
         // Close password modal
         setPassword('');
-
-        // Check if user has completed onboarding
-        if (loginResponse.data.hasCompletedOnboarding) {
+        
+        // Navigate to results page after successful login
           navigate('/results');
-        } else if (loginResponse.data.companyDetailsCompleted) {
-          navigate('/service-details');
         } else {
-          navigate('/company-details');
-        }
-      } else {
         throw new Error(loginResponse.message || 'Login failed');
-      }
+        }
     } catch (error) {
       console.error('Login failed:', error);
       if (error.message && error.message.includes('user does not exist')) {
-        alert('This user does not exist. Please check your email or sign up for a new account.');
+        setPasswordError(true);
+        setPasswordErrorMessage('This user does not exist. Please check your email or sign up for a new account.');
       } else {
-        alert('Invalid email or password. Please try again.');
+        // Set password error state for wrong password
+        setPasswordError(true);
+        setPasswordErrorMessage('Invalid email or password. Please try again.');
       }
     } finally {
       setIsLoggingIn(false);
@@ -186,10 +200,10 @@ function LoginPage() {
 
   const handleSendOtpForEmail = async (emailAddress, isResend = false) => {
     setIsSendingOtp(true);
-
+    
     try {
       console.log('Sending OTP to:', emailAddress);
-
+      
       // Call backend API to send OTP
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
         method: 'POST',
@@ -201,17 +215,17 @@ function LoginPage() {
           purpose: 'login'
         })
       });
-
+      
       const result = await response.json();
-
+      
       if (result.success) {
         if (isResend) {
           alert('OTP resent to your email!');
         }
-
+        
         // Reset OTP field
         setOtp('');
-
+        
         // Focus OTP input
         setTimeout(() => document.getElementById('otp-input')?.focus(), 100);
       } else {
@@ -281,13 +295,8 @@ function LoginPage() {
         setShowOtpOption(false);
         setOtpEmail('');
 
-        if (loginResponse.data.hasCompletedOnboarding) {
-          navigate('/results');
-        } else if (loginResponse.data.companyDetailsCompleted) {
-          navigate('/service-details');
-        } else {
-          navigate('/company-details');
-        }
+        // Navigate to results page after successful OTP login
+        navigate('/results');
       }
     } catch (error) {
       console.error('OTP verification failed:', error);
@@ -304,11 +313,11 @@ function LoginPage() {
   return (
     <div className="login-page">
       <Header onSignupClick={() => setShowSignupModal(true)} />
-
+      
       <div className="login-content">
         <div className="login-card">
           <h2 className="login-title">Log in</h2>
-          <p className="login-subtitle">Smarter responses & file uploads available.</p>
+          <p className="login-subtitle">Next Generation AI platform for B2B Sales.</p>
 
           <div className="email-section">
             {!showTryAnotherWay ? (
@@ -324,15 +333,32 @@ function LoginPage() {
                   type="password"
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    // Reset password error when user starts typing
+                    if (passwordError) {
+                      setPasswordError(false);
+                      setPasswordErrorMessage('');
+                    }
+                  }}
                   className="email-input"
                   style={{ marginTop: '12px' }}
                 />
+                {passwordErrorMessage && (
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#ff4d4f',
+                    marginTop: '4px',
+                    marginBottom: '8px'
+                  }}>
+                    {passwordErrorMessage}
+                  </div>
+                )}
                 <div style={{ marginTop: '12px' }}>
                   <button className="continue-btn" onClick={handlePasswordLogin} disabled={isLoggingIn} style={{ width: '100%', opacity: isLoggingIn ? 0.6 : 1 }}>
                     {isLoggingIn ? 'Logging in...' : 'Log In'}
-                  </button>
-                </div>
+            </button>
+          </div>
 
                 {/* Try another way button */}
                 <div style={{ textAlign: 'center', marginTop: '16px' }}>
@@ -347,7 +373,7 @@ function LoginPage() {
                   >
                     Try another way
                   </button>
-                </div>
+          </div>
               </>
             ) : (
               <>
@@ -364,9 +390,9 @@ function LoginPage() {
                     </p>
 
                     <div className="signup-form-group">
-                      <input
-                        type="email"
-                        placeholder="Email address"
+            <input
+              type="email"
+              placeholder="Email address"
                         value={otpEmail}
                         onChange={(e) => setOtpEmail(e.target.value)}
                         className="signup-input"
@@ -389,6 +415,7 @@ function LoginPage() {
 
                           // Check if user exists
                           try {
+                            setIsCheckingOtpEmail(true);
                             const checkResponse = await authAPI.checkEmail(otpEmail.trim());
                             if (!checkResponse.exists) {
                               alert('This user does not exist. Please check your email or sign up for a new account.');
@@ -401,14 +428,17 @@ function LoginPage() {
                           } catch (error) {
                             console.error('Error checking email:', error);
                             alert('An error occurred while checking your email. Please try again.');
+                          } finally {
+                            setIsCheckingOtpEmail(false);
                           }
                         }}
                         className="signup-submit-btn"
                         style={{ flex: 1 }}
                         type="button"
+                        disabled={isCheckingOtpEmail}
                       >
-                        Send Code
-                      </button>
+                        {isCheckingOtpEmail ? 'Checking...' : 'Send Code'}
+              </button>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
@@ -420,11 +450,12 @@ function LoginPage() {
                         className="signup-login-btn"
                         style={{ flex: 1 }}
                         type="button"
+                        disabled={isCheckingOtpEmail}
                       >
                         ← Back to password login
                       </button>
 
-                    </div>
+            </div>
 
                   </>
                 ) : (
@@ -463,7 +494,7 @@ function LoginPage() {
                         placeholder="000000"
                         autoFocus
                       />
-                    </div>
+          </div>
 
                     {/* Resend Button */}
                     <div style={{ marginBottom: '16px' }}>
@@ -530,15 +561,16 @@ function LoginPage() {
           setSignupPassword('');
           setSignupConfirmPassword('');
           setSignupOtp('');
-          setSignupFullName('');
+          setSignupFirstName('');
+          setSignupLastName('');
           setEmailRestricted(false);
           setEmailRestrictionMessage('');
         }}>
           <div className="signup-modal" onClick={(e) => e.stopPropagation()}>
             <div className="signup-modal-header">
               <h3>{signupStep === 1 ? 'Create Account' : signupStep === 2 ? 'Verify Email' : 'Complete Profile'}</h3>
-              <button
-                className="signup-close-btn"
+              <button 
+                className="signup-close-btn" 
                 onClick={() => {
                   setShowSignupModal(false);
                   setSignupStep(1);
@@ -546,7 +578,8 @@ function LoginPage() {
                   setSignupPassword('');
                   setSignupConfirmPassword('');
                   setSignupOtp('');
-                  setSignupFullName('');
+                  setSignupFirstName('');
+                  setSignupLastName('');
                   setEmailRestricted(false);
                   setEmailRestrictionMessage('');
                 }}
@@ -554,13 +587,14 @@ function LoginPage() {
                 ×
               </button>
             </div>
-
+            
             <div className="signup-form">
               {signupStep === 1 && (
                 <>
                   <div className="signup-form-group">
                     <input
                       type="email"
+                      inputMode="email"
                       placeholder="Email Address *"
                       value={signupEmail}
                       onChange={(e) => {
@@ -572,12 +606,12 @@ function LoginPage() {
                       }}
                       onBlur={async () => {
                         if (!signupEmail.trim()) return;
-
+                        
                         // First validate email restrictions
                         if (!validateEmailRestrictions(signupEmail.trim())) {
                           return;
                         }
-
+                        
                         setIsCheckingEmail(true);
                         setEmailCheckMessage('Checking...');
                         try {
@@ -600,13 +634,13 @@ function LoginPage() {
                       }}
                       className="signup-input"
                       autoFocus
-                      style={{
+                      style={{ 
                         borderColor: emailExists || emailRestricted ? '#ff4d4f' : emailCheckMessage === '' && signupEmail && !emailRestricted ? '#52c41a' : ''
                       }}
                     />
                     {emailCheckMessage && (
-                      <div style={{
-                        fontSize: '12px',
+                      <div style={{ 
+                        fontSize: '12px', 
                         color: emailExists ? '#ff4d4f' : '#52c41a',
                         marginTop: '4px'
                       }}>
@@ -614,8 +648,8 @@ function LoginPage() {
                       </div>
                     )}
                     {emailRestrictionMessage && (
-                      <div style={{
-                        fontSize: '12px',
+                      <div style={{ 
+                        fontSize: '12px', 
                         color: '#ff4d4f',
                         marginTop: '4px'
                       }}>
@@ -623,7 +657,7 @@ function LoginPage() {
                       </div>
                     )}
                   </div>
-
+                  
                   <div className="signup-form-group" style={{ position: 'relative' }}>
                     <input
                       type={showSignupPassword ? "text" : "password"}
@@ -648,7 +682,7 @@ function LoginPage() {
                       {showSignupPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
                   </div>
-
+                  
                   <div className="signup-form-group" style={{ position: 'relative' }}>
                     <input
                       type={showSignupConfirmPassword ? "text" : "password"}
@@ -673,8 +707,8 @@ function LoginPage() {
                       {showSignupConfirmPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
                   </div>
-
-                  <button
+                  
+                  <button 
                     onClick={async (e) => {
                       e.preventDefault();
                       if (!signupEmail.trim() || !signupPassword || !signupConfirmPassword) {
@@ -689,19 +723,19 @@ function LoginPage() {
                         alert('Password must be at least 6 characters');
                         return;
                       }
-
+                      
                       // Check if email is restricted
                       if (emailRestricted) {
                         alert('This email domain is not allowed. Please use a valid email address.');
                         return;
                       }
-
+                      
                       // Check if email already exists
                       if (emailExists) {
                         alert('This email is already registered. Please use a different email or log in.');
                         return;
                       }
-
+                      
                       setIsCheckingEmail(true);
                       try {
                         // User doesn't exist, send OTP
@@ -737,26 +771,26 @@ function LoginPage() {
                   <p style={{ textAlign: 'center', marginBottom: '20px', color: '#666' }}>
                     Enter the verification code sent to <strong>{signupEmail}</strong>
                   </p>
-
+                  
                   <div style={{ marginBottom: '20px' }}>
-                    <input
+                      <input
                       id="signup-otp-input"
-                      type="text"
-                      inputMode="numeric"
+                        type="text"
+                        inputMode="numeric"
                       maxLength={6}
                       value={signupOtp}
-                      onChange={(e) => {
+                        onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, ''); // Only allow digits
                         setSignupOtp(value);
-                      }}
-                      onPaste={(e) => {
-                        e.preventDefault();
+                        }}
+                        onPaste={(e) => {
+                          e.preventDefault();
                         const pastedData = e.clipboardData.getData('text').trim().replace(/\D/g, '');
                         if (pastedData.length <= 6) {
                           setSignupOtp(pastedData);
-                        }
-                      }}
-                      className="signup-input"
+                          }
+                        }}
+                        className="signup-input"
                       style={{
                         width: '100%',
                         height: '50px',
@@ -769,24 +803,24 @@ function LoginPage() {
                     />
                   </div>
 
-                  <button
-                    onClick={async () => {
-                      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
-                      });
-                      if (response.ok) {
+                    <button
+                      onClick={async () => {
+                        const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/send`, {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ email: signupEmail.trim(), purpose: 'accountCreation' })
+                        });
+                        if (response.ok) {
                         setSignupOtp('');
-                        alert('OTP resent!');
-                      }
-                    }}
-                    className="signup-login-btn"
+                          alert('OTP resent!');
+                        }
+                      }}
+                      className="signup-login-btn"
                     style={{ fontSize: '14px', width: '100%', marginBottom: '16px' }}
-                  >
-                    Resend Code
-                  </button>
-
+                    >
+                      Resend Code
+                    </button>
+                  
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
@@ -795,7 +829,8 @@ function LoginPage() {
                         alert('Please enter the complete 6-digit code');
                         return;
                       }
-
+                      
+                      setIsVerifyingSignupOtp(true);
                       try {
                         const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/verify`, {
                           method: 'POST',
@@ -803,21 +838,29 @@ function LoginPage() {
                           body: JSON.stringify({ email: signupEmail.trim(), otp: otpValue, purpose: 'accountCreation' })
                         });
                         const result = await response.json();
-                        if (result.success) {
+                        
+                        console.log('OTP Verification Response:', { status: response.status, ok: response.ok, result });
+                        
+                        if (response.ok && result.success) {
+                          console.log('OTP verification successful, proceeding to step 3');
                           setSignupStep(3);
                           setTimeout(() => document.querySelector('.signup-input')?.focus(), 100);
                         } else {
-                          alert('Invalid OTP');
+                          console.log('OTP verification failed:', result.message);
+                          alert(result.message || 'Invalid OTP');
                         }
-                      } catch {
-                        alert('Invalid OTP');
+                      } catch (error) {
+                        console.error('OTP verification error:', error);
+                        alert('Failed to verify OTP. Please try again.');
+                      } finally {
+                        setIsVerifyingSignupOtp(false);
                       }
                     }}
                     className="signup-submit-btn"
-                    style={{ width: '100%', marginTop: '8px' }}
-                    disabled={signupOtp.length !== 6}
+                    style={{ width: '100%', marginTop: '8px', opacity: isVerifyingSignupOtp ? 0.6 : 1 }}
+                    disabled={signupOtp.length !== 6 || isVerifyingSignupOtp}
                   >
-                    Verify
+                    {isVerifyingSignupOtp ? 'Verifying...' : 'Verify'}
                   </button>
                 </>
               )}
@@ -827,34 +870,48 @@ function LoginPage() {
                   <div className="signup-form-group">
                     <input
                       type="text"
-                      placeholder="Full Name *"
-                      value={signupFullName}
-                      onChange={(e) => setSignupFullName(e.target.value)}
+                      placeholder="First Name *"
+                      value={signupFirstName}
+                      onChange={(e) => setSignupFirstName(e.target.value)}
                       className="signup-input"
                       autoFocus
                     />
                   </div>
-
+                  
+                  <div className="signup-form-group">
+                    <input
+                      type="text"
+                      placeholder="Last Name *"
+                      value={signupLastName}
+                      onChange={(e) => setSignupLastName(e.target.value)}
+                      className="signup-input"
+                    />
+                  </div>
+                  
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
-                      if (!signupFullName.trim()) {
-                        alert('Please enter your full name');
+                      if (!signupFirstName.trim() || !signupLastName.trim()) {
+                        alert('Please enter both first name and last name');
                         return;
                       }
-
+                      
                       setIsSubmittingSignup(true);
                       try {
                         const response = await authAPI.register({
-                          name: signupFullName,
+                          firstName: signupFirstName.trim(),
+                          lastName: signupLastName.trim(),
+                          name: `${signupFirstName.trim()} ${signupLastName.trim()}`, // Keep full name for backward compatibility
                           email: signupEmail,
                           password: signupPassword,
                           provider: 'email'
                         });
-
+                        
                         if (response.success) {
                           localStorage.setItem('user', JSON.stringify({
-                            name: signupFullName,
+                            name: `${signupFirstName.trim()} ${signupLastName.trim()}`,
+                            firstName: signupFirstName.trim(),
+                            lastName: signupLastName.trim(),
                             email: signupEmail,
                             provider: 'email',
                             plan: 'Free Plan'
@@ -878,11 +935,11 @@ function LoginPage() {
                   </button>
                 </>
               )}
-
+              
               <div className="signup-login-link">
-                Already have an account?
-                <button
-                  type="button"
+                Already have an account? 
+                <button 
+                  type="button" 
                   className="signup-login-btn"
                   onClick={() => {
                     setShowSignupModal(false);

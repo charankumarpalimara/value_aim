@@ -19,9 +19,11 @@ function LandingPage() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupConfirmPassword, setSignupConfirmPassword] = useState('');
   const [signupOtp, setSignupOtp] = useState('');
-  const [signupFullName, setSignupFullName] = useState('');
+  const [signupFirstName, setSignupFirstName] = useState('');
+  const [signupLastName, setSignupLastName] = useState('');
   const [signupOtpTimer, setSignupOtpTimer] = useState(0);
   const [isSubmittingSignup, setIsSubmittingSignup] = useState(false);
+  const [isVerifyingSignupOtp, setIsVerifyingSignupOtp] = useState(false);
   const [showSignupPassword, setShowSignupPassword] = useState(false);
   const [showSignupConfirmPassword, setShowSignupConfirmPassword] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
@@ -37,6 +39,13 @@ function LandingPage() {
   // Email validation function
   const validateEmailRestrictions = (email) => {
     const domain = email.split('@')[1]?.toLowerCase();
+    
+    // If no domain exists, it's invalid
+    if (!domain) {
+      setEmailRestricted(true);
+      setEmailRestrictionMessage('Please enter a valid email address.');
+      return false;
+    }
     
     // List of restricted domains (disposable emails, spam domains, etc.)
     const restrictedDomains = [
@@ -66,14 +75,14 @@ function LandingPage() {
     }
     
     // Check for suspicious patterns
-    if (domain && domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
+    if (domain.includes('temp') || domain.includes('fake') || domain.includes('spam')) {
       setEmailRestricted(true);
       setEmailRestrictionMessage('Temporary or suspicious email domains are not allowed.');
       return false;
     }
     
     // Check for valid domain structure
-    if (domain && !domain.includes('.')) {
+    if (!domain.includes('.')) {
       setEmailRestricted(true);
       setEmailRestrictionMessage('Please enter a valid email address with a proper domain.');
       return false;
@@ -284,7 +293,8 @@ function LandingPage() {
           setSignupPassword('');
           setSignupConfirmPassword('');
           setSignupOtp('');
-          setSignupFullName('');
+          setSignupFirstName('');
+          setSignupLastName('');
           setEmailRestricted(false);
           setEmailRestrictionMessage('');
         }}>
@@ -300,7 +310,8 @@ function LandingPage() {
                   setSignupPassword('');
                   setSignupConfirmPassword('');
                   setSignupOtp('');
-                  setSignupFullName('');
+                  setSignupFirstName('');
+                  setSignupLastName('');
                   setEmailRestricted(false);
                   setEmailRestrictionMessage('');
                 }}
@@ -315,6 +326,7 @@ function LandingPage() {
                   <div className="signup-form-group">
                     <input
                       type="email"
+                      inputMode="email"
                       placeholder="Email Address *"
                       value={signupEmail}
                       onChange={(e) => {
@@ -547,6 +559,7 @@ function LandingPage() {
                         return;
                       }
                       
+                      setIsVerifyingSignupOtp(true);
                       try {
                         const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api'}/auth/otp/verify`, {
                           method: 'POST',
@@ -554,21 +567,29 @@ function LandingPage() {
                           body: JSON.stringify({ email: signupEmail.trim(), otp: otpValue, purpose: 'accountCreation' })
                         });
                         const result = await response.json();
-                        if (result.success) {
+                        
+                        console.log('OTP Verification Response:', { status: response.status, ok: response.ok, result });
+                        
+                        if (response.ok && result.success) {
+                          console.log('OTP verification successful, proceeding to step 3');
                           setSignupStep(3);
                           setTimeout(() => document.querySelector('.signup-input')?.focus(), 100);
                         } else {
-                          alert('Invalid OTP');
+                          console.log('OTP verification failed:', result.message);
+                          alert(result.message || 'Invalid OTP');
                         }
-                      } catch {
-                        alert('Invalid OTP');
+                      } catch (error) {
+                        console.error('OTP verification error:', error);
+                        alert('Failed to verify OTP. Please try again.');
+                      } finally {
+                        setIsVerifyingSignupOtp(false);
                       }
                     }}
                     className="signup-submit-btn"
-                    style={{ width: '100%', marginTop: '8px' }}
-                    disabled={signupOtp.length !== 6}
+                    style={{ width: '100%', marginTop: '8px', opacity: isVerifyingSignupOtp ? 0.6 : 1 }}
+                    disabled={signupOtp.length !== 6 || isVerifyingSignupOtp}
                   >
-                    Verify
+                    {isVerifyingSignupOtp ? 'Verifying...' : 'Verify'}
                   </button>
                 </>
               )}
@@ -578,26 +599,38 @@ function LandingPage() {
                   <div className="signup-form-group">
                     <input
                       type="text"
-                      placeholder="Full Name *"
-                      value={signupFullName}
-                      onChange={(e) => setSignupFullName(e.target.value)}
+                      placeholder="First Name *"
+                      value={signupFirstName}
+                      onChange={(e) => setSignupFirstName(e.target.value)}
                       className="signup-input"
                       autoFocus
+                    />
+                  </div>
+                  
+                  <div className="signup-form-group">
+                    <input
+                      type="text"
+                      placeholder="Last Name *"
+                      value={signupLastName}
+                      onChange={(e) => setSignupLastName(e.target.value)}
+                      className="signup-input"
                     />
                   </div>
                   
                   <button
                     onClick={async (e) => {
                       e.preventDefault();
-                      if (!signupFullName.trim()) {
-                        alert('Please enter your full name');
+                      if (!signupFirstName.trim() || !signupLastName.trim()) {
+                        alert('Please enter both first name and last name');
                         return;
                       }
                       
                       setIsSubmittingSignup(true);
                       try {
                         const response = await authAPI.register({
-                          name: signupFullName,
+                          firstName: signupFirstName.trim(),
+                          lastName: signupLastName.trim(),
+                          name: `${signupFirstName.trim()} ${signupLastName.trim()}`, // Keep full name for backward compatibility
                           email: signupEmail,
                           password: signupPassword,
                           provider: 'email'
@@ -605,7 +638,9 @@ function LandingPage() {
                         
                         if (response.success) {
                           localStorage.setItem('user', JSON.stringify({
-                            name: signupFullName,
+                            name: `${signupFirstName.trim()} ${signupLastName.trim()}`,
+                            firstName: signupFirstName.trim(),
+                            lastName: signupLastName.trim(),
                             email: signupEmail,
                             provider: 'email',
                             plan: 'Free Plan'

@@ -378,7 +378,7 @@ const OrganizationDetailsTab = () => {
       </Form>
 
       {/* Dynamic Content Display */}
-      {formData && (
+      {/* {formData && (
         <div style={{ 
           marginTop: '32px', 
           padding: '20px', 
@@ -435,7 +435,7 @@ const OrganizationDetailsTab = () => {
             )}
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useMediaQuery } from 'react-responsive';
 import { serviceAPI } from '../utils/api';
 import './ServiceDetailsForm.css';
 import logo from '../assets/Amplify-Value-as-subtitle-3.png';
@@ -19,6 +20,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState({ key: '', dataIndex: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const interestList = [
     'Cloud Migration',
@@ -700,47 +702,95 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           <p>Manage your service information in the table below</p>
         </div>
 
-      <div className="service-details-actions" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+      <div className="service-details-actions" style={{ 
+        marginBottom: 16, 
+        display: 'flex', 
+        justifyContent: isMobile ? 'flex-start' : 'space-between', 
+        alignItems: isMobile ? 'flex-start' : 'center',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: '16px' 
+      }}>
         <Input
           placeholder="Search services..."
           prefix={<SearchOutlined />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ maxWidth: 400 }}
+          style={{ 
+            maxWidth: isMobile ? '100%' : '400px',
+            width: isMobile ? '100%' : 'auto'
+          }}
           allowClear
         />
-        <Space>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showModal}
-          >
-            Add New Service
-          </Button>
-          <Button
-            type={isEditMode ? "default" : "primary"}
-            icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
-            onClick={toggleEditMode}
-          >
-            {isEditMode ? 'Done Editing' : 'Edit Services'}
-          </Button>
-          <Popconfirm
-            title="Delete All Services"
-            description="Are you sure you want to delete all services? This action cannot be undone."
-            onConfirm={handleBulkDelete}
-            okText="Yes"
-            cancelText="No"
-            disabled={dataSource.length === 0}
-          >
+        {isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
             <Button
-              danger
-              icon={<DeleteOutlined />}
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showModal}
+              style={{ width: '100%' }}
+            >
+              Add New Service
+            </Button>
+            <Button
+              type={isEditMode ? "default" : "primary"}
+              icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
+              onClick={toggleEditMode}
+              style={{ width: '100%' }}
+            >
+              {isEditMode ? 'Done Editing' : 'Edit Services'}
+            </Button>
+            <Popconfirm
+              title="Delete All Services"
+              description="Are you sure you want to delete all services? This action cannot be undone."
+              onConfirm={handleBulkDelete}
+              okText="Yes"
+              cancelText="No"
               disabled={dataSource.length === 0}
             >
-              Delete All
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                style={{ width: '100%' }}
+                disabled={dataSource.length === 0}
+              >
+                Delete All
+              </Button>
+            </Popconfirm>
+          </div>
+        ) : (
+          <Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={showModal}
+            >
+              Add New Service
             </Button>
-          </Popconfirm>
-        </Space>
+            <Button
+              type={isEditMode ? "default" : "primary"}
+              icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
+              onClick={toggleEditMode}
+            >
+              {isEditMode ? 'Done Editing' : 'Edit Services'}
+            </Button>
+            <Popconfirm
+              title="Delete All Services"
+              description="Are you sure you want to delete all services? This action cannot be undone."
+              onConfirm={handleBulkDelete}
+              okText="Yes"
+              cancelText="No"
+              disabled={dataSource.length === 0}
+            >
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={dataSource.length === 0}
+              >
+                Delete All
+              </Button>
+            </Popconfirm>
+          </Space>
+        )}
       </div>
 
       <Form form={form} component={false}>

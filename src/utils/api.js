@@ -152,6 +152,12 @@ export const serviceAPI = {
   bulkCreate: async (services) => {
     const response = await api.post('/service/bulk', { services });
     return response.data;
+  },
+
+  // Delete all services
+  deleteAll: async () => {
+    const response = await api.delete('/service/all');
+    return response.data;
   }
 };
 

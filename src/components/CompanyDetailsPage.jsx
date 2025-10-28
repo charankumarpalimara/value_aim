@@ -194,12 +194,24 @@ function CompanyDetailsPage({ onNext }) {
     } else {
       // Allow URLs with or without http/https
       const websiteValue = formData.website.trim();
-      // Check if it's a valid domain pattern
+      
+      // List of allowed domain extensions
+      const allowedExtensions = [
+        '.com', '.in', '.net', '.us', '.co.in', '.ai', '.io', 
+        '.uk', '.tech', '.biz'
+      ];
+      
+      // Check if it's a valid domain pattern with allowed extensions
       const domainPattern = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
       const urlPattern = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}/;
       
-      if (!domainPattern.test(websiteValue) && !urlPattern.test(websiteValue)) {
-        newErrors.website = 'Please enter a valid website (e.g., example.com)';
+      // Check if domain has one of the allowed extensions
+      const hasValidExtension = allowedExtensions.some(ext => 
+        websiteValue.toLowerCase().endsWith(ext.toLowerCase())
+      );
+      
+      if ((!domainPattern.test(websiteValue) && !urlPattern.test(websiteValue)) || !hasValidExtension) {
+        newErrors.website = 'Please enter a valid website with supported domain (.com, .in, .net, .us, .co.in, .ai, .io, .uk, .tech, .biz)';
       }
     }
     

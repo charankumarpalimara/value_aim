@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Popconfirm } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+import { serviceAPI } from '../utils/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -14,7 +15,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
 
   const renderContent = () => {
     switch (activeScreen) {
-      case 'Service Manager':
+      case 'Your Services/ Products':
         return <ServiceManagerContent />;
       case 'Organization Details':
         return <OrganizationDetailsTab />;
@@ -52,8 +53,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       open={isVisible}
       onCancel={onClose}
       width={isMobile ? "95%" : "60%"}
-      style={{ 
-        maxWidth: isMobile ? '95%' : '1400px', 
+      style={{
+        maxWidth: isMobile ? '95%' : '1400px',
         top: isMobile ? '10px' : '20px',
         zIndex: 1000
       }}
@@ -65,8 +66,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
     >
       <div style={{ display: 'flex', height: '70vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}
-        <div style={{ 
-          width: isMobile ? '100%' : '200px', 
+        <div style={{
+          width: isMobile ? '100%' : '200px',
           borderRight: isMobile ? 'none' : '1px solid #e8e8e8',
           borderBottom: isMobile ? '1px solid #e8e8e8' : 'none',
           padding: isMobile ? '16px' : '16px 0',
@@ -76,13 +77,13 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
           zIndex: 10,
           position: 'relative'
         }}>
-          <div style={{ 
+          <div style={{
             display: isMobile ? 'flex' : 'block',
             flexWrap: isMobile ? 'wrap' : 'nowrap',
             gap: isMobile ? '8px' : '0',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
-            {['Organization Details', 'Service Manager', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => {
+            {['Organization Details', 'Your Services/ Products', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => {
               // Mobile: Use Tag component
               if (isMobile) {
                 return (
@@ -107,11 +108,11 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
               }
               // Desktop: Use existing div styling
               return (
-                <div 
+                <div
                   key={tab}
                   className={`popup-tab ${activeScreen === tab ? 'active' : ''}`}
-                  style={{ 
-                    padding: '12px 16px', 
+                  style={{
+                    padding: '12px 16px',
                     cursor: 'pointer',
                     backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
                     color: activeScreen === tab ? '#fff' : '#333',
@@ -130,8 +131,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                   onClick={() => onScreenChange(tab)}
                   onMouseEnter={(e) => {
                     if (activeScreen !== tab) {
-                      e.target.style.backgroundColor = '#f5f5f5';
-                      e.target.style.color = '#201F47';
+                      e.target.style.backgroundColor = '#201F47';
+                      e.target.style.color = '#fff !important';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -152,8 +153,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         </div>
 
         {/* Main Content */}
-        <div style={{ 
-          flex: 1, 
+        <div style={{
+          flex: 1,
           overflowY: 'auto',
           padding: '0',
           height: isMobile ? 'calc(70vh - 60px)' : 'auto',
@@ -173,8 +174,40 @@ const ServiceManagerContent = () => {
   const [addForm] = Form.useForm();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isAboveMobile = useMediaQuery({ maxWidth: 1100 });
+
+  // Load services from database on component mount
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = async () => {
+    setIsLoading(true);
+    try {
+      const response = await serviceAPI.getAll();
+      if (response.success) {
+        // Add key property for Ant Design Table
+        const servicesWithKeys = response.data.map((service, index) => ({
+          ...service,
+          key: service.id || `service-${index}`,
+        }));
+        setDataSource(servicesWithKeys);
+      } else {
+        console.error('Failed to load services:', response.message);
+        message.error('Failed to load services');
+      }
+    } catch (error) {
+      console.error('Error loading services:', error);
+      message.error('Error loading services from database');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const interestList = [
     'Cloud Migration', 'AI/ML Solutions', 'Cybersecurity Services',
@@ -210,38 +243,127 @@ const ServiceManagerContent = () => {
   const handleModalOk = async () => {
     try {
       const values = await addForm.validateFields();
-      const newData = {
-        key: Date.now().toString(),
-        ...values,
-      };
-      const updatedData = [...dataSource, newData];
-      setDataSource(updatedData);
-      addForm.resetFields();
-      setIsModalVisible(false);
-      message.success('Service added successfully');
+
+      if (editingService) {
+        // Update existing service
+        const response = await serviceAPI.update(editingService.id, values);
+        if (response.success) {
+          message.success('Service updated successfully');
+          addForm.resetFields();
+          setIsModalVisible(false);
+          setEditingService(null);
+          // Reload services from database
+          loadServices();
+        } else {
+          throw new Error(response.message || 'Failed to update service');
+        }
+      } else {
+        // Create new service
+        const response = await serviceAPI.create(values);
+        if (response.success) {
+          message.success('Service added successfully');
+          addForm.resetFields();
+          setIsModalVisible(false);
+          // Reload services from database
+          loadServices();
+        } else {
+          throw new Error(response.message || 'Failed to save service');
+        }
+      }
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
+      message.error(editingService ? 'Failed to update service. Please try again.' : 'Failed to add service. Please try again.');
     }
   };
 
-  const handleDelete = (key) => {
-    const newData = dataSource.filter(item => item.key !== key);
-    setDataSource(newData);
-    message.warning('Service deleted successfully');
-  };
 
-  const handleBulkDelete = () => {
-    if (dataSource.length === 0) {
-      message.warning('No services to delete');
+
+  const handleSelectedDelete = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning('Please select services to delete');
       return;
     }
-    setDataSource([]);
-    message.warning('All services deleted successfully');
+
+    try {
+      // Delete selected services one by one
+      const deletePromises = selectedRowKeys.map(key => {
+        const service = dataSource.find(item => item.key === key);
+        return service ? serviceAPI.delete(service.id) : Promise.resolve({ success: false });
+      });
+
+      const results = await Promise.all(deletePromises);
+      const successCount = results.filter(result => result.success).length;
+
+      if (successCount > 0) {
+        message.warning(`${successCount} service(s) deleted successfully`);
+        setSelectedRowKeys([]);
+        // Reload services from database
+        loadServices();
+      } else {
+        throw new Error('Failed to delete selected services');
+      }
+    } catch (error) {
+      console.error('Error deleting selected services:', error);
+      message.error('Failed to delete selected services. Please try again.');
+    }
+  };
+
+  const handleEditService = (record) => {
+    setEditingService(record);
+    // Set form values for editing
+    addForm.setFieldsValue({
+      interests: record.interests,
+      keywords: record.keywords,
+      adjacencyExpansion: record.adjacencyExpansion,
+      targetIndustry: record.targetIndustry,
+      functionType: record.functionType,
+      targetSegment: record.targetSegment,
+      offerStatus: record.offerStatus,
+      description: record.description
+    });
+    setIsModalVisible(true);
+  };
+
+  const handleInlineEdit = async (record, field, value) => {
+    try {
+      console.log('Updating service:', { id: record.id, field, value });
+
+      // Only send the specific field that was updated
+      const updatedData = { [field]: value };
+      console.log('Updated data:', updatedData);
+
+      const response = await serviceAPI.update(record.id, updatedData);
+      console.log('API response:', response);
+
+      if (response.success) {
+        message.success('Service updated successfully');
+        loadServices();
+      } else {
+        throw new Error(response.message || 'Failed to update service');
+      }
+    } catch (error) {
+      console.error('Error updating service:', error);
+      message.error('Failed to update service. Please try again.');
+    }
+  };
+
+  const handleToggleEditMode = () => {
+    setIsEditMode(!isEditMode);
+    setSelectedRowKeys([]);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: setSelectedRowKeys,
+    getCheckboxProps: (record) => ({
+      name: record.key,
+    }),
   };
 
   const handleModalCancel = () => {
     addForm.resetFields();
     setIsModalVisible(false);
+    setEditingService(null);
   };
 
   const columns = [
@@ -257,11 +379,32 @@ const ServiceManagerContent = () => {
       sortDirections: ['ascend', 'descend'],
       // filters: interestList.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.interests?.includes(value),
-      render: (interests) => (
-        <Space wrap>
-          {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
-        </Space>
-      ),
+      render: (interests, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="tags"
+              defaultValue={interests}
+              placeholder="Select or type offerings"
+              tokenSeparators={[',']}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Interests changed:', value);
+                handleInlineEdit(record, 'interests', value);
+              }}
+            >
+              {interestList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {interests?.map(tag => <Tag key={tag} color="blue">{tag}</Tag>)}
+          </div>
+        );
+      },
     },
     {
       title: 'Keywords',
@@ -275,11 +418,32 @@ const ServiceManagerContent = () => {
       sortDirections: ['ascend', 'descend'],
       // filters: keywordList.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.keywords?.includes(value),
-      render: (keywords) => (
-        <Space wrap>
-          {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
-        </Space>
-      ),
+      render: (keywords, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="tags"
+              defaultValue={keywords}
+              placeholder="Select or type keywords"
+              tokenSeparators={[',']}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Keywords changed:', value);
+                handleInlineEdit(record, 'keywords', value);
+              }}
+            >
+              {keywordList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {keywords?.map(tag => <Tag key={tag} color="green">{tag}</Tag>)}
+          </div>
+        );
+      },
     },
     {
       title: 'Adjacency Expansion',
@@ -291,13 +455,31 @@ const ServiceManagerContent = () => {
         return aStr.localeCompare(bStr);
       },
       sortDirections: ['ascend', 'descend'],
-      // filters: adjacencyExpansionList.map(item => ({ text: item, value: item })),
-      // onFilter: (value, record) => record.adjacencyExpansion?.includes(value),
-      // render: (adjacency) => (
-      //   <Space wrap>
-      //     {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
-      //   </Space>
-      // ),
+      render: (adjacency, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="multiple"
+              defaultValue={adjacency}
+              placeholder="Select adjacency"
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Adjacency changed:', value);
+                handleInlineEdit(record, 'adjacencyExpansion', value);
+              }}
+            >
+              {adjacencyExpansionList.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {adjacency?.map(tag => <Tag key={tag} color="purple">{tag}</Tag>)}
+          </div>
+        );
+      },
     },
     {
       title: 'Target Industry',
@@ -311,13 +493,33 @@ const ServiceManagerContent = () => {
       sortDirections: ['ascend', 'descend'],
       // filters: industryOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.targetIndustry?.includes(value),
-      render: (industries) => (
-        <Space wrap>
-          {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
-            <Tag key={industry} color="cyan">{industry}</Tag>
-          )) : '-'}
-        </Space>
-      ),
+      render: (industries, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="multiple"
+              defaultValue={industries}
+              placeholder="Select industries"
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Industries changed:', value);
+                handleInlineEdit(record, 'targetIndustry', value);
+              }}
+            >
+              {industryOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(industries) && industries.length > 0 ? industries.map(industry => (
+              <Tag key={industry} color="cyan">{industry}</Tag>
+            )) : '-'}
+          </div>
+        );
+      },
     },
     {
       title: 'Function',
@@ -331,13 +533,33 @@ const ServiceManagerContent = () => {
       sortDirections: ['ascend', 'descend'],
       // filters: functionOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.functionType?.includes(value),
-      render: (functions) => (
-        <Space wrap>
-          {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
-            <Tag key={func} color="magenta">{func}</Tag>
-          )) : '-'}
-        </Space>
-      ),
+      render: (functions, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="multiple"
+              defaultValue={functions}
+              placeholder="Select functions"
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Functions changed:', value);
+                handleInlineEdit(record, 'functionType', value);
+              }}
+            >
+              {functionOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(functions) && functions.length > 0 ? functions.map(func => (
+              <Tag key={func} color="magenta">{func}</Tag>
+            )) : '-'}
+          </div>
+        );
+      },
     },
     {
       title: 'Target Segment(s)',
@@ -351,13 +573,33 @@ const ServiceManagerContent = () => {
       sortDirections: ['ascend', 'descend'],
       // filters: targetSegmentOptions.map(item => ({ text: item, value: item })),
       onFilter: (value, record) => record.targetSegment?.includes(value),
-      render: (text) => (
-        <Space wrap>
-          {Array.isArray(text) && text.length > 0 ? text.map(segment => (
-            <Tag key={segment} color="orange">{segment}</Tag>
-          )) : '-'}
-        </Space>
-      ),
+      render: (text, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              mode="multiple"
+              defaultValue={text}
+              placeholder="Select segments"
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Segments changed:', value);
+                handleInlineEdit(record, 'targetSegment', value);
+              }}
+            >
+              {targetSegmentOptions.map(item => (
+                <Option key={item} value={item}>{item}</Option>
+              ))}
+            </Select>
+          );
+        }
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            {Array.isArray(text) && text.length > 0 ? text.map(segment => (
+              <Tag key={segment} color="orange">{segment}</Tag>
+            )) : '-'}
+          </div>
+        );
+      },
     },
     {
       title: 'Status',
@@ -370,7 +612,24 @@ const ServiceManagerContent = () => {
         { text: 'Inactive', value: 'Inactive' }
       ],
       onFilter: (value, record) => record.offerStatus === value,
-      render: (text) => <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>,
+      render: (text, record) => {
+        if (isEditMode) {
+          return (
+            <Select
+              defaultValue={text}
+              style={{ width: '100%' }}
+              onChange={(value) => {
+                console.log('Status changed:', value);
+                handleInlineEdit(record, 'offerStatus', value);
+              }}
+            >
+              <Option value="Active">Active</Option>
+              <Option value="Inactive">Inactive</Option>
+            </Select>
+          );
+        }
+        return <Tag color={text === 'Active' ? 'green' : 'red'}>{text || 'Unknown'}</Tag>;
+      },
     },
     {
       title: 'Description',
@@ -378,29 +637,43 @@ const ServiceManagerContent = () => {
       key: 'description',
       sorter: (a, b) => (a.description || '').localeCompare(b.description || ''),
       sortDirections: ['ascend', 'descend'],
-      render: (text) => text || '-',
+      render: (text, record) => {
+        if (isEditMode) {
+          return (
+            <TextArea
+              defaultValue={text}
+              rows={2}
+              placeholder="Enter description"
+              style={{ width: '100%' }}
+              onBlur={(e) => {
+                console.log('Description changed:', e.target.value);
+                handleInlineEdit(record, 'description', e.target.value);
+              }}
+            />
+          );
+        }
+        return text || '-';
+      },
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      render: (_, record) => (
-        <Popconfirm
-          title="Delete Service"
-          description="Are you sure you want to delete this service?"
-          onConfirm={() => handleDelete(record.key)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button 
-            type="text" 
-            danger 
-            icon={<DeleteOutlined />}
-            size="small"
-          />
-        </Popconfirm>
-      ),
-    },
+    // {
+    //   title: 'Actions',
+    //   key: 'actions',
+    //   width: 100,
+    //   render: (_, record) => {
+    //     if (!isEditMode) {
+    //       return (
+    //         <Button
+    //           type="text"
+    //           icon={<EditOutlined />}
+    //           size="small"
+    //           onClick={() => handleEditService(record)}
+    //           title="Edit Service"
+    //         />
+    //       );
+    //     }
+    //     return null;
+    //   },
+    // },
   ];
 
   const filteredData = dataSource.filter((item) => {
@@ -419,9 +692,9 @@ const ServiceManagerContent = () => {
   });
 
   return (
-    <div style={{ 
-      padding: '24px', 
-      height: isMobile ? '85vh' : '80vh', 
+    <div style={{
+      padding: '24px',
+      height: isMobile ? '85vh' : '80vh',
       overflowY: 'auto',
       minHeight: isMobile ? '600px' : 'auto'
     }}>
@@ -449,43 +722,593 @@ const ServiceManagerContent = () => {
             border-color: #d9d9d9 !important;
             color: rgba(0, 0, 0, 0.88) !important;
           }
+          .popup-tab:hover {
+            color: #fff !important;
+          }
+          .popup-tab:hover span {
+            color: #fff !important;
+          }
+          
+          /* Fix table tags for all screen sizes - More specific selectors */
+          .ant-table-tbody > tr > td .ant-tag {
+            background: transparent !important;
+            border: 1px solid #d9d9d9 !important;
+            margin: 2px !important;
+            padding: 2px 6px !important;
+            color: #333 !important;
+            cursor: default !important;
+            box-shadow: none !important;
+            outline: none !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag:hover {
+            background: transparent !important;
+            border-color: inherit !important;
+            color: inherit !important;
+            transform: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+          }
+          /* Tags within Space components - More specific selectors */
+          .ant-table-tbody > tr > td .ant-space .ant-tag {
+            background: transparent !important;
+            border: 1px solid #d9d9d9 !important;
+            margin: 2px !important;
+            padding: 2px 6px !important;
+            color: #333 !important;
+            cursor: default !important;
+            box-shadow: none !important;
+            outline: none !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag:hover {
+            background: transparent !important;
+            border-color: inherit !important;
+            color: inherit !important;
+            transform: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+          }
+          /* Override any Ant Design default tag styles */
+          .ant-table-tbody > tr > td .ant-tag,
+          .ant-table-tbody > tr > td .ant-space .ant-tag {
+            background-color: transparent !important;
+            background-image: none !important;
+          }
+          /* Force transparent background for all tag variants */
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-blue,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-green,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-red,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-purple,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-cyan,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-magenta,
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-orange,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-blue,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-green,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-red,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-purple,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-cyan,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-magenta,
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-orange {
+            background-color: transparent !important;
+            background-image: none !important;
+            background: transparent !important;
+          }
+          /* Color overrides for all tag types - Direct tags */
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-blue,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(24, 144, 255)"] {
+            color: #1890ff !important;
+            border-color: #1890ff !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-blue:hover {
+            background: transparent !important;
+            color: #1890ff !important;
+            border-color: #1890ff !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-green,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(82, 196, 26)"] {
+            color: #52c41a !important;
+            border-color: #52c41a !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-green:hover {
+            background: transparent !important;
+            color: #52c41a !important;
+            border-color: #52c41a !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-red,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(255, 77, 79)"] {
+            color: #ff4d4f !important;
+            border-color: #ff4d4f !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-red:hover {
+            background: transparent !important;
+            color: #ff4d4f !important;
+            border-color: #ff4d4f !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-purple,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(114, 46, 209)"] {
+            color: #722ed1 !important;
+            border-color: #722ed1 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-purple:hover {
+            background: transparent !important;
+            color: #722ed1 !important;
+            border-color: #722ed1 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-cyan,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(19, 194, 194)"] {
+            color: #13c2c2 !important;
+            border-color: #13c2c2 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-cyan:hover {
+            background: transparent !important;
+            color: #13c2c2 !important;
+            border-color: #13c2c2 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-magenta,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(235, 47, 150)"] {
+            color: #eb2f96 !important;
+            border-color: #eb2f96 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-magenta:hover {
+            background: transparent !important;
+            color: #eb2f96 !important;
+            border-color: #eb2f96 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-orange,
+          .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(250, 140, 22)"] {
+            color: #fa8c16 !important;
+            border-color: #fa8c16 !important;
+          }
+          .ant-table-tbody > tr > td .ant-tag.ant-tag-orange:hover {
+            background: transparent !important;
+            color: #fa8c16 !important;
+            border-color: #fa8c16 !important;
+          }
+          /* Color overrides for all tag types - Tags within Space */
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-blue,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(24, 144, 255)"] {
+            color: #1890ff !important;
+            border-color: #1890ff !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-blue:hover {
+            background: transparent !important;
+            color: #1890ff !important;
+            border-color: #1890ff !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-green,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(82, 196, 26)"] {
+            color: #52c41a !important;
+            border-color: #52c41a !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-green:hover {
+            background: transparent !important;
+            color: #52c41a !important;
+            border-color: #52c41a !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-red,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(255, 77, 79)"] {
+            color: #ff4d4f !important;
+            border-color: #ff4d4f !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-red:hover {
+            background: transparent !important;
+            color: #ff4d4f !important;
+            border-color: #ff4d4f !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-purple,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(114, 46, 209)"] {
+            color: #722ed1 !important;
+            border-color: #722ed1 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-purple:hover {
+            background: transparent !important;
+            color: #722ed1 !important;
+            border-color: #722ed1 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-cyan,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(19, 194, 194)"] {
+            color: #13c2c2 !important;
+            border-color: #13c2c2 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-cyan:hover {
+            background: transparent !important;
+            color: #13c2c2 !important;
+            border-color: #13c2c2 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-magenta,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(235, 47, 150)"] {
+            color: #eb2f96 !important;
+            border-color: #eb2f96 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-magenta:hover {
+            background: transparent !important;
+            color: #eb2f96 !important;
+            border-color: #eb2f96 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-orange,
+          .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(250, 140, 22)"] {
+            color: #fa8c16 !important;
+            border-color: #fa8c16 !important;
+          }
+          .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-orange:hover {
+            background: transparent !important;
+            color: #fa8c16 !important;
+            border-color: #fa8c16 !important;
+          }
+          /* Fix Space components - Target the specific background issue */
+          .ant-table-tbody > tr > td .ant-space {
+            margin: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            display: inline !important;
+            gap: 4px !important;
+          }
+          .ant-table-tbody > tr > td .ant-space-item {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            border-width: 0 !important;
+            border-style: none !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: auto !important;
+            height: auto !important;
+            flex: none !important;
+            display: inline !important;
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            outline-color: transparent !important;
+          }
+          .ant-table-tbody > tr > td .ant-space-item:hover {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            border-width: 0 !important;
+            border-style: none !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            outline-color: transparent !important;
+            transform: none !important;
+          }
+          /* Specific override for the grey background issue */
+          .ant-table-tbody > tr > td .ant-space .ant-space-item {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+          }
+          /* Remove any pseudo-elements from space components */
+          .ant-table-tbody > tr > td .ant-space::before,
+          .ant-table-tbody > tr > td .ant-space::after,
+          .ant-table-tbody > tr > td .ant-space-item::before,
+          .ant-table-tbody > tr > td .ant-space-item::after {
+            display: none !important;
+          }
+          
+          /* Mobile responsive fixes for table tags */
+          @media (max-width: 768px) {
+            /* Direct tags (like Status column) */
+            .ant-table-tbody > tr > td .ant-tag {
+              background: transparent !important;
+              border: 1px solid #d9d9d9 !important;
+              margin: 2px !important;
+              padding: 2px 6px !important;
+              color: #333 !important;
+              cursor: default !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag:hover {
+              background: transparent !important;
+              border-color: inherit !important;
+              color: inherit !important;
+              transform: none !important;
+              box-shadow: none !important;
+            }
+            /* Tags within Space components (like other columns) */
+            .ant-table-tbody > tr > td .ant-space .ant-tag {
+              background: transparent !important;
+              border: 1px solid #d9d9d9 !important;
+              margin: 2px !important;
+              padding: 2px 6px !important;
+              color: #333 !important;
+              cursor: default !important;
+              box-shadow: none !important;
+              outline: none !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag:hover {
+              background: transparent !important;
+              border-color: inherit !important;
+              color: inherit !important;
+              transform: none !important;
+              box-shadow: none !important;
+              outline: none !important;
+            }
+            /* Additional rules to remove any remaining background boxes */
+            .ant-table-tbody > tr > td .ant-space .ant-tag::before,
+            .ant-table-tbody > tr > td .ant-space .ant-tag::after {
+              display: none !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag * {
+              background: transparent !important;
+              box-shadow: none !important;
+            }
+            /* Specific color overrides for all tag types - Direct tags */
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-blue,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(24, 144, 255)"] {
+              color: #1890ff !important;
+              border-color: #1890ff !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-blue:hover {
+              background: transparent !important;
+              color: #1890ff !important;
+              border-color: #1890ff !important;
+            }
+            /* Specific color overrides for all tag types - Tags within Space */
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-blue,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(24, 144, 255)"] {
+              color: #1890ff !important;
+              border-color: #1890ff !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-blue:hover {
+              background: transparent !important;
+              color: #1890ff !important;
+              border-color: #1890ff !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-green,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(82, 196, 26)"] {
+              color: #52c41a !important;
+              border-color: #52c41a !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-green:hover {
+              background: transparent !important;
+              color: #52c41a !important;
+              border-color: #52c41a !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-green,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(82, 196, 26)"] {
+              color: #52c41a !important;
+              border-color: #52c41a !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-green:hover {
+              background: transparent !important;
+              color: #52c41a !important;
+              border-color: #52c41a !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-red,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(255, 77, 79)"] {
+              color: #ff4d4f !important;
+              border-color: #ff4d4f !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-red:hover {
+              background: transparent !important;
+              color: #ff4d4f !important;
+              border-color: #ff4d4f !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-red,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(255, 77, 79)"] {
+              color: #ff4d4f !important;
+              border-color: #ff4d4f !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-red:hover {
+              background: transparent !important;
+              color: #ff4d4f !important;
+              border-color: #ff4d4f !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-purple,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(114, 46, 209)"] {
+              color: #722ed1 !important;
+              border-color: #722ed1 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-purple:hover {
+              background: transparent !important;
+              color: #722ed1 !important;
+              border-color: #722ed1 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-purple,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(114, 46, 209)"] {
+              color: #722ed1 !important;
+              border-color: #722ed1 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-purple:hover {
+              background: transparent !important;
+              color: #722ed1 !important;
+              border-color: #722ed1 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-cyan,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(19, 194, 194)"] {
+              color: #13c2c2 !important;
+              border-color: #13c2c2 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-cyan:hover {
+              background: transparent !important;
+              color: #13c2c2 !important;
+              border-color: #13c2c2 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-cyan,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(19, 194, 194)"] {
+              color: #13c2c2 !important;
+              border-color: #13c2c2 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-cyan:hover {
+              background: transparent !important;
+              color: #13c2c2 !important;
+              border-color: #13c2c2 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-magenta,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(235, 47, 150)"] {
+              color: #eb2f96 !important;
+              border-color: #eb2f96 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-magenta:hover {
+              background: transparent !important;
+              color: #eb2f96 !important;
+              border-color: #eb2f96 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-magenta,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(235, 47, 150)"] {
+              color: #eb2f96 !important;
+              border-color: #eb2f96 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-magenta:hover {
+              background: transparent !important;
+              color: #eb2f96 !important;
+              border-color: #eb2f96 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-orange,
+            .ant-table-tbody > tr > td .ant-tag[style*="background-color: rgb(250, 140, 22)"] {
+              color: #fa8c16 !important;
+              border-color: #fa8c16 !important;
+            }
+            .ant-table-tbody > tr > td .ant-tag.ant-tag-orange:hover {
+              background: transparent !important;
+              color: #fa8c16 !important;
+              border-color: #fa8c16 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-orange,
+            .ant-table-tbody > tr > td .ant-space .ant-tag[style*="background-color: rgb(250, 140, 22)"] {
+              color: #fa8c16 !important;
+              border-color: #fa8c16 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space .ant-tag.ant-tag-orange:hover {
+              background: transparent !important;
+              color: #fa8c16 !important;
+              border-color: #fa8c16 !important;
+            }
+            .ant-table-tbody > tr > td .ant-space {
+              margin: 0 !important;
+              background: transparent !important;
+              border: none !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              display: inline !important;
+              gap: 4px !important;
+            }
+            .ant-table-tbody > tr > td .ant-space-item {
+              background: transparent !important;
+              border: none !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              width: auto !important;
+              height: auto !important;
+              flex: none !important;
+              display: inline !important;
+              outline: none !important;
+            }
+            /* Remove any pseudo-elements from space components */
+            .ant-table-tbody > tr > td .ant-space::before,
+            .ant-table-tbody > tr > td .ant-space::after,
+            .ant-table-tbody > tr > td .ant-space-item::before,
+            .ant-table-tbody > tr > td .ant-space-item::after {
+              display: none !important;
+            }
+            /* Fix Space component in action buttons area */
+            .ant-space {
+              display: flex !important;
+              gap: 8px !important;
+            }
+            .ant-space .ant-space-item {
+              background: transparent !important;
+              border: none !important;
+              box-shadow: none !important;
+              padding: 0 !important;
+              margin: 0 !important;
+              flex: none !important;
+            }
+          /* Additional comprehensive fix for any remaining space-item issues */
+          * .ant-space-item {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            border: none !important;
+            border-width: 0 !important;
+            border-style: none !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            flex: none !important;
+            width: auto !important;
+            height: auto !important;
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            outline-color: transparent !important;
+          }
+          * .ant-space-item:hover {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            border-width: 0 !important;
+            border-style: none !important;
+            border-color: transparent !important;
+            box-shadow: none !important;
+            outline: none !important;
+            outline-width: 0 !important;
+            outline-style: none !important;
+            outline-color: transparent !important;
+            transform: none !important;
+          }
+          /* Target the specific grey background issue from DevTools */
+          .ant-table-tbody > tr > td .ant-space-item[style*="background-color: rgb(240, 240, 240)"],
+          .ant-table-tbody > tr > td .ant-space-item[style*="background-color: #F0F0F0"],
+          .ant-table-tbody > tr > td .ant-space-item[style*="background-color: #f0f0f0"] {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+            .ant-table-tbody > tr > td {
+              padding: 8px !important;
+            }
+            .ant-table-thead > tr > th {
+              padding: 8px !important;
+            }
+          }
         `}
       </style>
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
           Manage your service offerings, keywords, and target segments
         </h3>
-        <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+        {/* <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
           {dataSource.length === 0 ? 'No services added yet. Click "Add New Service" to get started.' : `${dataSource.length} service(s) configured.`}
-        </p>
+        </p> */}
       </div>
 
-      <div style={{ 
-        marginBottom: '24px', 
-        display: 'flex', 
-        justifyContent: isMobile ? 'flex-start' : 'space-between', 
+      <div style={{
+        marginBottom: '24px',
+        display: 'flex',
+
+        justifyContent: isMobile ? 'flex-start' : 'space-between',
         alignItems: isMobile ? 'flex-start' : 'center',
-        flexDirection: isMobile ? 'column' : 'row',
-        gap: '16px' 
+        flexDirection: isAboveMobile ? 'column' : 'row',
+        gap: '16px'
       }}>
         <Input
           placeholder="Search services..."
           prefix={<SearchOutlined />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          style={{ 
+          style={{
             maxWidth: isMobile ? '100%' : '400px',
             width: isMobile ? '100%' : 'auto'
           }}
           allowClear
         />
-{isMobile ? (
+        {isMobile ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               icon={<EditOutlined />}
               onClick={() => setIsModalVisible(true)}
-              style={{ 
+              style={{
                 width: '100%',
                 ':hover': { backgroundColor: 'transparent' }
               }}
@@ -496,8 +1319,8 @@ const ServiceManagerContent = () => {
             <Button
               type={isEditMode ? "default" : "primary"}
               icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
-              onClick={() => setIsEditMode(!isEditMode)}
-              style={{ 
+              onClick={handleToggleEditMode}
+              style={{
                 width: '100%',
                 ':hover': { backgroundColor: 'transparent' }
               }}
@@ -506,31 +1329,31 @@ const ServiceManagerContent = () => {
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
             <Popconfirm
-              title="Delete All Services"
-              description="Are you sure you want to delete all services? This action cannot be undone."
-              onConfirm={handleBulkDelete}
+              title="Delete Selected Services"
+              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
+              onConfirm={handleSelectedDelete}
               okText="Yes"
               cancelText="No"
-              disabled={dataSource.length === 0}
+              disabled={selectedRowKeys.length === 0}
             >
               <Button
                 danger
                 icon={<DeleteOutlined />}
-                style={{ 
+                style={{
                   width: '100%',
                   ':hover': { backgroundColor: 'transparent' }
                 }}
                 className="no-hover-button"
-                disabled={dataSource.length === 0}
+                disabled={selectedRowKeys.length === 0}
               >
-                Delete All
+                Delete ({selectedRowKeys.length})
               </Button>
             </Popconfirm>
           </div>
         ) : (
-          <Space>
-            <Button 
-              type="primary" 
+          <div style={{ display: 'flex', flexDirection: isAboveMobile ? 'column' : 'row', gap: '8px', width: '100%' }}>
+            <Button
+              type="primary"
               icon={<EditOutlined />}
               onClick={() => setIsModalVisible(true)}
               className="no-hover-button"
@@ -540,29 +1363,29 @@ const ServiceManagerContent = () => {
             <Button
               type={isEditMode ? "default" : "primary"}
               icon={isEditMode ? <SaveOutlined /> : <EditOutlined />}
-              onClick={() => setIsEditMode(!isEditMode)}
+              onClick={handleToggleEditMode}
               className="no-hover-button"
             >
               {isEditMode ? 'Done Editing' : 'Edit Services'}
             </Button>
             <Popconfirm
-              title="Delete All Services"
-              description="Are you sure you want to delete all services? This action cannot be undone."
-              onConfirm={handleBulkDelete}
+              title="Delete Selected Services"
+              description={`Are you sure you want to delete ${selectedRowKeys.length} selected service(s)? This action cannot be undone.`}
+              onConfirm={handleSelectedDelete}
               okText="Yes"
               cancelText="No"
-              disabled={dataSource.length === 0}
+              disabled={selectedRowKeys.length === 0}
             >
               <Button
                 danger
                 icon={<DeleteOutlined />}
                 className="no-hover-button"
-                disabled={dataSource.length === 0}
+                disabled={selectedRowKeys.length === 0}
               >
-                Delete All
+                Delete ({selectedRowKeys.length})
               </Button>
             </Popconfirm>
-          </Space>
+          </div>
         )}
       </div>
 
@@ -571,6 +1394,8 @@ const ServiceManagerContent = () => {
           dataSource={filteredData}
           columns={columns}
           rowKey="key"
+          loading={isLoading}
+          rowSelection={rowSelection}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -586,12 +1411,12 @@ const ServiceManagerContent = () => {
       </Form>
 
       <Modal
-        title="Add New Service"
+        title={editingService ? "Edit Service" : "Add New Service"}
         open={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalCancel}
         width={800}
-        okText="Add"
+        okText={editingService ? "Update" : "Add"}
         cancelText="Cancel"
       >
         <Form form={addForm} layout="vertical">
@@ -644,7 +1469,7 @@ const ServiceManagerContent = () => {
             name="targetIndustry"
             label="Target Industry"
           >
-            <Select 
+            <Select
               mode="multiple"
               placeholder="Select industries"
             >
@@ -658,7 +1483,7 @@ const ServiceManagerContent = () => {
             name="functionType"
             label="Function"
           >
-            <Select 
+            <Select
               mode="multiple"
               placeholder="Select functions"
             >
@@ -690,8 +1515,8 @@ const ServiceManagerContent = () => {
             getValueProps={(value) => ({ checked: value === 'Active' })}
             initialValue="Active"
           >
-            <Switch 
-              checkedChildren="Active" 
+            <Switch
+              checkedChildren="Active"
               unCheckedChildren="Inactive"
             />
           </Form.Item>
