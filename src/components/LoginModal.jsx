@@ -20,10 +20,14 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState('');
   
   // OTP errors
   const [otpError, setOtpError] = useState(false);
   const [otpErrorMessage, setOtpErrorMessage] = useState('');
+  const [otpSendError, setOtpSendError] = useState(false);
+  const [otpSendErrorMessage, setOtpSendErrorMessage] = useState('');
 
   // OTP timer countdown
   useEffect(() => {
@@ -47,6 +51,10 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
       setPasswordErrorMessage('');
       setOtpError(false);
       setOtpErrorMessage('');
+      setEmailError(false);
+      setEmailErrorMessage('');
+      setOtpSendError(false);
+      setOtpSendErrorMessage('');
       setShowPassword(false);
     }
   }, [isOpen]);
@@ -55,21 +63,25 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
     // Reset errors
     setPasswordError(false);
     setPasswordErrorMessage('');
+    setEmailError(false);
+    setEmailErrorMessage('');
 
     if (!email.trim()) {
-      alert('Please enter your email address');
+      setEmailError(true);
+      setEmailErrorMessage('Please enter your email address');
+      return;
+    }
+
+    // Validate email format
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError(true);
+      setEmailErrorMessage('Please enter a valid email address');
       return;
     }
 
     if (!password.trim()) {
       setPasswordError(true);
       setPasswordErrorMessage('Password is required');
-      return;
-    }
-
-    // Validate email format
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      alert('Please enter a valid email address');
       return;
     }
 
@@ -140,7 +152,7 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
     }
   };
 
-  const handleSendOtpForEmail = async (emailAddress, isResend = false) => {
+  const handleSendOtpForEmail = async (emailAddress) => {
     setIsSendingOtp(true);
     
     try {
@@ -161,9 +173,9 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
       const result = await response.json();
       
       if (result.success) {
-        if (isResend) {
-          alert('OTP resent to your email!');
-        }
+        // Reset errors on success
+        setOtpSendError(false);
+        setOtpSendErrorMessage('');
         
         // Reset OTP field
         setOtp('');
@@ -175,7 +187,8 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
       }
     } catch (error) {
       console.error('Failed to send OTP:', error);
-      alert('Failed to send OTP. Please try again.');
+      setOtpSendError(true);
+      setOtpSendErrorMessage(error.message || 'Failed to send OTP. Please try again.');
     } finally {
       setIsSendingOtp(false);
     }
@@ -297,9 +310,29 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                   type="email"
                   placeholder="Email address"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    // Reset email error when user starts typing
+                    if (emailError) {
+                      setEmailError(false);
+                      setEmailErrorMessage('');
+                    }
+                  }}
                   className="email-input"
+                  style={{ 
+                    borderColor: emailError ? '#ff4d4f' : ''
+                  }}
                 />
+                {emailErrorMessage && (
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#ff4d4f',
+                    marginTop: '4px',
+                    marginBottom: '8px'
+                  }}>
+                    {emailErrorMessage}
+                  </div>
+                )}
                 <div style={{ position: 'relative', marginTop: '12px', width: '100%' }}>
                   <input
                     type={showPassword ? "text" : "password"}
@@ -383,22 +416,58 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                           type="email"
                           placeholder="Email address"
                           value={otpEmail}
-                          onChange={(e) => setOtpEmail(e.target.value)}
+                          onChange={(e) => {
+                            setOtpEmail(e.target.value);
+                            // Reset email error when user starts typing
+                            if (emailError) {
+                              setEmailError(false);
+                              setEmailErrorMessage('');
+                            }
+                          }}
                           className="signup-input"
+                          style={{ 
+                            borderColor: emailError ? '#ff4d4f' : ''
+                          }}
                           autoFocus
                         />
+                        {emailErrorMessage && (
+                          <div style={{
+                            fontSize: '12px',
+                            color: '#ff4d4f',
+                            marginTop: '4px'
+                          }}>
+                            {emailErrorMessage}
+                          </div>
+                        )}
+                        {otpSendError && otpSendErrorMessage && (
+                          <div style={{
+                            fontSize: '12px',
+                            color: '#ff4d4f',
+                            marginTop: '4px'
+                          }}>
+                            {otpSendErrorMessage}
+                          </div>
+                        )}
                       </div>
 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
                         <button
                           onClick={async (e) => {
                             e.preventDefault();
+                            // Reset errors
+                            setOtpSendError(false);
+                            setOtpSendErrorMessage('');
+                            setEmailError(false);
+                            setEmailErrorMessage('');
+                            
                             if (!otpEmail.trim()) {
-                              alert('Please enter your email address');
+                              setEmailError(true);
+                              setEmailErrorMessage('Please enter your email address');
                               return;
                             }
                             if (!/\S+@\S+\.\S+/.test(otpEmail)) {
-                              alert('Please enter a valid email address');
+                              setEmailError(true);
+                              setEmailErrorMessage('Please enter a valid email address');
                               return;
                             }
 
@@ -407,7 +476,8 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                               setIsCheckingOtpEmail(true);
                               const checkResponse = await authAPI.checkEmail(otpEmail.trim());
                               if (!checkResponse.exists) {
-                                alert('This user does not exist. Please check your email or sign up for a new account.');
+                                setEmailError(true);
+                                setEmailErrorMessage('This user does not exist. Please check your email or sign up for a new account.');
                                 return;
                               }
 
@@ -416,7 +486,8 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                               handleSendOtpForEmail(otpEmail);
                             } catch (error) {
                               console.error('Error checking email:', error);
-                              alert('An error occurred while checking your email. Please try again.');
+                              setEmailError(true);
+                              setEmailErrorMessage('An error occurred while checking your email. Please try again.');
                             } finally {
                               setIsCheckingOtpEmail(false);
                             }
@@ -437,6 +508,10 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                             setOtp('');
                             setOtpError(false);
                             setOtpErrorMessage('');
+                            setEmailError(false);
+                            setEmailErrorMessage('');
+                            setOtpSendError(false);
+                            setOtpSendErrorMessage('');
                           }}
                           className="signup-login-btn"
                           style={{ flex: 1 }}
@@ -507,7 +582,7 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            handleSendOtpForEmail(otpEmail, true);
+                            handleSendOtpForEmail(otpEmail);
                           }}
                           className="signup-login-btn"
                           style={{ fontSize: '13px', width: '100%' }}

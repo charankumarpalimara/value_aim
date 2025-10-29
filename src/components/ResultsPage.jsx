@@ -239,6 +239,18 @@ function ResultsPage() {
     setWebsite("");
   };
 
+  const handleLogoClick = () => {
+    // Reset all content and show default state
+    setActiveSidebarOption(null);
+    setActiveTab('Journey Matrix');
+    setWebsite("");
+    setSelectedOption(null);
+    // Close sidebar on mobile when logo is clicked
+    if (isMobile) {
+      closeSidebar();
+    }
+  };
+
   const togglePlusMenu = () => {
     setShowPlusMenu(!showPlusMenu);
   };
@@ -413,9 +425,20 @@ function ResultsPage() {
 
           <div className="sidebar-inner">
             <div className="sidebar-top">
-              <img src={logoImage} alt="Logo" className="sidebar-logo" />
+              <img 
+                src={logoImage} 
+                alt="Logo" 
+                className="sidebar-logo" 
+                onClick={handleLogoClick}
+                style={{ cursor: 'pointer' }}
+              />
               <div className="sidebar-icon-collapsed">
-                <img src={valueAimImage} alt="Value Aim" style={{ width: '40px', height: '40px' }} />
+                <img 
+                  src={valueAimImage} 
+                  alt="Value Aim" 
+                  style={{ width: '40px', height: '40px', cursor: 'pointer' }} 
+                  onClick={handleLogoClick}
+                />
               </div>
               <button className="close-btn" onClick={closeSidebar} aria-label="Close sidebar">×</button>
             </div>
@@ -737,6 +760,50 @@ function ResultsPage() {
         {/* Main Content */}
         <main className={`main-content ${isSidebarCollapsed ? 'expanded' : ''}`}>
           <div className="content-area">
+            {/* Default content when no sidebar option is selected */}
+            {/* {!activeSidebarOption && (
+              <div className="default-content">
+                <div className="welcome-section">
+                  <h1 className="welcome-title">Welcome to Value Aim</h1>
+                  <p className="welcome-subtitle">
+                    Your AI-powered B2B sales platform for comprehensive customer insights and strategic analysis.
+                  </p>
+                  <div className="welcome-features">
+                    <div className="feature-card">
+                      <div className="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#201F47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <h3>Customer Insights</h3>
+                      <p>Get deep insights into your customers' business and buying patterns</p>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="#201F47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <h3>AI-Powered Analysis</h3>
+                      <p>Leverage advanced AI to analyze customer data and predict outcomes</p>
+                    </div>
+                    <div className="feature-card">
+                      <div className="feature-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path d="M9 19C9 20.1046 9.89543 21 11 21H13C14.1046 21 15 20.1046 15 19V18H9V19ZM12 1C8.13401 1 5 4.13401 5 8V9H19V8C19 4.13401 15.866 1 12 1Z" stroke="#201F47" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <h3>Strategic Planning</h3>
+                      <p>Create comprehensive account playbooks and engagement strategies</p>
+                    </div>
+                  </div>
+                  <div className="welcome-actions">
+                    <p className="action-text">Enter your customer's website below to get started</p>
+                  </div>
+                </div>
+              </div>
+            )} */}
+
             {/* Show 6 tabs when clicking company name text (Bank of America, Cisco, AIG) */}
             {['Bank of America', 'Cisco', 'AIG'].includes(activeSidebarOption) && (
               <div className="insights-container">
