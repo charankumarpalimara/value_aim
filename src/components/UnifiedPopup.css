@@ -1,8 +1,58 @@
 /* Unified Popup Styles */
+.unified-popup-modal {
+  overflow: visible !important;
+}
+
 .unified-popup-modal .ant-modal-content {
   height: 80vh;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: visible !important;
+}
+
+.unified-popup-modal .ant-modal-wrap {
+  overflow: visible !important;
+}
+
+/* Close icon positioning - half inside, half outside */
+.unified-popup-modal .ant-modal-close {
+  position: absolute !important;
+  top: -16px !important;
+  right: -16px !important;
+  z-index: 1002 !important;
+  margin: 0 !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+}
+
+.unified-popup-modal .ant-modal-close-x {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  background-color: #fff !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #d9d9d9 !important;
+}
+
+.unified-popup-modal .ant-modal-close-x:hover {
+  background-color: #f0f0f0 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important;
+  border-color: #bbb !important;
+}
+
+.unified-popup-close-icon {
+  transition: color 0.2s ease !important;
+}
+
+.unified-popup-modal .ant-modal-close-x:hover .unified-popup-close-icon {
+  color: #333 !important;
 }
 
 .unified-popup-modal .ant-modal-body {
@@ -125,6 +175,11 @@
   
   .unified-popup-modal .ant-modal-content {
     height: 85vh;
+  }
+  
+  .unified-popup-modal .ant-modal-close {
+    top: -16px !important;
+    right: -16px !important;
   }
   
   .unified-popup-modal .ant-modal-body {

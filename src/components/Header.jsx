@@ -4,11 +4,10 @@ import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import "./Header.css";
 
-function Header({ onSignupClick }) {
+function Header({ onSignupClick, onLoginClick }) {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -36,7 +35,14 @@ function Header({ onSignupClick }) {
           <>
             <a href="#" className="nav-link">About Us</a>
             <a href="#" className="nav-link">Contact Us</a>
-            <button className="header-btn" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</button>
+            <button className="header-btn" onClick={() => { 
+              if (onLoginClick) {
+                onLoginClick();
+              } else {
+                navigate('/login');
+              }
+              setIsMobileMenuOpen(false); 
+            }}>Login</button>
             <button className="header-btn primary" onClick={() => { onSignupClick(); setIsMobileMenuOpen(false); }}>Signup for Free</button>
           </>
         )}
@@ -57,7 +63,14 @@ function Header({ onSignupClick }) {
             <a href="#" className="mobile-nav-link">About Us</a>
             <a href="#" className="mobile-nav-link">Contact Us</a>
             <div className="mobile-menu-buttons">
-              <button className="header-btn" onClick={() => { navigate('/login'); setIsMobileMenuOpen(false); }}>Login</button>
+              <button className="header-btn" onClick={() => { 
+                if (onLoginClick) {
+                  onLoginClick();
+                } else {
+                  navigate('/login');
+                }
+                setIsMobileMenuOpen(false); 
+              }}>Login</button>
               <button className="header-btn primary" onClick={() => { onSignupClick(); setIsMobileMenuOpen(false); }}>Signup for Free</button>
             </div>
           </div>

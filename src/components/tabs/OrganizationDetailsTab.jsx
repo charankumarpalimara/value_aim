@@ -224,7 +224,7 @@ const OrganizationDetailsTab = () => {
       overflowY: 'auto'
     }}>
       <h3 style={{ 
-        fontSize: '20px', 
+        fontSize: '18px', 
         fontWeight: '600', 
         marginBottom: '24px',
         color: '#201F47'

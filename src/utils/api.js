@@ -29,11 +29,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Don't redirect to login if we're already on login page or if it's a login attempt
+      // Don't redirect to login if we're already on login page, if it's a login attempt, or if it's a public endpoint
       const isLoginPage = window.location.pathname === '/login';
       const isLoginAttempt = error.config?.url?.includes('/auth/login');
+      const isPublicEndpoint = error.config?.url?.includes('/contact') || 
+                               error.config?.url?.includes('/auth/register') ||
+                               error.config?.url?.includes('/auth/check-email');
       
-      if (!isLoginPage && !isLoginAttempt) {
+      if (!isLoginPage && !isLoginAttempt && !isPublicEndpoint) {
         // Token expired or invalid
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -254,6 +257,40 @@ export const suggestionAPI = {
   // Update suggestion status (Admin only - for future use)
   updateStatus: async (id, statusData) => {
     const response = await api.put(`/suggestions/${id}/status`, statusData);
+    return response.data;
+  }
+};
+
+// ==================== Contact APIs ====================
+
+export const contactAPI = {
+  // Create contact message (public endpoint)
+  create: async (contactData) => {
+    const response = await api.post('/contact', contactData);
+    return response.data;
+  },
+
+  // Get all contacts (Admin only)
+  getAll: async (params = {}) => {
+    const response = await api.get('/contact', { params });
+    return response.data;
+  },
+
+  // Get single contact (Admin only)
+  get: async (id) => {
+    const response = await api.get(`/contact/${id}`);
+    return response.data;
+  },
+
+  // Update contact status (Admin only)
+  updateStatus: async (id, statusData) => {
+    const response = await api.put(`/contact/${id}/status`, statusData);
+    return response.data;
+  },
+
+  // Delete contact (Admin only)
+  delete: async (id) => {
+    const response = await api.delete(`/contact/${id}`);
     return response.data;
   }
 };

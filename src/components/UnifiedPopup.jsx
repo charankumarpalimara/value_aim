@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Upload } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined, PaperClipOutlined, SendOutlined, CloseOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import { serviceAPI, suggestionAPI } from '../utils/api';
+import { serviceAPI, suggestionAPI, contactAPI } from '../utils/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -37,6 +37,8 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
             <p style={{ fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Help content will be implemented here.</p>
           </div>
         );
+      case 'Contact Us':
+        return <ContactUsContent />;
       default:
         return null;
     }
@@ -54,12 +56,25 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         zIndex: 1000
       }}
       styles={{
-        mask: { zIndex: 999 }
+        mask: { zIndex: 999 },
+        header: { 
+          borderBottom: 'none',
+          padding: 0
+        }
       }}
       footer={null}
       destroyOnHidden
       className="unified-popup-modal"
       closable={true}
+      closeIcon={
+        <CloseOutlined 
+          style={{
+            fontSize: '18px',
+            color: '#666'
+          }}
+          className="unified-popup-close-icon"
+        />
+      }
     >
       <div style={{ display: 'flex', height: '75vh', maxHeight: '75vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}
@@ -81,7 +96,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
             gap: isMobile ? '8px' : '0',
             justifyContent: isMobile ? 'center' : 'flex-start'
           }}>
-            {['Organization Details', 'Your Services/ Products', 'Profile', 'Suggestions', 'Settings', 'Help'].map((tab) => {
+            {['Organization Details', 'Your Services/ Products', 'Profile', 'Suggestions', 'Contact Us', 'Settings', 'Help'].map((tab) => {
               // Mobile: Use Tag component
               if (isMobile) {
                 return (
@@ -1968,6 +1983,187 @@ const SuggestionsContent = () => {
           </Button>
         </div>
       </div>
+    </div>
+  );
+};
+
+// Contact Us Content Component
+const ContactUsContent = () => {
+  const [form] = Form.useForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
+    try {
+      const response = await contactAPI.create(values);
+      
+      if (response.success) {
+        message.success('Thank you for contacting us! We will get back to you soon.');
+        form.resetFields();
+      } else {
+        throw new Error(response.message || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error submitting contact form:', error);
+      message.error(error.response?.data?.message || error.message || 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div style={{
+      padding: '24px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflowY: 'auto'
+    }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{ 
+          margin: '0 0 8px 0', 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' 
+        }}>
+          Contact Us
+        </h3>
+        <p style={{ 
+          margin: '0', 
+          color: '#666', 
+          fontSize: '13px', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' 
+        }}>
+          Have a question or need assistance? Fill out the form below and we'll get back to you.
+        </p>
+      </div>
+
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+      >
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '16px' }}>
+            <Form.Item
+              name="firstName"
+              label="First Name"
+              rules={[{ required: true, message: 'Please enter your first name' }]}
+              style={{ flex: 1, marginBottom: 0 }}
+            >
+              <Input
+                placeholder="Enter your first name"
+                style={{
+                  fontSize: '13px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="lastName"
+              label="Last Name"
+              rules={[{ required: true, message: 'Please enter your last name' }]}
+              style={{ flex: 1, marginBottom: 0 }}
+            >
+              <Input
+                placeholder="Enter your last name"
+                style={{
+                  fontSize: '13px',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}
+              />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            name="email"
+            label="Your Email"
+            rules={[
+              { required: true, message: 'Please enter your email' },
+              { type: 'email', message: 'Please enter a valid email address' }
+            ]}
+            style={{ marginBottom: 0 }}
+          >
+            <Input
+              type="email"
+              placeholder="Enter your email address"
+              style={{
+                fontSize: '13px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="phoneNumber"
+            label="Your Number"
+            rules={[
+              { required: true, message: 'Please enter your phone number' },
+              { pattern: /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, message: 'Please enter a valid phone number' }
+            ]}
+            style={{ marginBottom: 0 }}
+          >
+            <Input
+              placeholder="Enter your phone number"
+              style={{
+                fontSize: '13px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="subject"
+            label="Subject"
+            rules={[{ required: true, message: 'Please enter a subject' }]}
+            style={{ marginBottom: 0 }}
+          >
+            <Input
+              placeholder="Enter the subject"
+              style={{
+                fontSize: '13px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="message"
+            label="Message"
+            rules={[{ required: true, message: 'Please enter your message' }]}
+            style={{ marginBottom: 0, flex: 1 }}
+          >
+            <TextArea
+              rows={6}
+              placeholder="Enter your message here..."
+              style={{
+                fontSize: '13px',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                resize: 'none'
+              }}
+            />
+          </Form.Item>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px', paddingTop: '16px' }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={isSubmitting}
+            size="large"
+            style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              fontWeight: '500',
+              minWidth: '120px'
+            }}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </Button>
+        </div>
+      </Form>
     </div>
   );
 };
