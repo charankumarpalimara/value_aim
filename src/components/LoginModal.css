@@ -27,8 +27,13 @@
 }
 
 .signup-modal-header {
-  margin-bottom: 8px;
+  margin-bottom: 0;
+  padding-bottom: 0;
   text-align: center;
+  border: none;
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .signup-modal-header h3 {
@@ -36,8 +41,11 @@
   font-weight: 600;
   color: #201F47;
   margin: 0;
+  margin-bottom: 0;
+  padding: 0;
   text-align: center;
   width: 100%;
+  line-height: 1.2;
 }
 
 .signup-close-btn {
@@ -66,6 +74,13 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border: none;
+  border-top: none;
+}
+
+.signup-form > p:first-child {
+  margin-top: -8px;
+  padding-top: 0;
 }
 
 .signup-form-group {

@@ -280,13 +280,15 @@ function LoginModal({ isOpen, onClose, onSignupClick }) {
           ×
         </button>
         <div className="signup-modal-header">
-          <h3 style={{ textAlign: 'center', width: '100%' }}>Log in</h3>
+          <h3 style={{ textAlign: 'center', width: '100%', marginBottom: '0' }}>Log in</h3>
+          <br/>
+          <p style={{ textAlign: 'center', marginBottom: '24px', marginTop: '-8px', paddingTop: '0', color: '#666', fontSize: '13px', lineHeight: '1.4' }}>
+            Next Generation AI platform for B2B Sales.
+          </p>
         </div>
         
         <div className="signup-form">
-          <p style={{ textAlign: 'center', marginBottom: '24px', marginTop: '0', color: '#666', fontSize: '13px' }}>
-            Next Generation AI platform for B2B Sales.
-          </p>
+
 
           <div className="email-section">
             {!showTryAnotherWay ? (

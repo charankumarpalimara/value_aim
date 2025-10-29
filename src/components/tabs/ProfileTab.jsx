@@ -10,7 +10,6 @@ const ProfileTab = () => {
   const [passwordForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const isLargeScreen = useMediaQuery({ minWidth: 781 });
   // Force refresh to clear cache
   const [userProfile, setUserProfile] = useState({
     name: 'John Doe',
@@ -630,6 +629,7 @@ const ProfileTab = () => {
       {/* Account Actions */}
       <Card 
         title="Account Actions"
+        style={{ marginBottom: '24px' }}
         styles={{ 
           header: {
             background: '#fafafa',
@@ -639,49 +639,54 @@ const ProfileTab = () => {
       >
         <div style={{ 
           display: 'flex', 
-          flexDirection: isLargeScreen ? 'row' : 'column',
-          gap: isLargeScreen ? '24px' : '12px',
-          width: '100%'
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: '12px',
+          width: '100%',
+          alignItems: isMobile ? 'center' : 'stretch'
         }}>
-          <div className="action-item" style={{ flex: isLargeScreen ? 1 : 'auto' }}>
-            <Button 
-              type="default"
-              onClick={() => {
-                // TODO: Implement plan upgrade
-                message.info('Plan upgrade coming soon!');
-              }}
-              style={{ width: '100%' }}
-            >
-              Upgrade to Pro Plan
-            </Button>
-            <div className="action-description" style={{ marginTop: '8px' }}>
-              Get access to advanced features and unlimited usage
-            </div>
-          </div>
+          <Button 
+            type="primary"
+            onClick={() => {
+              // TODO: Implement plan upgrade
+              message.info('Plan upgrade coming soon!');
+            }}
+            style={{ 
+              flex: isMobile ? 'none' : 1,
+              width: isMobile ? 'auto' : '100%',
+              maxWidth: isMobile ? '280px' : 'none',
+              height: isMobile ? '48px' : '40px',
+              fontSize: '14px',
+              fontWeight: '500',
+              border: 'none',
+              borderRadius: '6px'
+            }}
+            size="large"
+          >
+            Upgrade to Pro Plan
+          </Button>
 
-          {isLargeScreen ? (
-            <Divider type="vertical" style={{ height: 'auto', margin: '0' }} />
-          ) : (
-            <Divider style={{ margin: '12px 0' }} />
-          )}
-
-          <div className="action-item" style={{ flex: isLargeScreen ? 1 : 'auto' }}>
-            <Button 
-              danger
-              onClick={() => {
-                if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                  // TODO: Implement account deletion
-                  message.error('Account deletion is not yet implemented');
-                }
-              }}
-              style={{ width: '100%' }}
-            >
-              Delete Account
-            </Button>
-            <div className="action-description danger" style={{ marginTop: '8px' }}>
-              Permanently delete your account and all associated data
-            </div>
-          </div>
+          <Button 
+            danger
+            onClick={() => {
+              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                // TODO: Implement account deletion
+                message.error('Account deletion is not yet implemented');
+              }
+            }}
+            style={{ 
+              flex: isMobile ? 'none' : 1,
+              width: isMobile ? 'auto' : '100%',
+              maxWidth: isMobile ? '280px' : 'none',
+              height: isMobile ? '48px' : '40px',
+              fontSize: '14px',
+              fontWeight: '500',
+              border: 'none',
+              borderRadius: '6px'
+            }}
+            size="large"
+          >
+            Delete Account
+          </Button>
         </div>
       </Card>
 
