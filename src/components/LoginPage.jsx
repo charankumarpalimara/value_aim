@@ -40,6 +40,7 @@ function LoginPage() {
   const [isCheckingOtpEmail, setIsCheckingOtpEmail] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   
   // OTP errors
   const [otpError, setOtpError] = useState(false);
@@ -366,24 +367,43 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="email-input"
                 />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    // Reset password error when user starts typing
-                    if (passwordError) {
-                      setPasswordError(false);
-                      setPasswordErrorMessage('');
-                    }
-                  }}
-                  className="email-input"
-                  style={{ 
-                    marginTop: '12px',
-                    borderColor: passwordError ? '#ff4d4f' : ''
-                  }}
-                />
+                <div style={{ position: 'relative', marginTop: '12px', width: '100%' }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      // Reset password error when user starts typing
+                      if (passwordError) {
+                        setPasswordError(false);
+                        setPasswordErrorMessage('');
+                      }
+                    }}
+                    className="email-input"
+                    style={{ 
+                      width: '100%',
+                      paddingRight: '40px',
+                      borderColor: passwordError ? '#ff4d4f' : ''
+                    }}
+                  />
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      cursor: 'pointer',
+                      color: '#666',
+                      fontSize: '18px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
+                </div>
                 {passwordErrorMessage && (
                   <div style={{
                     fontSize: '12px',

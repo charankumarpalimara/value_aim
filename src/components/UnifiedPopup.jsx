@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch } from 'antd';
-import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Upload } from 'antd';
+import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined, PaperClipOutlined, SendOutlined, CloseOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import { serviceAPI } from '../utils/api';
+import { serviceAPI, suggestionAPI } from '../utils/api';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -22,12 +22,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
       case 'Profile':
         return <ProfileTab />;
       case 'Suggestions':
-        return (
-          <div style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Suggestions</h3>
-            <p style={{ fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>Suggestions content will be implemented here.</p>
-          </div>
-        );
+        return <SuggestionsContent />;
       case 'Settings':
         return (
           <div style={{ padding: '24px' }}>
@@ -96,7 +91,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                     onClick={() => onScreenChange(tab)}
                     style={{
                       cursor: 'pointer',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       padding: '4px 12px',
                       borderRadius: '16px',
                       border: activeScreen === tab ? '1px solid #201F47' : '1px solid #d9d9d9',
@@ -120,7 +115,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                     backgroundColor: activeScreen === tab ? '#201F47' : 'transparent',
                     color: activeScreen === tab ? '#fff' : '#333',
                     borderRadius: '0',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: activeScreen === tab ? '500' : '400',
                     border: 'none',
                     borderRight: activeScreen === tab ? '3px solid #1890ff' : 'none',
@@ -136,15 +131,18 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
                     if (activeScreen !== tab) {
                       e.target.style.backgroundColor = '#201F47';
                       e.target.style.color = '#fff';
+                      e.target.style.fontWeight = '500';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (activeScreen !== tab) {
                       e.target.style.backgroundColor = 'transparent';
                       e.target.style.color = '#333';
+                      e.target.style.fontWeight = '400';
                     } else {
                       e.target.style.backgroundColor = '#201F47';
                       e.target.style.color = '#fff';
+                      e.target.style.fontWeight = '500';
                     }
                   }}
                 >
@@ -159,10 +157,11 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          overflowX: 'hidden',
+          overflowX: 'auto',
           padding: '0',
           height: '100%',
-          maxHeight: '100%'
+          maxHeight: '100%',
+          WebkitOverflowScrolling: 'touch'
         }}>
           {renderContent()}
         </div>
@@ -796,10 +795,73 @@ const ServiceManagerContent = () => {
     <div style={{
       padding: '24px',
       height: '100%',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      overflowX: 'auto',
+      WebkitOverflowScrolling: 'touch'
     }}>
       <style>
         {`
+          /* Force scrollbars to be visible on all browsers including Windows */
+          .ant-table-wrapper {
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          
+          .ant-table {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          
+          /* Show scrollbars on Windows */
+          .ant-table-content {
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+          
+          /* Custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+          .ant-table-content::-webkit-scrollbar {
+            height: 12px !important;
+            width: 12px !important;
+          }
+          
+          .ant-table-content::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+            border-radius: 6px !important;
+          }
+          
+          .ant-table-content::-webkit-scrollbar-thumb {
+            background: #888 !important;
+            border-radius: 6px !important;
+          }
+          
+          .ant-table-content::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+          }
+          
+          /* Firefox scrollbar */
+          .ant-table-content {
+            scrollbar-width: thin !important;
+            scrollbar-color: #888 #f1f1f1 !important;
+          }
+          
+          /* For mobile devices - ensure touch scrolling */
+          @media (max-width: 768px) {
+            .ant-table-wrapper,
+            .ant-table,
+            .ant-table-content {
+              -webkit-overflow-scrolling: touch !important;
+              overflow-x: auto !important;
+            }
+            
+            /* Show scrollbar on mobile */
+            .ant-table-content::-webkit-scrollbar {
+              height: 8px !important;
+              width: 8px !important;
+            }
+          }
+          
           .no-hover-button:hover {
             background-color: inherit !important;
             border-color: inherit !important;
@@ -1485,7 +1547,7 @@ const ServiceManagerContent = () => {
             showSizeChanger: true,
             showTotal: (total) => `Total ${total} items`,
           }}
-          scroll={{ x: 1500 }}
+          scroll={{ x: 'max-content', y: null }}
           bordered
           size="middle"
           style={{ width: '100%' }}
@@ -1690,6 +1752,222 @@ const ServiceManagerContent = () => {
           This action cannot be undone.
         </p>
       </Modal>
+    </div>
+  );
+};
+
+// Suggestions Content Component
+const SuggestionsContent = () => {
+  const [suggestionText, setSuggestionText] = useState('');
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [charCount, setCharCount] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const maxChars = 250;
+  const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
+
+  const handleTextChange = (e) => {
+    const text = e.target.value;
+    if (text.length <= maxChars) {
+      setSuggestionText(text);
+      setCharCount(text.length);
+    }
+  };
+
+  const handleFileSelect = (file) => {
+    // Check file size
+    if (file.size > maxFileSize) {
+      message.error('File size must be less than 20MB');
+      return false;
+    }
+    setAttachedFile(file);
+    message.success(`${file.name} attached successfully`);
+    return false; // Prevent auto upload
+  };
+
+  const handleRemoveFile = () => {
+    setAttachedFile(null);
+    message.info('Attachment removed');
+  };
+
+  const handleSend = async () => {
+    if (!suggestionText.trim() && !attachedFile) {
+      message.warning('Please enter a suggestion or attach a file');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      // Create FormData for sending
+      const formData = new FormData();
+      formData.append('suggestion', suggestionText);
+      if (attachedFile) {
+        formData.append('attachment', attachedFile);
+      }
+
+      // Call the backend API
+      const response = await suggestionAPI.create(formData);
+      
+      if (response.success) {
+        message.success('Suggestion sent successfully!');
+        
+        // Reset form
+        setSuggestionText('');
+        setCharCount(0);
+        setAttachedFile(null);
+      } else {
+        throw new Error(response.message || 'Failed to send suggestion');
+      }
+    } catch (error) {
+      console.error('Error sending suggestion:', error);
+      message.error(error.response?.data?.message || 'Failed to send suggestion. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <div style={{
+      padding: '24px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{ 
+          margin: '0 0 8px 0', 
+          fontSize: '18px', 
+          fontWeight: '600', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' 
+        }}>
+          Share Your Suggestions
+        </h3>
+        <p style={{ 
+          margin: '0', 
+          color: '#666', 
+          fontSize: '13px', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' 
+        }}>
+          We'd love to hear your feedback and suggestions for improving our platform.
+        </p>
+      </div>
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Text Input Area */}
+        <div style={{ position: 'relative' }}>
+          <TextArea
+            value={suggestionText}
+            onChange={handleTextChange}
+            placeholder="Type your suggestion here... (max 250 characters)"
+            rows={6}
+            style={{
+              fontSize: '14px',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              resize: 'none'
+            }}
+          />
+          <div style={{
+            position: 'absolute',
+            bottom: '8px',
+            right: '12px',
+            fontSize: '12px',
+            color: charCount >= maxChars ? '#ff4d4f' : '#999',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            {charCount}/{maxChars}
+          </div>
+        </div>
+
+        {/* File Attachment Section */}
+        <div style={{
+          border: '1px dashed #d9d9d9',
+          borderRadius: '4px',
+          padding: '16px',
+          backgroundColor: '#fafafa'
+        }}>
+          {!attachedFile ? (
+            <Upload
+              beforeUpload={handleFileSelect}
+              showUploadList={false}
+              accept="*"
+            >
+              <Button 
+                icon={<PaperClipOutlined />}
+                style={{
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}
+              >
+                Attach File (Max 20MB)
+              </Button>
+            </Upload>
+          ) : (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#fff',
+              padding: '8px 12px',
+              borderRadius: '4px',
+              border: '1px solid #d9d9d9'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                <PaperClipOutlined style={{ color: '#1890ff' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#333',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {attachedFile.name}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#999',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                  }}>
+                    {(attachedFile.size / 1024 / 1024).toFixed(2)} MB
+                  </div>
+                </div>
+              </div>
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={handleRemoveFile}
+                size="small"
+                style={{ color: '#ff4d4f' }}
+              />
+            </div>
+          )}
+          <div style={{
+            marginTop: '8px',
+            fontSize: '12px',
+            color: '#999',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Supported formats: All file types (Max size: 20MB)
+          </div>
+        </div>
+
+        {/* Send Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'auto', paddingTop: '16px' }}>
+          <Button
+            type="primary"
+            icon={<SendOutlined />}
+            onClick={handleSend}
+            loading={isSending}
+            disabled={!suggestionText.trim() && !attachedFile}
+            size="large"
+            style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              fontWeight: '500'
+            }}
+          >
+            {isSending ? 'Sending...' : 'Send Suggestion'}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -213,5 +213,50 @@ export const userAPI = {
   }
 };
 
+// ==================== Suggestion APIs ====================
+
+export const suggestionAPI = {
+  // Create suggestion with optional file attachment
+  create: async (formData) => {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const response = await api.post('/suggestions', formData, config);
+    return response.data;
+  },
+
+  // Get all user suggestions
+  getAll: async () => {
+    const response = await api.get('/suggestions');
+    return response.data;
+  },
+
+  // Get single suggestion
+  get: async (id) => {
+    const response = await api.get(`/suggestions/${id}`);
+    return response.data;
+  },
+
+  // Delete suggestion
+  delete: async (id) => {
+    const response = await api.delete(`/suggestions/${id}`);
+    return response.data;
+  },
+
+  // Get all suggestions (Admin only - for future use)
+  getAllAdmin: async (params = {}) => {
+    const response = await api.get('/suggestions/admin/all', { params });
+    return response.data;
+  },
+
+  // Update suggestion status (Admin only - for future use)
+  updateStatus: async (id, statusData) => {
+    const response = await api.put(`/suggestions/${id}/status`, statusData);
+    return response.data;
+  }
+};
+
 export default api;
 

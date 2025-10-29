@@ -11,14 +11,38 @@
   overflow: hidden;
 }
 
-/* Hide all scrollbars in popup content */
-.unified-popup-modal .ant-modal-body *::-webkit-scrollbar {
+/* Hide scrollbars only for main content wrapper, not for tables */
+.unified-popup-modal .ant-modal-body > div::-webkit-scrollbar {
   display: none;
 }
 
-.unified-popup-modal .ant-modal-body * {
+.unified-popup-modal .ant-modal-body > div {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+/* IMPORTANT: Show scrollbars for table content on all devices */
+.unified-popup-modal .ant-table-wrapper *::-webkit-scrollbar,
+.unified-popup-modal .ant-table-content::-webkit-scrollbar {
+  display: block !important;
+}
+
+.unified-popup-modal .ant-table-wrapper *,
+.unified-popup-modal .ant-table-content {
+  -ms-overflow-style: auto !important;  /* IE and Edge */
+  scrollbar-width: auto !important;  /* Firefox */
+}
+
+/* Enable touch scrolling for mobile devices */
+.unified-popup-modal .ant-table-wrapper,
+.unified-popup-modal .ant-table-content {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-x: auto !important;
+}
+
+/* Ensure vertical scrolling works on modal body content for Windows/mobile */
+.unified-popup-modal .ant-modal-body > div > div {
+  -webkit-overflow-scrolling: touch;
 }
 
 .unified-popup-modal .ant-modal-header {
@@ -67,18 +91,21 @@
     margin-bottom: 2px !important;
     background-color: transparent !important;
     color: #333 !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
     display: block !important;
   }
   
   .popup-tab.active {
     background-color: #201F47 !important;
     color: #fff !important;
+    font-weight: 500 !important;
   }
   
   .popup-tab:hover:not(.active) {
     background-color: #201F47 !important;
     color: #fff !important;
+    font-weight: 500 !important;
   }
   
   /* Ensure inactive tabs don't get background color on text */
@@ -118,6 +145,8 @@
     border: 1px solid #d9d9d9 !important;
     margin: 2px !important;
     display: inline-block !important;
+    font-size: 11px !important;
+    font-weight: 400 !important;
   }
   
   /* Mobile active tab - entire tab background */
@@ -125,6 +154,7 @@
     background-color: #201F47 !important;
     color: #fff !important;
     border: none !important;
+    font-weight: 500 !important;
   }
   
   /* Mobile active tab span styling */
@@ -139,6 +169,12 @@
     color: inherit !important;
   }
   
+  .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:hover:not([style*="background-color: #201F47"]) {
+    background-color: #201F47 !important;
+    color: #fff !important;
+    font-weight: 500 !important;
+  }
+  
   .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div:hover {
     background-color: #201F47 !important;
     color: #fff !important;
@@ -148,6 +184,7 @@
     background-color: #201F47 !important;
     color: #fff !important;
     border: none !important;
+    font-weight: 500 !important;
   }
 }
 
@@ -171,7 +208,8 @@
   
   .unified-popup-modal .ant-modal-body div[style*="flex-wrap"] > div {
     padding: 6px 8px !important;
-    font-size: 11px !important;
+    font-size: 10px !important;
+    font-weight: 400 !important;
     z-index: 10 !important;
     position: relative !important;
   }
@@ -180,6 +218,7 @@
     background-color: #201F47 !important;
     color: #fff !important;
     border: none !important;
+    font-weight: 500 !important;
   }
   
   /* Ensure inactive tabs don't get background color on text */
