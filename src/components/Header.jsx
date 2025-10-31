@@ -25,9 +25,13 @@ function Header({ onSignupClick, onLoginClick }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileMenuOpen]);
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="header">
-      <div className="logo-section">
+      <div className="logo-section" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
         <img src={logoImage} alt="Value AIM Logo" className="logo-image" />
       </div>
       <div className="header-actions">
