@@ -56,7 +56,8 @@ function LandingPage() {
       />
       
       <div className="landing-content">
-        <h1 className="main-heading">Research your customer</h1>
+        <h1 className="main-heading">Research your Customer</h1>
+        <p className="main-subtitle">Great Sales start here with Customer Insights.</p>
         
         <div className="input-container">
           {/* Plus Menu - Always positioned above input */}

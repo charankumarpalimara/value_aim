@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import "./Header.css";
@@ -34,7 +34,7 @@ function Header({ onSignupClick, onLoginClick }) {
         {!isMobile && (
           <>
             <a href="#" className="nav-link">About Us</a>
-            <a href="#" className="nav-link">Contact Us</a>
+            <Link to="/contact-us" className="nav-link">Contact Us</Link>
             <button className="header-btn" onClick={() => { 
               if (onLoginClick) {
                 onLoginClick();
@@ -57,11 +57,11 @@ function Header({ onSignupClick, onLoginClick }) {
           </button>
         )}
       </div>
-      {isMobile && (
+        {isMobile && (
         <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <div className="mobile-menu-content">
             <a href="#" className="mobile-nav-link">About Us</a>
-            <a href="#" className="mobile-nav-link">Contact Us</a>
+            <Link to="/contact-us" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
             <div className="mobile-menu-buttons">
               <button className="header-btn" onClick={() => { 
                 if (onLoginClick) {
