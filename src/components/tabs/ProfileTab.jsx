@@ -25,6 +25,7 @@ const ProfileTab = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState(null);
+  const [isDeleteAccountModalVisible, setIsDeleteAccountModalVisible] = useState(false);
 
   useEffect(() => {
     // Load user data from localStorage or API
@@ -668,10 +669,7 @@ const ProfileTab = () => {
           <Button 
             danger
             onClick={() => {
-              if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                // TODO: Implement account deletion
-                message.error('Account deletion is not yet implemented');
-              }
+              setIsDeleteAccountModalVisible(true);
             }}
             style={{ 
               flex: isMobile ? 'none' : 1,
@@ -705,6 +703,27 @@ const ProfileTab = () => {
         confirmLoading={loading}
       >
         <p>Are you sure you want to save these profile changes?</p>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        title="Delete Account"
+        open={isDeleteAccountModalVisible}
+        onOk={() => {
+          // TODO: Implement account deletion
+          message.error('Account deletion is not yet implemented');
+          setIsDeleteAccountModalVisible(false);
+        }}
+        onCancel={() => setIsDeleteAccountModalVisible(false)}
+        okText="Yes"
+        cancelText="No"
+        centered
+        okButtonProps={{ danger: true }}
+      >
+        <p>Are you sure you want to delete your account?</p>
+        <p style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '8px' }}>
+          This action cannot be undone.
+        </p>
       </Modal>
     </div>
   );
