@@ -56,8 +56,8 @@ function LandingPage() {
       />
       
       <div className="landing-content">
-        <h1 className="main-heading">Research your Customer</h1>
-        <p className="main-subtitle">Great Sales start here with Customer Insights.</p>
+        <h1 className="welcome-title">Research your Customer</h1>
+        <p className="welcome-subtitle" style={{ fontStyle: 'italic' }}>Great Sales start here with Customer Insights.</p>
         
         <div className="input-container">
           {/* Plus Menu - Always positioned above input */}

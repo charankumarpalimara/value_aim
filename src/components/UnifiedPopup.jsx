@@ -1452,7 +1452,7 @@ const ServiceManagerContent = () => {
       </style>
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', fontWeight: '600', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-          Manage your service offerings, keywords, and target segments
+        Manage your Services and Products Offerings
         </h3>
         {/* <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '13px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
           {dataSource.length === 0 ? 'No services added yet. Click "Add New Service" to get started.' : `${dataSource.length} service(s) configured.`}

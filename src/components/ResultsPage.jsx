@@ -768,7 +768,7 @@ function ResultsPage() {
             {!activeSidebarOption && (
               <div className="default-content">
                 <h1 className="welcome-title">Research your Customer</h1>
-                <p className="welcome-subtitle">
+                <p className="welcome-subtitle" style={{ fontStyle: 'italic' }}>
                 Great Sales start here with Customer Insights.
                 </p>
                 {/* <div className="welcome-features">
