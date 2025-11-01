@@ -1,0 +1,1322 @@
+/* About Us Page - Based on Digital Design Agency Structure */
+
+.about-us-page {
+  min-height: 100vh;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #3a3a3d;
+}
+
+.about-content {
+  width: 100%;
+}
+
+/* Global Typography Settings */
+.about-us-page h1,
+.about-us-page h2,
+.about-us-page h3,
+.about-us-page h4,
+.about-us-page h5,
+.about-us-page h6 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  color: #12141d;
+  margin: 0;
+}
+
+.about-us-page h1 {
+  font-size: 28px;
+  line-height: 1.2em;
+  font-weight: 600;
+}
+
+.about-us-page h2 {
+  font-size: 24px;
+  line-height: 1.2em;
+  font-weight: 600;
+}
+
+.about-us-page h3 {
+  font-size: 20px;
+  line-height: 1.3em;
+  font-weight: 600;
+}
+
+.about-us-page h4 {
+  font-size: 18px;
+  line-height: 1.3em;
+  font-weight: 600;
+}
+
+.about-us-page h5 {
+  font-size: 16px;
+  line-height: 1.4em;
+  font-weight: 500;
+}
+
+.about-us-page h6 {
+  font-size: 14px;
+  line-height: 1.4em;
+  font-weight: 500;
+}
+
+.about-us-page p {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-us-page a {
+  color: #201F47;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.about-us-page a:hover {
+  color: #15143a;
+}
+
+/* ===== Hero Section ===== */
+.about-hero-section {
+  position: relative;
+  padding: 120px 40px 100px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  text-align: center;
+  overflow: hidden;
+  margin-top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-decorator {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  opacity: 0.2;
+}
+
+.hero-decorator svg {
+  fill: #ffffff;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-decorator-left {
+  top: 60px;
+  left: 10%;
+}
+
+.hero-decorator-right {
+  bottom: 60px;
+  right: 10%;
+}
+
+.hero-main-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 auto 24px;
+  text-align: center;
+  max-width: 1000px;
+  width: 100%;
+  line-height: 1.2em;
+  letter-spacing: -0.02em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff;
+  opacity: 0.95;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== Hero Image Section ===== */
+.about-image-section {
+  padding: 0;
+  background: #ffffff;
+}
+
+.about-hero-image {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: auto;
+  min-height: 450px;
+  max-height: 550px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.image-content-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 40px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.image-content-overlay h3 {
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+/* ===== Two Column Solutions Section ===== */
+.about-two-column-section {
+  padding: 100px 40px;
+  background-color: #ffffff;
+}
+
+.two-column-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.two-column-header {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.two-column-header .section-heading {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.two-column-header .section-description {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #12141d;
+  margin-bottom: 24px;
+  line-height: 1.2em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.section-description {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #666;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.solutions-two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 40px;
+  align-items: stretch;
+}
+
+.solutions-two-col-grid.reverse-grid {
+  direction: ltr;
+}
+
+.solution-col-item {
+  width: 100%;
+  display: flex;
+}
+
+.solution-card-with-icon {
+  background: #f9fafb;
+  padding: 48px 40px;
+  border-radius: 12px;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.solution-icon-svg {
+  font-size: 3.5rem;
+  margin-bottom: 24px;
+}
+
+.solution-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #201F47;
+  margin-bottom: 16px;
+  line-height: 1.3em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.solution-card-text {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #666;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.solution-image-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.solution-image-placeholder {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(32, 31, 71, 0.15);
+  background: #f9fafb;
+}
+
+.solution-image-placeholder.tall {
+  min-height: 360px;
+}
+
+.solution-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.placeholder-text {
+  font-size: 16px;
+  color: #ffffff;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Process Section with Image ===== */
+.about-process-section {
+  padding: 100px 40px;
+  background: linear-gradient(135deg, #f9fafb 0%, #eeefe7 100%);
+}
+
+.process-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.process-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.cta-outline-btn {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #201F47;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.cta-outline-btn:hover {
+  background: #15143a;
+  transform: none;
+  box-shadow: none;
+}
+
+.process-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+.process-image-col {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+}
+
+.process-main-image {
+  width: 100%;
+  height: auto;
+  min-height: 550px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(102, 126, 234, 0.25);
+  background: #f9fafb;
+}
+
+.process-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.process-steps-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.process-step-item {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: flex-start;
+}
+
+.process-step-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.step-number-wrap {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.step-num-circle {
+  flex-shrink: 0;
+  min-width: 60px;
+}
+
+.step-num-circle h3 {
+  font-size: 48px;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.step-text-wrap {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.step-heading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #201F47;
+  margin: 0 0 12px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.step-text {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== Masters Section ===== */
+.about-masters-section {
+  padding: 100px 40px;
+  background-color: #eeefe7;
+}
+
+.masters-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.masters-text-content {
+  margin-bottom: 60px;
+}
+
+.masters-text-content .section-heading {
+  max-width: 60%;
+  margin-bottom: 24px;
+}
+
+.masters-description {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #666;
+  max-width: 60%;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.masters-visual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.masters-image-col {
+  width: 100%;
+}
+
+.masters-image-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(32, 31, 71, 0.15);
+  background: #f9fafb;
+}
+
+.masters-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.masters-image-placeholder.large {
+  min-height: 500px;
+}
+
+.masters-image-placeholder.medium {
+  min-height: 280px;
+  margin-bottom: 20px;
+}
+
+.masters-right-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.experts-badge-section {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.icon-badges {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.badge-icon {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease;
+}
+
+.badge-icon:hover {
+  transform: scale(1.05);
+}
+
+.experts-text-badge h4 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #201F47;
+  margin: 0;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== Team/Features Section (4 Cards) ===== */
+.about-team-section {
+  padding: 100px 40px;
+  background-color: #ffffff;
+}
+
+.team-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.team-container .section-heading {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.team-card {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.team-card-inner {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.team-image {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.team-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.team-icon-svg {
+  width: 80px;
+  height: 80px;
+  stroke: #ffffff;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  position: relative;
+  z-index: 1;
+}
+
+.team-icon {
+  font-size: 4rem;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.team-info {
+  padding: 24px 24px 16px;
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.team-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #201F47;
+  margin: 0 0 8px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.team-role {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.team-social {
+  padding: 0 24px 24px;
+  text-align: center;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.social-link:hover {
+  background: #201F47;
+  border-color: #201F47;
+  transform: translateY(-2px);
+}
+
+.social-link svg {
+  fill: #666;
+  transition: fill 0.2s ease;
+}
+
+.social-link:hover svg {
+  fill: #ffffff;
+}
+
+/* ===== CTA Section ===== */
+.about-cta-section {
+  padding: 80px 40px 60px;
+  background: #162d3c;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.cta-content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-text-content {
+  flex: 1;
+  max-width: 60%;
+}
+
+.cta-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 20px 0;
+  line-height: 1.2;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.cta-description {
+  font-size: 14px;
+  font-weight: 400;
+  color: #ffffff;
+  opacity: 0.9;
+  line-height: 1.6;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.cta-button-wrap {
+  flex-shrink: 0;
+}
+
+.cta-primary-btn {
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #201F47;
+  color: #ffffff;
+  border: 2px solid #201F47;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.cta-primary-btn:hover {
+  background: #15143a;
+  border-color: #15143a;
+  transform: none;
+  box-shadow: none;
+}
+
+.cta-primary-btn svg {
+  fill: currentColor;
+}
+
+.cta-visual-section {
+  margin-top: 50px;
+  padding-top: 0;
+  border-top: none;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-logo-text h3 {
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.social-icons-group {
+  display: flex;
+  gap: 16px;
+}
+
+.social-icon-link {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.social-icon-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.social-icon-link svg {
+  fill: #ffffff;
+  transition: fill 0.2s ease;
+}
+
+.social-icon-link:hover svg {
+  fill: #ffffff;
+}
+
+/* ===== Footer Section ===== */
+.about-footer-section {
+  padding: 0 40px 30px;
+  background: #162d3c;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-widgets {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr;
+  gap: 40px;
+  margin-bottom: 30px;
+  padding-top: 0;
+}
+
+.footer-widget-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 0 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.footer-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-menu li {
+  margin-bottom: 8px;
+}
+
+.footer-menu a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.footer-menu a:hover {
+  color: #ffffff;
+  padding-left: 4px;
+}
+
+.footer-address {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.footer-contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.footer-contact-list svg {
+  fill: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.footer-bottom {
+  padding-top: 24px;
+  padding-bottom: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin-top: 10px;
+}
+
+.footer-copyright {
+  text-align: center;
+}
+
+.footer-copyright p {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ===== Responsive Design ===== */
+
+/* Large Tablets and Small Desktops */
+@media (max-width: 1024px) {
+  .solutions-two-col-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .process-content-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .process-image-col {
+    position: static;
+  }
+
+  .process-main-image {
+    min-height: 350px;
+  }
+  
+  .image-placeholder {
+    min-height: 350px;
+    max-height: 450px;
+  }
+
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .masters-text-content .section-heading,
+  .masters-description {
+    max-width: 100%;
+  }
+
+  .masters-visual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-widgets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+  .about-hero-section {
+    padding: 140px 32px 60px;
+    margin-top: 0;
+  }
+
+  .about-cta-section {
+    padding: 60px 32px 50px;
+  }
+
+  .about-footer-section {
+    padding: 30px 32px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .cta-visual-section {
+    margin-top: 40px;
+  }
+
+  .hero-main-title {
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+  }
+
+  .hero-decorator {
+    width: 60px;
+    height: 60px;
+  }
+
+  .about-two-column-section,
+  .about-process-section,
+  .about-masters-section,
+  .about-team-section,
+  .about-cta-section {
+    padding: 60px 32px;
+  }
+
+  .section-heading {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .solution-card-with-icon {
+    padding: 32px 28px;
+  }
+
+  .solution-card-title {
+    font-size: 16px;
+  }
+
+  .solution-card-text {
+    font-size: 13px;
+  }
+  
+  .solution-image-placeholder {
+    min-height: 280px;
+  }
+  
+  .solution-image-placeholder.tall {
+    min-height: 320px;
+  }
+  
+  .masters-image-placeholder.large {
+    min-height: 400px;
+  }
+
+  .masters-image-placeholder.medium {
+    min-height: 250px;
+  }
+
+  .process-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cta-content-wrapper {
+    flex-direction: column;
+  }
+
+  .cta-text-content {
+    max-width: 100%;
+  }
+
+  .cta-heading {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-widgets {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .footer-bottom {
+    padding-top: 24px;
+  }
+
+  .image-placeholder {
+    min-height: 320px;
+    max-height: 400px;
+  }
+
+  .process-main-image {
+    min-height: 320px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .about-hero-section {
+    padding: 120px 24px 40px;
+    margin-top: 0;
+  }
+
+  .about-cta-section {
+    padding: 50px 24px 40px;
+  }
+
+  .about-footer-section {
+    padding: 30px 24px 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-widgets {
+    gap: 28px;
+    margin-bottom: 24px;
+  }
+
+  .cta-visual-section {
+    margin-top: 30px;
+  }
+
+  .footer-widget-title {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .footer-menu li {
+    margin-bottom: 6px;
+  }
+
+  .footer-menu a,
+  .footer-address,
+  .footer-contact-list li {
+    font-size: 12px;
+  }
+
+  .footer-bottom {
+    padding-top: 20px;
+    padding-bottom: 8px;
+    margin-top: 12px;
+  }
+
+  .footer-copyright p {
+    font-size: 11px;
+  }
+
+  .footer-contact-list li {
+    margin-bottom: 6px;
+  }
+
+  .hero-main-title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .hero-subtitle {
+    font-size: 13px;
+  }
+
+  .hero-decorator {
+    display: none;
+  }
+
+  .about-two-column-section,
+  .about-process-section,
+  .about-masters-section,
+  .about-team-section,
+  .about-cta-section,
+  .about-footer-section {
+    padding: 50px 24px;
+  }
+
+  .about-hero-image {
+    padding: 0 24px;
+  }
+
+  .section-heading {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .solution-card-with-icon {
+    padding: 28px 24px;
+  }
+
+  .solution-image-placeholder {
+    min-height: 220px;
+  }
+  
+  .solution-image-placeholder.tall {
+    min-height: 260px;
+  }
+  
+  .process-main-image {
+    min-height: 250px;
+  }
+
+  .step-num-circle h3 {
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  .step-heading {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .step-text {
+    font-size: 13px;
+  }
+
+  .solution-card-title {
+    font-size: 16px;
+  }
+
+  .solution-card-text {
+    font-size: 13px;
+  }
+
+  .cta-heading {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .cta-description {
+    font-size: 13px;
+  }
+
+  .team-name {
+    font-size: 16px;
+  }
+
+  .team-role {
+    font-size: 12px;
+  }
+
+  .footer-widget-title {
+    font-size: 16px;
+  }
+
+  .footer-menu a,
+  .footer-address,
+  .footer-contact-list li {
+    font-size: 13px;
+  }
+
+  .footer-copyright p {
+    font-size: 12px;
+  }
+
+  .cta-primary-btn,
+  .cta-outline-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .social-icons-group {
+    justify-content: center;
+  }
+
+  .image-placeholder {
+    min-height: 250px;
+    max-height: 320px;
+  }
+  
+  .process-main-image {
+    min-height: 220px;
+  }
+
+  .image-content-overlay {
+    padding: 24px 20px;
+  }
+
+  .image-content-overlay h3 {
+    font-size: 16px;
+  }
+
+  .team-icon-svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .solution-icon-svg {
+    font-size: 2.5rem;
+  }
+
+  .masters-image-placeholder.large {
+    min-height: 320px;
+  }
+
+  .masters-image-placeholder.medium {
+    min-height: 200px;
+  }
+}

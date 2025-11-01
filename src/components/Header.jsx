@@ -37,7 +37,7 @@ function Header({ onSignupClick, onLoginClick }) {
       <div className="header-actions">
         {!isMobile && (
           <>
-            <a href="#" className="nav-link">About Us</a>
+            <Link to="/about" className="nav-link">About Us</Link>
             <Link to="/contact-us" className="nav-link">Contact Us</Link>
             <button className="header-btn" onClick={() => { 
               if (onLoginClick) {
@@ -64,7 +64,7 @@ function Header({ onSignupClick, onLoginClick }) {
         {isMobile && (
         <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
           <div className="mobile-menu-content">
-            <a href="#" className="mobile-nav-link">About Us</a>
+            <Link to="/about" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>About Us</Link>
             <Link to="/contact-us" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</Link>
             <div className="mobile-menu-buttons">
               <button className="header-btn" onClick={() => { 

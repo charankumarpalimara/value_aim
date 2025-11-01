@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import LandingPage from "./components/LandingPage";
+import AboutUs from "./components/AboutUs";
 import ContactUs from "./components/ContactUs";
 import OTPScreen from "./components/OTPScreen";
 import FormFlow from "./components/FormFlow";
@@ -38,6 +39,7 @@ export default function App() {
           <AutoLogin>
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<AboutUs />} />
               <Route path="/contact-us" element={<ContactUs />} />
               <Route path="/login" element={<Navigate to="/" replace />} />
               <Route path="/otp" element={<OTPScreen />} />
