@@ -461,7 +461,7 @@ const ProfileTab = () => {
               style={{ maxWidth: isMobile ? '100%' : '500px' }}
             >
               <Form.Item
-                label="First Name *"
+                label="First Name"
                 name="firstName"
                 rules={[{ required: true, message: 'Please enter your first name' }]}
               >
@@ -473,7 +473,7 @@ const ProfileTab = () => {
               </Form.Item>
 
               <Form.Item
-                label="Last Name *"
+                label="Last Name"
                 name="lastName"
                 rules={[{ required: true, message: 'Please enter your last name' }]}
               >
@@ -485,7 +485,7 @@ const ProfileTab = () => {
               </Form.Item>
 
               <Form.Item
-                label="Email Address *"
+                label="Email Address"
                 name="email"
                 rules={[
                   { required: true, message: 'Please enter your email' },
@@ -563,7 +563,7 @@ const ProfileTab = () => {
             style={{ maxWidth: isMobile ? '100%' : '500px' }}
           >
             <Form.Item
-              label="Current Password *"
+              label="Current Password"
               name="currentPassword"
               rules={[{ required: true, message: 'Please enter your current password' }]}
             >
@@ -575,7 +575,7 @@ const ProfileTab = () => {
             </Form.Item>
 
             <Form.Item
-              label="New Password *"
+              label="New Password"
               name="newPassword"
               rules={[
                 { required: true, message: 'Please enter your new password' },
@@ -590,7 +590,7 @@ const ProfileTab = () => {
             </Form.Item>
 
             <Form.Item
-              label="Confirm New Password *"
+              label="Confirm New Password"
               name="confirmPassword"
               dependencies={['newPassword']}
               rules={[

@@ -251,7 +251,7 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Company Name *" 
+            label="Company Name" 
             name="companyName" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -267,7 +267,7 @@ const OrganizationDetailsTab = () => {
             />
           </Form.Item>
           <Form.Item 
-            label="Industry *" 
+            label="Industry" 
             name="industry" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -299,7 +299,7 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Website *" 
+            label="Website" 
             name="websiteName" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -321,7 +321,7 @@ const OrganizationDetailsTab = () => {
             />
           </Form.Item>
           <Form.Item 
-            label="Number of Employees *" 
+            label="Number of Employees" 
             name="employees" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -351,7 +351,7 @@ const OrganizationDetailsTab = () => {
           flexDirection: isMobile ? 'column' : 'row'
         }}>
           <Form.Item 
-            label="Country *" 
+            label="Country" 
             name="country" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
@@ -375,7 +375,7 @@ const OrganizationDetailsTab = () => {
             </Select>
           </Form.Item>
           <Form.Item 
-            label="City *" 
+            label="City" 
             name="city" 
             style={{ 
               flex: isMobile ? 'none' : 1, 
