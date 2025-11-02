@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useMediaQuery } from 'react-responsive';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
+import faviconImage from "../assets/va_fav.png";
 import "./Header.css";
 
 function Header({ onSignupClick, onLoginClick }) {
@@ -32,6 +33,7 @@ function Header({ onSignupClick, onLoginClick }) {
   return (
     <div className="header">
       <div className="logo-section" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
+        <img src={faviconImage} alt="ValueAIM" className="header-favicon" />
         <img src={logoImage} alt="Value AIM Logo" className="logo-image" />
       </div>
       <div className="header-actions">

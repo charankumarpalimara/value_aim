@@ -206,6 +206,7 @@ const ChurnPrediction = () => {
   return (
     <Box sx={{ 
       p: 3, 
+      
       backgroundColor: '#f8f9fa', 
       minHeight: '100vh',
       width: '100%',
@@ -214,7 +215,7 @@ const ChurnPrediction = () => {
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
     }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3,   px: { xs: 2, sm: 3, md: 0 }, paddingTop:'20px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Box
             sx={{
@@ -246,7 +247,7 @@ const ChurnPrediction = () => {
       </Box>
 
       {/* Stats Cards */}
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3, width: '100%', justifyContent: { xs: 'center', sm: 'flex-start' } }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3, width: '100%', justifyContent: { xs: 'center', sm: 'flex-start' } ,  px: { xs: 2, sm: 3, md: 0 }, }}>
         {statsData.map((stat, index) => (
           <Box sx={{ 
             flex: { xs: '0 0 calc(100% - 24px)', sm: '0 0 calc(50% - 12px)', md: '0 0 calc(25% - 18px)' },

@@ -15,12 +15,20 @@
 .logo-section {
   display: flex;
   align-items: center;
+  gap: 10px;
   cursor: pointer;
   transition: opacity 0.2s;
 }
 
 .logo-section:hover {
   opacity: 0.8;
+}
+
+.header-favicon {
+  display: none;
+  height: 36px;
+  width: 36px;
+  object-fit: contain;
 }
 
 .logo-image {
@@ -169,6 +177,11 @@
   .header {
     padding: 14px 20px;
   }
+
+  .header-favicon {
+    height: 38px;
+    width: 38px;
+  }
   
   .logo-image {
     height: 65px;
@@ -216,6 +229,16 @@
   .mobile-menu-toggle {
     display: flex;
   }
+
+  .header-favicon {
+    display: block !important;
+    height: 36px;
+    width: 36px;
+  }
+
+  .logo-image {
+    display: none !important;
+  }
   
 .mobile-menu-buttons .header-btn {
   display: block;
@@ -243,13 +266,9 @@
   color: #fff;
 }
 
-.mobile-menu-buttons .header-btn.primary:hover {
-  background-color: #15143a;
-  border-color: #15143a;
-}
-
-  .logo-image {
-    height: 60px;
+  .mobile-menu-buttons .header-btn.primary:hover {
+    background-color: #15143a;
+    border-color: #15143a;
   }
 
   .mobile-menu-content {
@@ -268,8 +287,13 @@
     background: #E5E5E5;
   }
 
+  .header-favicon {
+    height: 34px;
+    width: 34px;
+  }
+
   .logo-image {
-    height: 50px;
+    display: none !important;
   }
 
   .mobile-menu {

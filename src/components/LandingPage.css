@@ -353,23 +353,23 @@
   }
 
   .input-section {
-    padding: 10px;
+    padding: 6px;
   }
 
   .main-input {
     font-size: 13px;
-    padding: 10px 14px;
-    min-height: 40px;
+    padding: 8px 20px;
+    min-height: 36px;
   }
 
   .single-row .main-input {
-    padding: 10px 14px;
-    min-height: 40px;
+    padding: 8px 20px;
+    min-height: 36px;
   }
 
   .input-btn {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
   }
 
   .input-btn svg {
@@ -379,6 +379,7 @@
 
   .input-actions {
     gap: 6px;
+    padding: 6px;
   }
 
   /* Menu on mobile - keep on right */
@@ -426,18 +427,18 @@
   }
 
   .input-section {
-    padding: 8px;
+    padding: 5px;
   }
 
   .main-input {
     font-size: 13px;
-    padding: 8px 12px;
-    min-height: 36px;
+    padding: 8px 14px;
+    min-height: 34px;
   }
 
   .single-row .main-input {
-    padding: 8px 12px;
-    min-height: 36px;
+    padding: 8px 14px;
+    min-height: 34px;
   }
 
   .input-btn {
@@ -446,12 +447,13 @@
   }
 
   .input-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
 
   .input-actions {
     gap: 5px;
+    padding: 5px;
   }
 
   .selected-tag {
@@ -491,18 +493,18 @@
   }
 
   .input-section {
-    padding: 6px;
+    padding: 4px;
     border-radius: 12px;
   }
 
   .main-input {
     font-size: 12px;
-    padding: 7px 10px;
+    padding: 7px 12px;
     min-height: 32px;
   }
 
   .single-row .main-input {
-    padding: 7px 10px;
+    padding: 7px 12px;
     min-height: 32px;
   }
 
@@ -512,12 +514,13 @@
   }
 
   .input-btn svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
 
   .input-actions {
     gap: 4px;
+    padding: 4px;
   }
 
   .selected-tag {

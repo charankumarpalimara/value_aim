@@ -4,7 +4,8 @@ import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
 import { Modal, message } from 'antd';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
-import valueAimImage from "../assets/value_aim_icon_transparent.png"
+import valueAimImage from "../assets/value_aim_icon_transparent.png";
+import faviconImage from "../assets/va_fav.png";
 import "./ResultsPage.css";
 import "./ResultsPage-tabs.css";
 import JourneyMatrixTab from "./tabs/JourneyMatrixTab";
@@ -327,7 +328,7 @@ function ResultsPage() {
 
       setMenuPosition(position);
     }
-  }, [showPlusMenu]);
+  }, [showPlusMenu, isMobile]);
 
   // Close plus menu and profile menu when clicking outside
   useEffect(() => {
@@ -396,7 +397,10 @@ function ResultsPage() {
           </svg>
           Back
         </button> */}
-        <img src={logoImage} alt="Logo" className="header-logo" />
+        <div className="header-logo-container" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
+          <img src={faviconImage} alt="ValueAIM" className="header-favicon" />
+          <img src={logoImage} alt="Logo" className="header-logo" />
+        </div>
         <button className="menu-btn" onClick={toggleSidebar} aria-label="Toggle menu">
           <span></span>
           <span></span>
@@ -768,9 +772,9 @@ function ResultsPage() {
             {!activeSidebarOption && (
               <div className="default-content">
                 <h1 className="welcome-title">Research your Customer</h1>
-                <p className="welcome-subtitle" style={{ fontStyle: 'italic' }}>
+                <div className="welcome-subtitle" style={{ fontStyle: 'italic' }}>
                 Great Sales start here with Customer Insights.
-                </p>
+                </div>
                 {/* <div className="welcome-features">
                   <div className="feature-card">
                     <div className="feature-icon">
