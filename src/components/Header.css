@@ -4,11 +4,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
+  padding: 14px 40px;
   background: #E5E5E5;
   flex-shrink: 0;
   position: relative;
-  min-height: 80px;
+  min-height: 65px;
   box-sizing: border-box;
 }
 
@@ -32,7 +32,7 @@
 }
 
 .logo-image {
-  height: 80px;
+  height: 60px;
   width: auto;
   object-fit: contain;
 }
@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 20px;
+  padding: 14px 20px;
 }
 
 .mobile-menu-toggle {
@@ -175,7 +175,7 @@
 
 @media (max-width: 850px) {
   .header {
-    padding: 14px 20px;
+    padding: 12px 20px;
   }
 
   .header-favicon {
@@ -184,12 +184,12 @@
   }
   
   .logo-image {
-    height: 65px;
+    height: 55px;
   }
   
   .header-actions {
     gap: 16px;
-    padding: 20px;
+    padding: 14px 16px;
   }
   
   .nav-link {
@@ -215,7 +215,7 @@
 
   .header-actions {
     gap: 8px;
-    padding: 20px;
+    padding: 14px 16px;
   }
 
   .nav-link {
@@ -236,7 +236,7 @@
 
   .logo-image {
     display: block !important;
-    height: 65px;
+    height: 55px;
   }
   
 .mobile-menu-buttons .header-btn {
@@ -292,7 +292,7 @@
 
   .logo-image {
     display: block !important;
-    height: 60px;
+    height: 50px;
   }
 
   .mobile-menu {
