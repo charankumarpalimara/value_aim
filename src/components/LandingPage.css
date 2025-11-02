@@ -329,7 +329,7 @@
 
 @media (max-width: 768px) {
   .landing-page {
-    padding-top: 84px;
+    padding-top: 70px;
   }
 
   .landing-content {
@@ -403,7 +403,7 @@
 
 @media (max-width: 480px) {
   .landing-page {
-    padding-top: 70px;
+    padding-top: 60px;
   }
 
   .landing-content {

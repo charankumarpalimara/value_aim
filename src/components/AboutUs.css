@@ -1009,7 +1009,7 @@
 /* Tablets */
 @media (max-width: 768px) {
   .about-hero-section {
-    padding: 140px 32px 60px;
+    padding: 100px 32px 60px;
     margin-top: 0;
   }
 
@@ -1125,7 +1125,7 @@
 /* Mobile */
 @media (max-width: 480px) {
   .about-hero-section {
-    padding: 120px 24px 40px;
+    padding: 90px 24px 40px;
     margin-top: 0;
   }
 
