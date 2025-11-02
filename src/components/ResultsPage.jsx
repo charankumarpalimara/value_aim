@@ -5,7 +5,7 @@ import { useMediaQuery } from 'react-responsive';
 import { Modal, message } from 'antd';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import valueAimImage from "../assets/value_aim_icon_transparent.png";
-import faviconImage from "../assets/va_fav.png";
+// import faviconImage from "../assets/va_fav.png";
 import "./ResultsPage.css";
 import "./ResultsPage-tabs.css";
 import JourneyMatrixTab from "./tabs/JourneyMatrixTab";
@@ -398,7 +398,7 @@ function ResultsPage() {
           Back
         </button> */}
         <div className="header-logo-container" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-          <img src={faviconImage} alt="ValueAIM" className="header-favicon" />
+          {/* <img src={faviconImage} alt="ValueAIM" className="header-favicon" /> */}
           <img src={logoImage} alt="Logo" className="header-logo" />
         </div>
         <button className="menu-btn" onClick={toggleSidebar} aria-label="Toggle menu">

@@ -231,13 +231,12 @@
   }
 
   .header-favicon {
-    display: block !important;
-    height: 36px;
-    width: 36px;
+    display: none !important;
   }
 
   .logo-image {
-    display: none !important;
+    display: block !important;
+    height: 65px;
   }
   
 .mobile-menu-buttons .header-btn {
@@ -288,12 +287,12 @@
   }
 
   .header-favicon {
-    height: 34px;
-    width: 34px;
+    display: none !important;
   }
 
   .logo-image {
-    display: none !important;
+    display: block !important;
+    height: 60px;
   }
 
   .mobile-menu {

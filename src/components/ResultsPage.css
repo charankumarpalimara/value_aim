@@ -839,13 +839,12 @@ html, body {
   }
 
   .header-favicon {
-    display: block !important;
-    height: 36px;
-    width: 36px;
+    display: none !important;
   }
 
   .header-logo {
-    display: none !important;
+    display: block !important;
+    height: 40px;
   }
 
   .collapse-btn-desktop {
@@ -1072,12 +1071,12 @@ html, body {
   }
 
   .header-favicon {
-    height: 34px;
-    width: 34px;
+    display: none !important;
   }
 
   .header-logo {
-    display: none !important;
+    display: block !important;
+    height: 38px;
   }
 
   .page-title {
@@ -1559,12 +1558,12 @@ html, body {
   }
 
   .header-favicon {
-    height: 32px;
-    width: 32px;
+    display: none !important;
   }
 
   .header-logo {
-    display: none !important;
+    display: block !important;
+    height: 36px;
   }
 
   .page-title {
