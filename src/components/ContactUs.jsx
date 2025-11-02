@@ -210,7 +210,7 @@ function ContactUs() {
                 </div>
                 <div className="contact-details">
                   <div className="contact-label">Our Email</div>
-                  <div className="contact-value">Info@Alantur.ai</div>
+                  <div className="contact-value">info@valueaim.com</div>
                 </div>
               </div>
             </div>

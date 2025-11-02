@@ -6,11 +6,9 @@ import LoginModal from "./LoginModal";
 import "./AboutUs.css";
 
 // High-quality professional images from Unsplash - AI/Data Analytics themed
-const heroImage = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&h=600&fit=crop&q=90"; // Analytics dashboard
 const aiAnalyticsImage = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=85"; // Data visualization
 const predictiveImage = "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=600&h=500&fit=crop&q=85"; // AI technology concept
 const platformDashboard = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&h=800&fit=crop&q=85"; // Business analytics screen
-const analyticsOverview = "https://images.unsplash.com/photo-1551434678-e076c223a692?w=700&h=650&fit=crop&q=85"; // Team collaboration with data
 const dataInsights = "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=700&h=400&fit=crop&q=85"; // Professional team meeting
 
 function AboutUs() {
@@ -27,7 +25,7 @@ function AboutUs() {
 
       <div className="about-content">
         
-        {/* Hero Section - matching "Infinity Studio: Crafting Digital Futures" */}
+        {/* Hero Section */}
         <section className="about-hero-section">
           <div className="hero-decorator hero-decorator-left">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -43,19 +41,7 @@ function AboutUs() {
           </div>
         </section>
 
-        {/* Hero Image Section */}
-        <section className="about-image-section">
-          <div className="about-hero-image">
-            <div className="image-placeholder">
-              <img src={heroImage} alt="Where Data Meets Account Growth" className="hero-image" />
-              <div className="image-content-overlay">
-                <h3>Where Data Meets Account Growth</h3>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Two Column Solutions Section - matching "From MVP to Enterprise" */}
+        {/* Two Column Solutions Section */}
         <section className="about-two-column-section">
           <div className="two-column-container">
             <div className="two-column-header">
@@ -73,7 +59,7 @@ function AboutUs() {
                   </div>
                   <h4 className="solution-card-title">AI-Driven Customer Understanding</h4>
                   <p className="solution-card-text">
-                    ValueAIM consolidates public data, market signals, and third-party research to create a 360° view of every potential customer. The platform continuously learns from patterns in buying behavior, company growth trends, and digital footprints.
+                    ValueAIM consolidates public data, market signals, and third-party research to create a 360° view of every potential customer. The platform continuously learns from patterns in buying behavior, company growth trends, and digital footprints — identifying who's ready to buy, when, and why.
                   </p>
                 </div>
               </div>
@@ -111,7 +97,7 @@ function AboutUs() {
           </div>
         </section>
 
-        {/* Process Section with Image - matching "Crafting Excellence with Defined Process" */}
+        {/* Process Section with Image */}
         <section className="about-process-section">
           <div className="process-container">
             <div className="process-header-row">
@@ -165,21 +151,7 @@ function AboutUs() {
                     <div className="step-text-wrap">
                       <h4 className="step-heading">Action Dashboard</h4>
                       <p className="step-text">
-                        Provides a unified interface for sales teams – including lead scoring, account alerts, engagement recommendations, and performance tracking.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="process-step-item">
-                  <div className="step-number-wrap">
-                    <div className="step-num-circle">
-                      <h3>4</h3>
-                    </div>
-                    <div className="step-text-wrap">
-                      <h4 className="step-heading">Performance Evaluation</h4>
-                      <p className="step-text">
-                        After implementation, we continuously monitor and optimize the system's impact on your sales pipeline and revenue outcomes.
+                        Provides a unified interface for sales teams — including lead scoring, account alerts, engagement recommendations, and performance tracking.
                       </p>
                     </div>
                   </div>
@@ -189,44 +161,27 @@ function AboutUs() {
           </div>
         </section>
 
-        {/* Masters Section - matching "Masters of Our Craft" */}
+        {/* Masters Section - Powered by Advanced AI Technology */}
         <section className="about-masters-section">
           <div className="masters-container">
-            <div className="masters-text-content">
-              <h2 className="section-heading">Powered by Advanced AI Technology</h2>
-              <p className="masters-description">
-                ValueAIM is an AI-powered B2B sales intelligence platform that empowers account managers, client partners, and business leaders to identify, prioritize, and close high-value opportunities faster. It integrates real-time market intelligence, customer intent data, and AI-driven insights to help teams make smarter, faster, and more confident sales decisions.
-              </p>
-            </div>
-            
             <div className="masters-visual-grid">
-              <div className="masters-image-col">
-                <div className="masters-image-placeholder large">
-                  <img src={analyticsOverview} alt="Analytics Dashboard Overview" className="masters-image" />
-                </div>
+              <div className="masters-text-content">
+                <h2 className="section-heading">Powered by Advanced AI Technology</h2>
+                <p className="masters-description">
+                  ValueAIM is an AI-powered B2B sales intelligence platform that empowers account managers, client partners, and business leaders to identify, prioritize, and close high-value opportunities faster. It integrates real-time market intelligence, customer intent data, and AI-driven insights to help teams make smarter, faster, and more confident sales decisions.
+                </p>
               </div>
 
-              <div className="masters-right-col">
+              <div className="masters-image-col">
                 <div className="masters-image-placeholder medium">
                   <img src={dataInsights} alt="Data Insights and Collaboration" className="masters-image" />
                 </div>
-
-                <div className="experts-badge-section">
-                  <div className="icon-badges">
-                    <span className="badge-icon">💡</span>
-                    <span className="badge-icon">⚡</span>
-                    <span className="badge-icon">📊</span>
-                  </div>
-                  <div className="experts-text-badge">
-                    <h4>AI-Powered<br/>Intelligence</h4>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Team/Features Section - matching "Meet the Innovators" with 4 cards */}
+        {/* What ValueAIM Does Section - 4 Cards */}
         <section className="about-team-section">
           <div className="team-container">
             <h2 className="section-heading">What ValueAIM Does</h2>
@@ -243,15 +198,8 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">Intelligent Account Insights</h4>
-                    <p className="team-role">Deep Intelligence</p>
+                    <p className="team-role">The system surfaces deep account intelligence — from leadership changes to technology adoption and industry shifts — helping sales teams tailor their approach and engage in meaningful, data-backed conversations with clients.</p>
                   </div>
-                  {/* <div className="team-social">
-                    <a href="#" className="social-link">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16">
-                        <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
-                      </svg>
-                    </a>
-                  </div> */}
                 </div>
               </div>
 
@@ -266,15 +214,8 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">Smart Sales Enablement</h4>
-                    <p className="team-role">AI Co-Pilot</p>
+                    <p className="team-role">Through integrated AI recommendations, ValueAIM suggests personalized pitches, content, and outreach timing. It acts as a co-pilot for client partners, turning data into actionable engagement strategies.</p>
                   </div>
-                  {/* <div className="team-social">
-                    <a href="#" className="social-link">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16">
-                        <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
-                      </svg>
-                    </a>
-                  </div> */}
                 </div>
               </div>
 
@@ -289,15 +230,8 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">Business Impact</h4>
-                    <p className="team-role">Measurable Results</p>
+                    <p className="team-role">ValueAIM replaces guesswork with guided precision — ensuring every customer interaction delivers measurable value and drives tangible results for your sales organization.</p>
                   </div>
-                  {/* <div className="team-social">
-                    <a href="#" className="social-link">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16">
-                        <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
-                      </svg>
-                    </a>
-                  </div> */}
                 </div>
               </div>
 
@@ -312,23 +246,84 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">For Sales Leaders</h4>
-                    <p className="team-role">Built for Teams</p>
+                    <p className="team-role">Gain real-time visibility into account health, pipeline efficiency, and forecast accuracy — empowering data-driven decisions at every level of your organization.</p>
                   </div>
-                  {/* <div className="team-social">
-                    <a href="#" className="social-link">
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="16" height="16">
-                        <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/>
-                      </svg>
-                    </a>
-                  </div> */}
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CTA Section - matching "Ready to Elevate Your Brand?" */}
-        <section className="about-cta-section">
+        {/* Business Impact Metrics Section */}
+        <section className="about-metrics-section">
+          <div className="metrics-container">
+            <h2 className="section-heading">Business Impact</h2>
+            <div className="metrics-grid">
+              <div className="metric-card">
+                <div className="metric-value">30-40%</div>
+                <div className="metric-label">Increase in qualified opportunity pipeline</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-value">50%</div>
+                <div className="metric-label">Faster deal conversion cycles</div>
+              </div>
+              <div className="metric-card">
+                <div className="metric-value">25%</div>
+                <div className="metric-label">Improvement in client engagement outcomes</div>
+              </div>
+            </div>
+            <p className="metrics-description">
+              ValueAIM replaces guesswork with guided precision — ensuring every customer interaction delivers measurable value.
+            </p>
+          </div>
+        </section>
+
+        {/* Who It's For Section */}
+        <section className="about-who-section">
+          <div className="who-container">
+            <h2 className="section-heading">Who It's For</h2>
+            <div className="who-grid">
+              <div className="who-card">
+                <div className="who-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                  </svg>
+                </div>
+                <h3 className="who-title">Client Partners & Account Managers</h3>
+                <p className="who-description">
+                  Identify cross-sell and upsell opportunities across existing accounts by understanding the real buying intent signals
+                </p>
+              </div>
+              <div className="who-card">
+                <div className="who-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                  </svg>
+                </div>
+                <h3 className="who-title">CXOs & Sales Leaders</h3>
+                <p className="who-description">
+                  Gain real-time visibility into account health, pipeline efficiency, and forecast accuracy
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Where Data Meets Account Growth - Final CTA Section */}
+        <section className="about-final-cta-section">
+          <div className="final-cta-container">
+            <h2 className="final-cta-heading">Where Data Meets Account Growth</h2>
+            <p className="final-cta-description">
+              With ValueAIM, enterprises move beyond traditional sales methods — transforming insights into action and relationships into revenue.
+            </p>
+            <button className="final-cta-button" onClick={() => navigate('/')}>
+              Get Started
+            </button>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        {/* <section className="about-cta-section">
           <div className="cta-container">
             <div className="cta-content-wrapper">
               <div className="cta-text-content">
@@ -367,10 +362,10 @@ function AboutUs() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Footer Section */}
-        <footer className="about-footer-section">
+        {/* <footer className="about-footer-section">
           <div className="footer-container">
             <div className="footer-widgets">
               <div className="footer-widget footer-services">
@@ -419,7 +414,7 @@ function AboutUs() {
               </div>
             </div>
           </div>
-        </footer>
+        </footer> */}
 
       </div>
 
