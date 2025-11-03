@@ -84,7 +84,7 @@
 .about-hero-section {
   position: relative;
   padding: 120px 40px 100px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #201F47 0%, #15143a 100%);
   text-align: center;
   overflow: hidden;
   margin-top: 0;
@@ -119,28 +119,29 @@
 }
 
 .hero-main-title {
-  font-size: 48px;
+  font-size: 52px;
   font-weight: 700;
-  color: #ffffff;
-  margin: 0 auto 28px;
+  color: #ffffff !important;
+  margin: 0 auto 48px;
   text-align: center;
   max-width: 1000px;
   width: 100%;
-  line-height: 1.15em;
+  line-height: 1.15;
   letter-spacing: -0.02em;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .hero-subtitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 400;
-  color: #ffffff;
-  opacity: 0.95;
+  color: #ffffff !important;
+  opacity: 0.98;
   text-align: center;
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
-  line-height: 1.5;
+  line-height: 1.6;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -450,7 +451,7 @@
 .step-num-circle h3 {
   font-size: 48px;
   font-weight: 700;
-  color: #667eea;
+  color: #201F47;
   margin: 0;
   line-height: 1;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -637,7 +638,7 @@
 .team-image-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #201F47 0%, #15143a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -762,10 +763,6 @@
   color: #201F47;
   margin-bottom: 16px;
   line-height: 1.1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .metric-label {
@@ -823,7 +820,7 @@
 .who-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #201F47 0%, #15143a 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -856,7 +853,7 @@
 /* ===== Final CTA Section - Where Data Meets Account Growth ===== */
 .about-final-cta-section {
   padding: 120px 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #201F47 0%, #15143a 100%);
   position: relative;
   overflow: hidden;
 }
@@ -890,7 +887,7 @@
 .final-cta-heading {
   font-size: 52px;
   font-weight: 700;
-  color: #ffffff;
+  color: #ffffff !important;
   margin: 0 0 48px 0;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -899,10 +896,11 @@
 
 .final-cta-description {
   font-size: 22px;
-  color: #ffffff;
+  color: #ffffff !important;
   opacity: 0.98;
   line-height: 1.6;
   margin: 0 0 72px 0;
+  margin-top: 10px;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
@@ -910,11 +908,12 @@
 }
 
 .final-cta-button {
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  color: #667eea;
+  background: #ffffff;
+  color: #201F47;
   font-size: 16px;
   font-weight: 700;
   padding: 14px 40px;
+  margin-top: 10px;
   border: none;
   border-radius: 50px;
   cursor: pointer;
@@ -927,11 +926,35 @@
 .final-cta-button:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
-  background: #ffffff;
+  background: #f5f5f5;
 }
 
 .final-cta-button:active {
   transform: translateY(-1px);
+}
+
+.final-cta-decorator {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.final-cta-decorator svg {
+  fill: #ffffff;
+  width: 100%;
+  height: 100%;
+}
+
+.final-cta-decorator-left {
+  top: 60px;
+  left: 10%;
+}
+
+.final-cta-decorator-right {
+  bottom: 60px;
+  right: 10%;
 }
 
 /* ===== CTA Section ===== */
@@ -1223,7 +1246,7 @@
 /* Tablets */
 @media (max-width: 768px) {
   .about-hero-section {
-    padding: 100px 32px 60px;
+    padding: 120px 32px 100px;
     margin-top: 0;
   }
 
@@ -1241,12 +1264,13 @@
   }
 
   .hero-main-title {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 700;
+    margin-bottom: 36px;
   }
 
   .hero-subtitle {
-    font-size: 16px;
+    font-size: 18px;
   }
 
   .hero-decorator {
@@ -1309,6 +1333,11 @@
   .final-cta-button {
     font-size: 15px;
     padding: 13px 36px;
+  }
+
+  .final-cta-decorator {
+    width: 60px;
+    height: 60px;
   }
 
   .about-two-column-section,
@@ -1397,7 +1426,7 @@
 /* Mobile */
 @media (max-width: 480px) {
   .about-hero-section {
-    padding: 90px 24px 40px;
+    padding: 100px 24px 80px;
     margin-top: 0;
   }
 
@@ -1449,12 +1478,13 @@
   }
 
   .hero-main-title {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
+    margin-bottom: 32px;
   }
 
   .hero-subtitle {
-    font-size: 15px;
+    font-size: 17px;
   }
 
   .hero-decorator {
@@ -1526,6 +1556,10 @@
   .final-cta-button {
     font-size: 14px;
     padding: 12px 32px;
+  }
+
+  .final-cta-decorator {
+    display: none;
   }
 
   .about-two-column-section,

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import SignupModal from "./SignupModal";
 import LoginModal from "./LoginModal";
@@ -12,7 +11,6 @@ const platformDashboard = "https://images.unsplash.com/photo-1460925895917-afdab
 const dataInsights = "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=700&h=400&fit=crop&q=85"; // Professional team meeting
 
 function AboutUs() {
-  const navigate = useNavigate();
   const [showSignupModal, setShowSignupModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -102,7 +100,7 @@ function AboutUs() {
           <div className="process-container">
             <div className="process-header-row">
               <h2 className="section-heading">How ValueAIM Works</h2>
-              <button className="cta-outline-btn" onClick={() => navigate('/')}>
+              <button className="cta-outline-btn" onClick={() => setShowLoginModal(true)}>
                 Start Your Journey
               </button>
             </div>
@@ -311,14 +309,24 @@ function AboutUs() {
 
         {/* Where Data Meets Account Growth - Final CTA Section */}
         <section className="about-final-cta-section">
+          <div className="final-cta-decorator final-cta-decorator-left">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <path d="m256 16c-10.7 220.5-19.5 229.3-240 240 220.5 10.7 229.3 19.5 240 240 10.7-220.5 19.5-229.3 240-240-220.5-10.7-229.3-19.5-240-240z"/>
+            </svg>
+          </div>
           <div className="final-cta-container">
             <h2 className="final-cta-heading">Where Data Meets Account Growth</h2>
             <p className="final-cta-description">
               With ValueAIM, enterprises move beyond traditional sales methods — transforming insights into action and relationships into revenue.
             </p>
-            <button className="final-cta-button" onClick={() => navigate('/')}>
+            <button className="final-cta-button" onClick={() => setShowLoginModal(true)}>
               Get Started
             </button>
+          </div>
+          <div className="final-cta-decorator final-cta-decorator-right">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+              <path d="m256 16c-10.7 220.5-19.5 229.3-240 240 220.5 10.7 229.3 19.5 240 240 10.7-220.5 19.5-229.3 240-240-220.5-10.7-229.3-19.5-240-240z"/>
+            </svg>
           </div>
         </section>
 
