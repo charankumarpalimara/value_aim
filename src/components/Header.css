@@ -110,6 +110,7 @@
   padding: 12px 8px;
   display: block;
   transition: background-color 0.2s;
+  text-align: center;
 }
 
 .mobile-nav-link:hover {
