@@ -22,6 +22,12 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Enhanced scroll effect for logout-only mode */
+.header.logout-only.scrolled {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 .logo-section {
   display: flex;
   align-items: center;
@@ -215,18 +221,21 @@
 
 @media (max-width: 768px) {
   .header {
-    padding: 10px 16px;
+    padding: 6px 12px; /* Reduced to match ResultsPage */
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     background: #E5E5E5;
+    min-height: 60px; /* Set to 60px */
+    height: 60px;
+    box-sizing: border-box;
   }
 
   .header-actions {
     gap: 8px;
-    padding: 10px 16px;
+    padding: 0; /* Removed padding */
   }
 
   .nav-link {
@@ -235,6 +244,16 @@
 
   .header-actions .header-btn {
     display: none;
+  }
+  
+  /* Show logout button when in logout-only mode */
+  .header.logout-only .header-actions .header-btn {
+    display: block !important;
+  }
+  
+  /* Hide mobile menu toggle when in logout-only mode */
+  .header.logout-only .mobile-menu-toggle {
+    display: none !important;
   }
 
   .mobile-menu-toggle {
@@ -247,7 +266,7 @@
 
   .logo-image {
     display: block !important;
-    height: 52px;
+    height: 60px; /* Match ResultsPage mobile */
   }
   
 .mobile-menu-buttons .header-btn {
@@ -288,13 +307,16 @@
 
 @media (max-width: 480px) {
   .header {
-    padding: 8px 12px;
+    padding: 5px 10px; /* Reduced to match ResultsPage */
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
     background: #E5E5E5;
+    min-height: 60px; /* Set to 60px */
+    height: 60px;
+    box-sizing: border-box;
   }
 
   .header-favicon {
@@ -303,7 +325,7 @@
 
   .logo-image {
     display: block !important;
-    height: 48px;
+    height: 70px; /* Match ResultsPage small mobile */
   }
 
   .mobile-menu {

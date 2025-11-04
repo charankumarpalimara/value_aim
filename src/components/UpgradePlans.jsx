@@ -4,6 +4,7 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
 import toast, { Toaster } from 'react-hot-toast';
+import logoImage from '../assets/Amplify-Value-as-subtitle-3.png';
 import './UpgradePlans.css';
 
 const UpgradePlans = () => {
@@ -64,44 +65,45 @@ const UpgradePlans = () => {
     }
   ];
 
-  const businessPlans = [
-    {
-      name: 'Business Team',
-      price: '$299',
-      period: 'per month',
-      description: 'For small to medium teams',
-      features: [
-        'Everything in Enterprise',
-        'Up to 10 team members',
-        'Shared workspaces',
-        'Team collaboration',
-        'Team analytics',
-        'Role-based permissions',
-        'Priority support'
-      ],
-      buttonText: 'Contact Sales',
-      buttonDisabled: false,
-      highlighted: true
-    },
-    {
-      name: 'Business Enterprise',
-      price: 'Custom',
-      period: 'Contact us',
-      description: 'For large organizations',
-      features: [
-        'Everything in Business Team',
-        'Unlimited team members',
-        'Custom AI training',
-        'White-label solution',
-        'SSO/SAML integration',
-        'SLA guarantee (99.9%)',
-        'Dedicated success team'
-      ],
-      buttonText: 'Contact Sales',
-      buttonDisabled: false,
-      highlighted: false
-    }
-  ];
+  // Commented out - not currently used
+  // const businessPlans = [
+  //   {
+  //     name: 'Business Team',
+  //     price: '$299',
+  //     period: 'per month',
+  //     description: 'For small to medium teams',
+  //     features: [
+  //       'Everything in Enterprise',
+  //       'Up to 10 team members',
+  //       'Shared workspaces',
+  //       'Team collaboration',
+  //       'Team analytics',
+  //       'Role-based permissions',
+  //       'Priority support'
+  //     ],
+  //     buttonText: 'Contact Sales',
+  //     buttonDisabled: false,
+  //     highlighted: true
+  //   },
+  //   {
+  //     name: 'Business Enterprise',
+  //     price: 'Custom',
+  //     period: 'Contact us',
+  //     description: 'For large organizations',
+  //     features: [
+  //       'Everything in Business Team',
+  //       'Unlimited team members',
+  //       'Custom AI training',
+  //       'White-label solution',
+  //       'SSO/SAML integration',
+  //       'SLA guarantee (99.9%)',
+  //       'Dedicated success team'
+  //     ],
+  //     buttonText: 'Contact Sales',
+  //     buttonDisabled: false,
+  //     highlighted: false
+  //   }
+  // ];
 
   const handleUpgrade = (planName) => {
     if (planName === 'Professional' || planName === 'Enterprise') {
@@ -112,6 +114,19 @@ const UpgradePlans = () => {
       toast('Our sales team will contact you shortly.', {
         icon: 'ℹ️',
       });
+    }
+  };
+
+  const handleLogoClick = () => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    // If logged in, navigate to results page, otherwise to landing page
+    if (token && user) {
+      navigate('/results');
+    } else {
+      navigate('/');
     }
   };
 
@@ -156,21 +171,29 @@ const UpgradePlans = () => {
         }}
       />
       <div className="upgrade-plans-page">
-        {/* Header with Back Button */}
-        <div className="upgrade-header">
-        <button className="back-button" onClick={() => navigate(-1)}>
-          <ArrowLeftOutlined style={{ fontSize: '18px' }} />
-        </button>
-        <div className="upgrade-header-content">
-          <h1 className="upgrade-title">Choose Your Plan</h1>
-          <p className="upgrade-subtitle">Pricing in USD • Inclusive of all taxes</p>
+        {/* Logo Section */}
+        <div className="upgrade-logo-header">
+          <img 
+            src={logoImage} 
+            alt="Value AIM Logo" 
+            className="upgrade-logo" 
+            onClick={handleLogoClick}
+            style={{ cursor: 'pointer' }}
+          />
         </div>
-      </div>
 
-      {/* Personal Plans */}
-      <div className="plans-container">
-        {/* <h2 className="category-title">Personal</h2> */}
-        <div className={`plans-grid ${isMobile ? 'mobile' : ''}`}>
+      {/* Page Content */}
+      <div className="plans-content">
+        {/* Page Title */}
+        <div className="plans-title-section">
+          <h1 className="plans-main-title">Choose Your Plan</h1>
+          <p className="plans-main-subtitle">Pricing in USD • Inclusive of all taxes</p>
+        </div>
+
+        {/* Personal Plans */}
+        <div className="plans-container">
+          {/* <h2 className="category-title">Personal</h2> */}
+          <div className={`plans-grid ${isMobile ? 'mobile' : ''}`}>
           {personalPlans.map((plan, index) => (
             <div
               key={index}
@@ -209,6 +232,7 @@ const UpgradePlans = () => {
               </Button>
             </div>
           ))}
+          </div>
         </div>
       </div>
 

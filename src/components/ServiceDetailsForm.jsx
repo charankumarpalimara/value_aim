@@ -5,8 +5,8 @@ import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutline
 import { useMediaQuery } from 'react-responsive';
 import toast, { Toaster } from 'react-hot-toast';
 import { serviceAPI } from '../utils/api';
+import Header from './Header';
 import './ServiceDetailsForm.css';
-import logo from '../assets/Amplify-Value-as-subtitle-3.png';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -703,11 +703,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       />
       <div className="service-details-page">
         {/* Header */}
-        <div className="service-header">
-        <div className="service-logo-section">
-          <img src={logo} alt="Logo" className="service-logo-image" />
-        </div>
-      </div>
+        <Header showOnlyLogout={true} disableLogoNavigation={true} />
 
       <div className="service-details-container">
         <div className="service-details-header">

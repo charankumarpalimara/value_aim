@@ -100,10 +100,62 @@ function CompanyDetailsPage({ onNext }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
   
   const countryRef = useRef(null);
   const cityRef = useRef(null);
   const industryRef = useRef(null);
+
+  // Load existing company data on mount
+  useEffect(() => {
+    const loadCompanyData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await companyAPI.get();
+        
+        if (response.success && response.data) {
+          const company = response.data;
+          
+          // Populate form with existing data
+          setFormData({
+            companyName: company.companyName || '',
+            industry: company.industry || '',
+            website: company.website || '',
+            country: company.country || '',
+            city: company.city || '',
+            employees: company.employees || ''
+          });
+
+          // Set search fields
+          setIndustrySearch(company.industry || '');
+          setCountrySearch(company.country || '');
+          setCitySearch(company.city || '');
+
+          // Set available cities if country exists
+          if (company.country && countriesWithCities[company.country]) {
+            setAvailableCities(countriesWithCities[company.country]);
+          }
+
+          // Mark as updating mode
+          setIsUpdating(true);
+          
+          console.log('Loaded existing company data:', company);
+        }
+      } catch (error) {
+        console.error('Error loading company data:', error);
+        // If no data exists, that's fine - user will create new
+        if (error.response?.status !== 404) {
+          toast.error('Failed to load company data');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCompanyData();
+  }, []);
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -271,7 +323,7 @@ function CompanyDetailsPage({ onNext }) {
       
       if (response.success) {
         console.log('Company details saved successfully:', response.data);
-        toast.success('Company details saved successfully!');
+        toast.success(isUpdating ? 'Company details updated successfully!' : 'Company details saved successfully!');
         
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
@@ -351,13 +403,21 @@ function CompanyDetailsPage({ onNext }) {
         }}
       />
       <div className="company-page">
-        <Header />
+        <Header showOnlyLogout={true} disableLogoNavigation={true} />
       
       <div className="company-content">
         <div className="company-card">
           <h2 className="company-title">Company Details</h2>
-          <p className="company-subtitle"> fill in your company information below.</p>
+          <p className="company-subtitle">{isUpdating ? 'Update your company information below.' : 'Fill in your company information below.'}</p>
           
+          {isLoading && (
+            <div style={{ textAlign: 'center', padding: '40px 0' }}>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>Loading company details...</div>
+            </div>
+          )}
+          
+          {!isLoading && (
+          <>
           {/* <div className="company-icons-section">
             <p className="icons-label">Trusted by leading companies:</p>
             <div className="company-icons">
@@ -599,14 +659,16 @@ function CompanyDetailsPage({ onNext }) {
               style={{ flex: 1, opacity: isSubmitting ? 0.6 : 1 }}
               onClick={() => setIsConfirmModalVisible(true)}
             >
-              {isSubmitting ? 'Saving...' : 'Continue'}
+              {isSubmitting ? (isUpdating ? 'Updating...' : 'Saving...') : (isUpdating ? 'Update & Continue' : 'Continue')}
             </button>
           </div>
+          </>
+          )}
         </div>
 
         {/* Confirmation Modal */}
         <Modal
-          title="Save Company Details"
+          title={isUpdating ? "Update Company Details" : "Save Company Details"}
           open={isConfirmModalVisible}
           onOk={() => {
             setIsConfirmModalVisible(false);
@@ -617,7 +679,7 @@ function CompanyDetailsPage({ onNext }) {
           cancelText="No"
           centered
         >
-          <p>Are you sure you want to save and continue?</p>
+          <p>Are you sure you want to {isUpdating ? 'update' : 'save'} and continue?</p>
         </Modal>
       </div>
     </div>

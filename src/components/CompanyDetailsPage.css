@@ -5,6 +5,9 @@
   background: #E5E5E5;
   display: flex;
   flex-direction: column;
+  padding-top: 80px; /* Prevent header overlap */
+  overflow-y: auto; /* Enable scrolling for scroll detection */
+  height: 100vh;
 }
 
 .company-content {
@@ -183,7 +186,7 @@
 
 @media (max-width: 768px) {
   .company-page {
-    padding-top: 84px; /* Space for fixed header */
+    padding-top: 70px; /* Adjusted for 60px header */
   }
 
   .company-content {
