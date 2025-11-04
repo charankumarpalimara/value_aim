@@ -30,6 +30,8 @@ const ProfileTab = () => {
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState(null);
   const [isDeleteAccountModalVisible, setIsDeleteAccountModalVisible] = useState(false);
+  const [isPasswordConfirmModalVisible, setIsPasswordConfirmModalVisible] = useState(false);
+  const [pendingPasswordValues, setPendingPasswordValues] = useState(null);
 
   useEffect(() => {
     // Load user data from localStorage or API
@@ -232,15 +234,25 @@ const ProfileTab = () => {
     }
   };
 
-  const handlePasswordChange = async (values) => {
+  const handlePasswordFormSubmit = (values) => {
+    console.log('Password form submitted, showing confirmation modal');
+    setPendingPasswordValues(values);
+    setIsPasswordConfirmModalVisible(true);
+  };
+
+  const handlePasswordChange = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
         toast.error('Please log in to change password');
         setLoading(false);
+        setIsPasswordConfirmModalVisible(false);
+        setPendingPasswordValues(null);
         return;
       }
+
+      const values = pendingPasswordValues;
 
       // Use userAPI.changePassword method
       const result = await userAPI.changePassword({
@@ -251,8 +263,12 @@ const ProfileTab = () => {
       if (result.success) {
         toast.success('Your password has been changed successfully!');
         passwordForm.resetFields();
+        setIsPasswordConfirmModalVisible(false);
+        setPendingPasswordValues(null);
       } else {
         toast.error(result.message || 'Failed to change password. Please try again.');
+        setIsPasswordConfirmModalVisible(false);
+        setPendingPasswordValues(null);
       }
     } catch (error) {
       // Handle axios error responses
@@ -261,6 +277,8 @@ const ProfileTab = () => {
       toast.error(errorMessage);
       console.error('Password change error:', error);
       console.error('Error response:', error.response);
+      setIsPasswordConfirmModalVisible(false);
+      setPendingPasswordValues(null);
     } finally {
       setLoading(false);
     }
@@ -548,7 +566,7 @@ const ProfileTab = () => {
           <Form
             form={passwordForm}
             layout="vertical"
-            onFinish={handlePasswordChange}
+            onFinish={handlePasswordFormSubmit}
             style={{ maxWidth: isMobile ? '100%' : '500px' }}
           >
             <Form.Item
@@ -693,6 +711,27 @@ const ProfileTab = () => {
         cancelButtonProps={{ disabled: loading }}
       >
         <p>Are you sure you want to save these profile changes?</p>
+      </Modal>
+
+      {/* Password Change Confirmation Modal */}
+      <Modal
+        title="Change Password"
+        open={isPasswordConfirmModalVisible}
+        onOk={handlePasswordChange}
+        onCancel={() => {
+          setIsPasswordConfirmModalVisible(false);
+          setPendingPasswordValues(null);
+        }}
+        okText="Yes"
+        cancelText="No"
+        centered
+        okButtonProps={{ loading: loading }}
+        cancelButtonProps={{ disabled: loading }}
+      >
+        <p>Are you sure you want to change your password?</p>
+        <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+          Make sure to remember your new password.
+        </p>
       </Modal>
 
       {/* Delete Account Confirmation Modal */}
