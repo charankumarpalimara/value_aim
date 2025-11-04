@@ -4,12 +4,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 40px;
+  padding: 2px 5px;
   background: #E5E5E5;
   flex-shrink: 0;
-  position: relative;
-  min-height: 65px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: 60px;
   box-sizing: border-box;
+  z-index: 100;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header.scrolled {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .logo-section {
@@ -32,7 +42,7 @@
 }
 
 .logo-image {
-  height: 60px;
+  height: 100px;
   width: auto;
   object-fit: contain;
 }
@@ -185,7 +195,7 @@
   }
   
   .logo-image {
-    height: 55px;
+    height: 60px;
   }
   
   .header-actions {
@@ -237,7 +247,7 @@
 
   .logo-image {
     display: block !important;
-    height: 48px;
+    height: 52px;
   }
   
 .mobile-menu-buttons .header-btn {
@@ -293,7 +303,7 @@
 
   .logo-image {
     display: block !important;
-    height: 44px;
+    height: 48px;
   }
 
   .mobile-menu {

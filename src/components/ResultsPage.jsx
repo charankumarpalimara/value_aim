@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
-import { Modal, message } from 'antd';
+import { Modal } from 'antd';
+import toast, { Toaster } from 'react-hot-toast';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import valueAimImage from "../assets/value_aim_icon_transparent.png";
 // import faviconImage from "../assets/va_fav.png";
@@ -51,6 +52,7 @@ function ResultsPage() {
   const [isMainPopupVisible, setIsMainPopupVisible] = useState(false);
   const [activePopupScreen, setActivePopupScreen] = useState('Service Manager');
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const plusButtonRef = useRef(null);
   const menuRef = useRef(null);
   const [userProfile, setUserProfile] = useState({
@@ -186,6 +188,24 @@ function ResultsPage() {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('localStorageCleared', handleCustomStorageChange);
     };
+  }, []);
+
+  // Handle scroll to change header style
+  useEffect(() => {
+    const handleScroll = () => {
+      const contentArea = document.querySelector('.content-area');
+      if (contentArea && contentArea.scrollTop > 50) {
+        setIsScrolled(true);
+      } else if (contentArea) {
+        setIsScrolled(false);
+      }
+    };
+
+    const contentArea = document.querySelector('.content-area');
+    if (contentArea) {
+      contentArea.addEventListener('scroll', handleScroll);
+      return () => contentArea.removeEventListener('scroll', handleScroll);
+    }
   }, []);
 
   // Responsive design is now handled by react-responsive
@@ -359,7 +379,7 @@ function ResultsPage() {
     window.dispatchEvent(new Event('localStorageCleared'));
     
     // Show success message
-    message.success('Logged out successfully!');
+    toast.success('Logged out successfully!');
     
     // Close modal
     setIsLogoutModalVisible(false);
@@ -372,9 +392,48 @@ function ResultsPage() {
 
 
   return (
-    <div className="results-page">
-      {/* Header */}
-      <header className="page-header">
+    <>
+      <Toaster 
+        position="top-center"
+        reverseOrder={false}
+        containerStyle={{
+          top: 24,
+        }}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: 'rgba(0, 0, 0, 0.85)',
+            padding: '10px 16px',
+            borderRadius: '2px',
+            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+            fontSize: '14px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            maxWidth: '400px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#52c41a',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ff4d4f',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+        }}
+      />
+      <div className="results-page">
+        {/* Header */}
+      <header className={`page-header ${isScrolled ? 'scrolled' : ''}`}>
         {/* <button 
           className="back-to-services-btn" 
           onClick={handleBackToServices}
@@ -740,7 +799,7 @@ function ResultsPage() {
 
                       <div className="profile-menu-divider"></div>
 
-                      <button className="profile-menu-item upgrade">
+                      <button className="profile-menu-item upgrade" onClick={() => { navigate('/upgrade-plans'); setShowProfileMenu(false); if (isMobile) closeSidebar(); }}>
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                           <path d="M8 1L10 5.5L15 6L11.5 9.5L12.5 14.5L8 12L3.5 14.5L4.5 9.5L1 6L6 5.5L8 1Z" fill="currentColor" />
                         </svg>
@@ -1148,6 +1207,7 @@ function ResultsPage() {
         <p>Are you sure you want to logout?</p>
       </Modal>
     </div>
+    </>
   );
 }
 

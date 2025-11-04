@@ -8,11 +8,48 @@ import "./Header.css";
 function Header({ onSignupClick, onLoginClick }) {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // Handle scroll to change header style
+  useEffect(() => {
+    const handleScroll = (e) => {
+      const scrollTop = e.target === document ? window.scrollY : e.target.scrollTop;
+      if (scrollTop > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Listen to window scroll
+    window.addEventListener('scroll', handleScroll);
+    
+    // Listen to page container scroll (for pages with their own scroll)
+    const aboutUsPage = document.querySelector('.about-us-page');
+    const contactUsPage = document.querySelector('.contact-us-page');
+    
+    if (aboutUsPage) {
+      aboutUsPage.addEventListener('scroll', handleScroll);
+    }
+    if (contactUsPage) {
+      contactUsPage.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (aboutUsPage) {
+        aboutUsPage.removeEventListener('scroll', handleScroll);
+      }
+      if (contactUsPage) {
+        contactUsPage.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -31,7 +68,7 @@ function Header({ onSignupClick, onLoginClick }) {
   };
 
   return (
-    <div className="header">
+    <div className={`header ${isScrolled ? 'scrolled' : ''}`}>
       <div className="logo-section" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
         {/* <img src={faviconImage} alt="ValueAIM" className="header-favicon" /> */}
         <img src={logoImage} alt="Value AIM Logo" className="logo-image" />

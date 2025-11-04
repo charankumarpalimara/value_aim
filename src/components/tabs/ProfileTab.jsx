@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Avatar, Upload, message, Divider, Space, notification, Modal } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Card, Avatar, Upload, Divider, Space, Modal } from 'antd';
+import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+import toast, { Toaster } from 'react-hot-toast';
 import { API_BASE_URL } from '../../config';
+import { userAPI } from '../../utils/api';
 import './ProfileTab.css';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileTab = () => {
   const [form] = Form.useForm();
+  const navigate = useNavigate();
   const [passwordForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -96,7 +100,7 @@ const ProfileTab = () => {
       console.log('Token from localStorage:', token ? 'Present' : 'Missing');
       
       if (!token) {
-        message.error('Please log in to update profile');
+        toast.error('Please log in to update profile');
         setLoading(false);
         setIsConfirmModalVisible(false);
         setPendingFormValues(null);
@@ -196,26 +200,10 @@ const ProfileTab = () => {
         setIsConfirmModalVisible(false);
         setPendingFormValues(null);
         
-        // Show success notification popup
+        // Show success notification
         console.log('Showing success notification...');
-        
-        try {
-          notification.success({
-            message: 'Profile Updated',
-            description: 'Your profile has been updated successfully!',
-            placement: 'topRight',
-            duration: 4,
-            style: {
-              zIndex: 2000,
-            },
-            icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-          });
-          console.log('Success notification called');
-        } catch (notifError) {
-          console.error('Notification error:', notifError);
-          // Fallback to message
-          message.success('Profile updated successfully!');
-        }
+        toast.success('Your profile has been updated successfully!');
+        console.log('Success notification called');
       } else {
         console.log('=== BACKEND ERROR ===');
         console.log('Response status:', response.status);
@@ -227,33 +215,14 @@ const ProfileTab = () => {
         
         const errorData = await response.json();
         console.log('Error data:', errorData);
-        try {
-          notification.error({
-            message: 'Update Failed',
-            description: errorData.message || 'Failed to update profile. Please try again.',
-            placement: 'topRight',
-            duration: 5,
-            style: {
-              zIndex: 2000,
-            },
-            icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-          });
-        } catch {
-          message.error(errorData.message || 'Failed to update profile');
-        }
+        toast.error(errorData.message || 'Failed to update profile. Please try again.');
       }
     } catch (error) {
       // Close confirmation modal
       setIsConfirmModalVisible(false);
       setPendingFormValues(null);
       
-      notification.error({
-        message: 'Update Failed',
-        description: 'Failed to update profile. Please check your connection and try again.',
-        placement: 'topRight',
-        duration: 5,
-        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-      });
+      toast.error('Failed to update profile. Please check your connection and try again.');
       console.error('Profile update error:', error);
       console.error('Error details:', error.message);
       console.error('Error stack:', error.stack);
@@ -268,51 +237,30 @@ const ProfileTab = () => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
-        message.error('Please log in to change password');
+        toast.error('Please log in to change password');
         setLoading(false);
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/user/password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          currentPassword: values.currentPassword,
-          newPassword: values.newPassword
-        })
+      // Use userAPI.changePassword method
+      const result = await userAPI.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword
       });
 
-      if (response.ok) {
-        notification.success({
-          message: 'Password Changed',
-          description: 'Your password has been changed successfully!',
-          placement: 'topRight',
-          duration: 4,
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-        });
+      if (result.success) {
+        toast.success('Your password has been changed successfully!');
         passwordForm.resetFields();
       } else {
-        const errorData = await response.json();
-        notification.error({
-          message: 'Password Change Failed',
-          description: errorData.message || 'Failed to change password. Please try again.',
-          placement: 'topRight',
-          duration: 5,
-          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-        });
+        toast.error(result.message || 'Failed to change password. Please try again.');
       }
     } catch (error) {
-      notification.error({
-        message: 'Password Change Failed',
-        description: 'Failed to change password. Please check your connection and try again.',
-        placement: 'topRight',
-        duration: 5,
-        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-      });
+      // Handle axios error responses
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to change password. Please check your connection and try again.';
+      
+      toast.error(errorMessage);
       console.error('Password change error:', error);
+      console.error('Error response:', error.response);
     } finally {
       setLoading(false);
     }
@@ -330,13 +278,13 @@ const ProfileTab = () => {
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        message.error('Please select an image file');
+        toast.error('Please select an image file');
         return;
       }
       
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        message.error('Image size must be less than 5MB');
+        toast.error('Image size must be less than 5MB');
         return;
       }
       
@@ -346,7 +294,7 @@ const ProfileTab = () => {
       setHasNewImage(true);
       console.log('✅ Image selected and stored');
       console.log('✅ Image preview set and hasNewImage flag set to true');
-      message.success('Image selected successfully');
+      toast.success('Image selected successfully');
     }
   };
 
@@ -354,18 +302,59 @@ const ProfileTab = () => {
     setImagePreview(null);
     setSelectedFile(null);
     setHasNewImage(false);
-    message.info('Image removed');
+    toast('Image removed', {
+      icon: 'ℹ️',
+    });
   };
 
   return (
-    <div style={{ 
-      maxWidth: '100%', 
-      margin: '0', 
-      padding: isMobile ? '16px' : '24px',
-      background: '#fff',
-      height: '100%',
-      overflowY: 'auto'
-    }}>
+    <>
+      <Toaster 
+        position="top-center"
+        reverseOrder={false}
+        containerStyle={{
+          top: 24,
+        }}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: 'rgba(0, 0, 0, 0.85)',
+            padding: '10px 16px',
+            borderRadius: '2px',
+            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+            fontSize: '14px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            maxWidth: '400px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#52c41a',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ff4d4f',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+        }}
+      />
+      <div style={{ 
+        maxWidth: '100%', 
+        margin: '0', 
+        padding: isMobile ? '16px' : '24px',
+        background: '#fff',
+        height: '100%',
+        overflowY: 'auto'
+      }}>
       {/* <h1 style={{ 
         fontSize: isMobile ? '18px' : '18px', 
         fontWeight: '600', 
@@ -649,7 +638,7 @@ const ProfileTab = () => {
             type="primary"
             onClick={() => {
               // TODO: Implement plan upgrade
-              message.info('Plan upgrade coming soon!');
+             navigate('/upgrade-plans');
             }}
             style={{ 
               flex: isMobile ? 'none' : 1,
@@ -700,7 +689,8 @@ const ProfileTab = () => {
         okText="Yes"
         cancelText="No"
         centered
-        confirmLoading={loading}
+        okButtonProps={{ loading: loading }}
+        cancelButtonProps={{ disabled: loading }}
       >
         <p>Are you sure you want to save these profile changes?</p>
       </Modal>
@@ -711,7 +701,7 @@ const ProfileTab = () => {
         open={isDeleteAccountModalVisible}
         onOk={() => {
           // TODO: Implement account deletion
-          message.error('Account deletion is not yet implemented');
+          toast.error('Account deletion is not yet implemented');
           setIsDeleteAccountModalVisible(false);
         }}
         onCancel={() => setIsDeleteAccountModalVisible(false)}
@@ -726,6 +716,7 @@ const ProfileTab = () => {
         </p>
       </Modal>
     </div>
+    </>
   );
 };
 

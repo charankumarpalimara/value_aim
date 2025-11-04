@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Form, Input, Select, Button, Card, message, Row, Col, notification, Modal } from 'antd';
-import { SaveOutlined, BankOutlined, GlobalOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Button, Card, Row, Col, Modal } from 'antd';
+import { SaveOutlined, BankOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+import toast, { Toaster } from 'react-hot-toast';
 import { API_BASE_URL } from '../../config';
 
 const { TextArea } = Input;
@@ -114,13 +115,18 @@ const OrganizationDetailsTab = () => {
 
   const confirmSave = async () => {
     try {
+      console.log('=== Starting confirmSave (Organization Details) ===');
       const values = pendingFormValues;
       console.log('Saving organization details:', values);
       
       // Get auth token
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
-        message.error('Please log in to save organization details');
+        console.error('No auth token found');
+        toast.error('Please log in to save organization details', {
+          duration: 4000,
+          position: 'top-center',
+        });
         setIsConfirmModalVisible(false);
         return;
       }
@@ -138,6 +144,7 @@ const OrganizationDetailsTab = () => {
         country: values.country,
         city: values.city
       };
+      console.log('Sending to backend:', organizationData);
 
       // Call backend API
       const response = await fetch(`${API_BASE_URL}/company`, {
@@ -148,10 +155,12 @@ const OrganizationDetailsTab = () => {
         },
         body: JSON.stringify(organizationData)
       });
+      console.log('Response status:', response.status);
 
       if (response.ok) {
         const result = await response.json();
         console.log('Backend response:', result);
+        console.log('Organization details saved successfully - showing toast');
         
         // Update form data with saved values
         setFormData(values);
@@ -177,40 +186,22 @@ const OrganizationDetailsTab = () => {
         }
         
         // Show success notification
-        notification.success({
-          message: 'Success',
-          description: 'Organization details saved successfully!',
-          placement: 'topRight',
-          duration: 3,
-          style: {
-            zIndex: 99999,
-          },
-          icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+        toast.success('Organization details saved successfully!', {
+          duration: 3000,
+          position: 'top-center',
         });
       } else {
         const errorData = await response.json();
-        notification.error({
-          message: 'Save Failed',
-          description: errorData.message || 'Failed to save organization details.',
-          placement: 'topRight',
-          duration: 5,
-          style: {
-            zIndex: 2000,
-          },
-          icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+        toast.error(errorData.message || 'Failed to save organization details.', {
+          duration: 5000,
+          position: 'top-center',
         });
       }
     } catch (error) {
       console.error('Error saving organization details:', error);
-      notification.error({
-        message: 'Save Failed',
-        description: 'Failed to save organization details. Please check your connection and try again.',
-        placement: 'topRight',
-        duration: 5,
-        style: {
-          zIndex: 2000,
-        },
-        icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      toast.error('Failed to save organization details. Please check your connection and try again.', {
+        duration: 5000,
+        position: 'top-center',
       });
     } finally {
       setLoading(false);
@@ -218,8 +209,49 @@ const OrganizationDetailsTab = () => {
   };
 
   return (
-    <div style={{ 
-      padding: '24px',
+    <>
+      <Toaster 
+        position="top-center"
+        reverseOrder={false}
+        containerStyle={{
+          top: 24,
+          zIndex: 10000,
+        }}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: 'rgba(0, 0, 0, 0.85)',
+            padding: '10px 16px',
+            borderRadius: '2px',
+            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+            fontSize: '14px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            maxWidth: '400px',
+            zIndex: 10000,
+          },
+          success: {
+            iconTheme: {
+              primary: '#52c41a',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ff4d4f',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+        }}
+      />
+      <div style={{ 
+        padding: '24px',
       height: '100%',
       overflowY: 'auto'
     }}>
@@ -488,11 +520,13 @@ const OrganizationDetailsTab = () => {
         okText="Yes"
         cancelText="No"
         centered
-        confirmLoading={loading}
+        okButtonProps={{ loading: loading }}
+        cancelButtonProps={{ disabled: loading }}
       >
         <p>Are you sure you want to save these organization details?</p>
       </Modal>
     </div>
+    </>
   );
 };
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal, Button } from 'antd';
+import toast, { Toaster } from 'react-hot-toast';
 import { authAPI } from '../utils/api';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "./SignupModal.css";
@@ -25,6 +27,8 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
     const [isCheckingEmail, setIsCheckingEmail] = useState(false);
     const [emailExists, setEmailExists] = useState(false);
     const [emailCheckMessage, setEmailCheckMessage] = useState('');
+    const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+    const [autoNavigateTimeout, setAutoNavigateTimeout] = useState(null);
 
     // Signup form errors
     const [signupPasswordError, setSignupPasswordError] = useState(false);
@@ -136,8 +140,18 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
             setSignupConfirmPasswordErrorMessage('');
             setEmailExists(false);
             setEmailCheckMessage('');
+            setIsSuccessModalVisible(false);
         }
     }, [isOpen]);
+
+    // Cleanup timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (autoNavigateTimeout) {
+                clearTimeout(autoNavigateTimeout);
+            }
+        };
+    }, [autoNavigateTimeout]);
 
     const handleClose = () => {
         setSignupStep(1);
@@ -157,12 +171,66 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
         setSignupFirstNameErrorMessage('');
         setSignupLastNameError(false);
         setSignupLastNameErrorMessage('');
+        setIsSuccessModalVisible(false);
         onClose();
     };
 
-    if (!isOpen) return null;
+    const handleSuccessModalClose = () => {
+        // Clear auto-navigation timeout if user clicks early
+        if (autoNavigateTimeout) {
+            clearTimeout(autoNavigateTimeout);
+            setAutoNavigateTimeout(null);
+        }
+        setIsSuccessModalVisible(false);
+        navigate('/company-details');
+    };
+
+    // Show success modal even if signup modal is closed
+    if (!isOpen && !isSuccessModalVisible) return null;
 
     return (
+        <>
+        <Toaster 
+            position="top-center"
+            reverseOrder={false}
+            containerStyle={{
+                top: 24,
+                zIndex: 10001,
+            }}
+            toastOptions={{
+                duration: 3000,
+                style: {
+                    background: '#fff',
+                    color: 'rgba(0, 0, 0, 0.85)',
+                    padding: '10px 16px',
+                    borderRadius: '2px',
+                    boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+                    fontSize: '14px',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                    maxWidth: '400px',
+                    zIndex: 10001,
+                },
+                success: {
+                    iconTheme: {
+                        primary: '#52c41a',
+                        secondary: '#fff',
+                    },
+                    style: {
+                        background: '#fff',
+                    },
+                },
+                error: {
+                    iconTheme: {
+                        primary: '#ff4d4f',
+                        secondary: '#fff',
+                    },
+                    style: {
+                        background: '#fff',
+                    },
+                },
+            }}
+        />
+        {isOpen && (
         <div className="signup-modal-overlay" onClick={handleClose}>
             <div className="signup-modal" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
                 <button
@@ -785,8 +853,45 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
                                                 provider: 'email'
                                             }));
                                             localStorage.setItem('token', response.data.token);
-                                            handleClose();
-                                            navigate('/company-details');
+                                            
+                                            // Show success toast notification
+                                            toast.success('Account created successfully! Welcome to Value Aim! 🎉', {
+                                                duration: 4000,
+                                                position: 'top-center',
+                                            });
+                                            
+                                            // Show success modal
+                                            setIsSuccessModalVisible(true);
+                                            
+                                            // Close signup modal after a brief delay (don't reset success modal state)
+                                            setTimeout(() => {
+                                                setSignupStep(1);
+                                                setSignupEmail('');
+                                                setSignupPassword('');
+                                                setSignupConfirmPassword('');
+                                                setSignupOtp('');
+                                                setSignupFirstName('');
+                                                setSignupLastName('');
+                                                setSignupProfilePhoto(null);
+                                                setSignupProfilePhotoPreview(null);
+                                                setEmailRestricted(false);
+                                                setEmailRestrictionMessage('');
+                                                setSignupOtpError(false);
+                                                setSignupOtpErrorMessage('');
+                                                setSignupFirstNameError(false);
+                                                setSignupFirstNameErrorMessage('');
+                                                setSignupLastNameError(false);
+                                                setSignupLastNameErrorMessage('');
+                                                onClose(); // This will set isOpen to false via parent
+                                            }, 500);
+                                            
+                                            // Auto-navigate after showing success message for 3 seconds
+                                            const timeout = setTimeout(() => {
+                                                setIsSuccessModalVisible(false);
+                                                navigate('/company-details');
+                                                setAutoNavigateTimeout(null);
+                                            }, 3000);
+                                            setAutoNavigateTimeout(timeout);
                                         }
                                     } catch (error) {
                                         alert('Registration failed: ' + (error.message || 'Please try again'));
@@ -821,6 +926,96 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
                 </div>
             </div>
         </div>
+        )}
+
+        {/* Success Modal */}
+        <Modal
+            open={isSuccessModalVisible}
+            onOk={handleSuccessModalClose}
+            onCancel={handleSuccessModalClose}
+            footer={[
+                <Button 
+                    key="ok" 
+                    type="primary"
+                    size="large"
+                    onClick={handleSuccessModalClose}
+                    style={{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                        minWidth: '120px',
+                        background: '#201F47',
+                        borderColor: '#201F47'
+                    }}
+                >
+                    Continue
+                </Button>
+            ]}
+            centered
+            closable={false}
+            width={400}
+            styles={{
+                body: {
+                    padding: '24px',
+                }
+            }}
+        >
+            <style>
+                {`
+                    @keyframes bounce {
+                        0%, 100% {
+                            transform: scale(1);
+                        }
+                        50% {
+                            transform: scale(1.1);
+                        }
+                    }
+                `}
+            </style>
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <div style={{ 
+                    fontSize: '56px', 
+                    marginBottom: '16px',
+                    animation: 'bounce 0.5s ease-in-out'
+                }}>
+                    ✅
+                </div>
+                <h3 style={{ 
+                    fontSize: '22px', 
+                    fontWeight: '600', 
+                    marginBottom: '12px',
+                    color: '#52c41a',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}>
+                    Account Created Successfully!
+                </h3>
+                <p style={{ 
+                    fontSize: '15px', 
+                    color: '#666',
+                    marginBottom: '12px',
+                    lineHeight: '1.6',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}>
+                    Welcome to Value Aim! 🎉
+                </p>
+                <div style={{
+                    backgroundColor: '#f6ffed',
+                    border: '1px solid #b7eb8f',
+                    borderRadius: '4px',
+                    padding: '12px',
+                    marginTop: '16px'
+                }}>
+                    <p style={{ 
+                        fontSize: '13px', 
+                        color: '#52c41a',
+                        margin: 0,
+                        fontWeight: '500',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                    }}>
+                        🚀 Let's complete your profile and get started!
+                    </p>
+                </div>
+            </div>
+        </Modal>
+        </>
     );
 }
 

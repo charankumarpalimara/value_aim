@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form, Select, message, Switch, Upload } from 'antd';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, Switch, Upload } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined, PaperClipOutlined, SendOutlined, CloseOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+import toast, { Toaster } from 'react-hot-toast';
 import { serviceAPI, suggestionAPI, contactAPI } from '../utils/api';
 
 const { TextArea } = Input;
@@ -45,37 +46,38 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
   };
 
   return (
-    <Modal
-      // title={activeScreen}
-      open={isVisible}
-      onCancel={onClose}
-      width={isMobile ? "95%" : "60%"}
-      style={{
-        maxWidth: isMobile ? '95%' : '1400px',
-        top: isMobile ? '10px' : '20px',
-        zIndex: 1000
-      }}
-      styles={{
-        mask: { zIndex: 999 },
-        header: { 
-          borderBottom: 'none',
-          padding: 0
+    <>
+      <Modal
+        // title={activeScreen}
+        open={isVisible}
+        onCancel={onClose}
+        width={isMobile ? "95%" : "60%"}
+        style={{
+          maxWidth: isMobile ? '95%' : '1400px',
+          top: isMobile ? '10px' : '20px',
+          zIndex: 1000
+        }}
+        styles={{
+          mask: { zIndex: 999 },
+          header: { 
+            borderBottom: 'none',
+            padding: 0
+          }
+        }}
+        footer={null}
+        destroyOnHidden
+        className="unified-popup-modal"
+        closable={true}
+        closeIcon={
+          <CloseOutlined 
+            style={{
+              fontSize: '18px',
+              color: '#666'
+            }}
+            className="unified-popup-close-icon"
+          />
         }
-      }}
-      footer={null}
-      destroyOnHidden
-      className="unified-popup-modal"
-      closable={true}
-      closeIcon={
-        <CloseOutlined 
-          style={{
-            fontSize: '18px',
-            color: '#666'
-          }}
-          className="unified-popup-close-icon"
-        />
-      }
-    >
+      >
       <div style={{ display: 'flex', height: '75vh', maxHeight: '75vh', flexDirection: isMobile ? 'column' : 'row' }}>
         {/* Sidebar */}
         <div style={{
@@ -182,6 +184,49 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         </div>
       </div>
     </Modal>
+    
+    {/* Toaster placed outside Modal to ensure proper visibility */}
+    <Toaster 
+      position="top-center"
+      reverseOrder={false}
+      containerStyle={{
+        top: 24,
+        zIndex: 10000,
+      }}
+      toastOptions={{
+        duration: 3000,
+        style: {
+          background: '#fff',
+          color: 'rgba(0, 0, 0, 0.85)',
+          padding: '10px 16px',
+          borderRadius: '2px',
+          boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+          fontSize: '14px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          maxWidth: '400px',
+          zIndex: 10000,
+        },
+        success: {
+          iconTheme: {
+            primary: '#52c41a',
+            secondary: '#fff',
+          },
+          style: {
+            background: '#fff',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#ff4d4f',
+            secondary: '#fff',
+          },
+          style: {
+            background: '#fff',
+          },
+        },
+      }}
+    />
+    </>
   );
 };
 
@@ -200,6 +245,10 @@ const ServiceManagerContent = () => {
   const [isEditConfirmModalVisible, setIsEditConfirmModalVisible] = useState(false);
   const [isDoneEditingConfirmModalVisible, setIsDoneEditingConfirmModalVisible] = useState(false);
   const [isDeleteConfirmModalVisible, setIsDeleteConfirmModalVisible] = useState(false);
+  const [isAddLoading, setIsAddLoading] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+  const [isDoneEditingLoading, setIsDoneEditingLoading] = useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [pendingChanges, setPendingChanges] = useState({}); // Store pending inline edits
   const isMobile = useMediaQuery({ maxWidth: 768 });
   const isAboveMobile = useMediaQuery({ maxWidth: 1100 });
@@ -212,21 +261,31 @@ const ServiceManagerContent = () => {
   const loadServices = async () => {
     setIsLoading(true);
     try {
+      console.log('=== Loading services ===');
       const response = await serviceAPI.getAll();
+      console.log('Load services response:', response);
+      
       if (response.success) {
         // Add key property for Ant Design Table
         const servicesWithKeys = response.data.map((service, index) => ({
           ...service,
           key: service.id || `service-${index}`,
         }));
+        console.log('Loaded', servicesWithKeys.length, 'services');
         setDataSource(servicesWithKeys);
       } else {
         console.error('Failed to load services:', response.message);
-        message.error('Failed to load services');
+        toast.error(`Failed to load services: ${response.message}`, {
+          duration: 4000,
+          position: 'top-center',
+        });
       }
     } catch (error) {
       console.error('Error loading services:', error);
-      message.error('Error loading services from database');
+      toast.error(`Error loading services: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -274,52 +333,110 @@ const ServiceManagerContent = () => {
       }
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
+      
+      // Show user-friendly error message
+      if (errInfo.errorFields && errInfo.errorFields.length > 0) {
+        const firstError = errInfo.errorFields[0];
+        const fieldName = firstError.name[0];
+        const errorMessage = firstError.errors[0];
+        
+        console.log('Field with error:', fieldName);
+        console.log('Error message:', errorMessage);
+        
+        toast.error(errorMessage || 'Please fill in all required fields', {
+          duration: 4000,
+          position: 'top-center',
+        });
+      } else {
+        toast.error('Please fill in all required fields', {
+          duration: 4000,
+          position: 'top-center',
+        });
+      }
     }
   };
 
   const confirmAddService = async () => {
+    setIsAddLoading(true);
     try {
+      console.log('=== Starting confirmAddService ===');
       const values = addForm.getFieldsValue();
+      console.log('Form values:', values);
+      
       const response = await serviceAPI.create(values);
+      console.log('API response:', response);
+      
       if (response.success) {
+        console.log('Service added successfully - showing toast');
         addForm.resetFields();
         setIsModalVisible(false);
         setIsAddConfirmModalVisible(false);
         setEditingService(null);
         setSelectedRowKeys([]);
+        
+        // Show toast BEFORE reloading
+        toast.success('Service added successfully!', {
+          duration: 4000,
+          position: 'top-center',
+        });
+        
         // Reload services from database
         await loadServices();
-        message.success('Service added successfully!');
       } else {
+        console.error('API returned success=false:', response.message);
         throw new Error(response.message || 'Failed to save service');
       }
     } catch (error) {
       console.error('Error adding service:', error);
       setIsAddConfirmModalVisible(false);
-      message.error('Failed to add service. Please try again.');
+      toast.error(`Failed to add service: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
+    } finally {
+      setIsAddLoading(false);
     }
   };
 
   const confirmEditService = async () => {
+    setIsEditLoading(true);
     try {
+      console.log('=== Starting confirmEditService ===');
       const values = addForm.getFieldsValue();
+      console.log('Updating service ID:', editingService.id, 'with values:', values);
+      
       const response = await serviceAPI.update(editingService.id, values);
+      console.log('API response:', response);
+      
       if (response.success) {
+        console.log('Service updated successfully - showing toast');
         addForm.resetFields();
         setIsModalVisible(false);
         setIsEditConfirmModalVisible(false);
         setEditingService(null);
         setSelectedRowKeys([]);
+        
+        // Show toast BEFORE reloading
+        toast.success('Service updated successfully!', {
+          duration: 4000,
+          position: 'top-center',
+        });
+        
         // Reload services from database
         await loadServices();
-        message.success('Service updated successfully!');
       } else {
+        console.error('API returned success=false:', response.message);
         throw new Error(response.message || 'Failed to update service');
       }
     } catch (error) {
       console.error('Error updating service:', error);
       setIsEditConfirmModalVisible(false);
-      message.error('Failed to update service. Please try again.');
+      toast.error(`Failed to update service: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
+    } finally {
+      setIsEditLoading(false);
     }
   };
 
@@ -327,36 +444,56 @@ const ServiceManagerContent = () => {
 
   const handleSelectedDelete = () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select services to delete');
+      toast('Please select services to delete', {
+        icon: '⚠️',
+      });
       return;
     }
     setIsDeleteConfirmModalVisible(true);
   };
 
   const confirmDelete = async () => {
+    setIsDeleteLoading(true);
     try {
+      console.log('=== Starting confirmDelete ===');
+      console.log('Selected row keys:', selectedRowKeys);
+      
       // Delete selected services one by one
       const deletePromises = selectedRowKeys.map(key => {
         const service = dataSource.find(item => item.key === key);
+        console.log('Deleting service:', service);
         return service ? serviceAPI.delete(service.id) : Promise.resolve({ success: false });
       });
 
       const results = await Promise.all(deletePromises);
+      console.log('Delete results:', results);
       const successCount = results.filter(result => result.success).length;
+      console.log('Success count:', successCount);
 
       if (successCount > 0) {
         setSelectedRowKeys([]);
         setIsDeleteConfirmModalVisible(false);
+        
+        // Show toast BEFORE reloading
+        toast.success(`${successCount} service(s) deleted successfully!`, {
+          duration: 4000,
+          position: 'top-center',
+        });
+        
         // Reload services from database
         await loadServices();
-        message.success(`${successCount} service(s) deleted successfully!`);
       } else {
         throw new Error('Failed to delete selected services');
       }
     } catch (error) {
       console.error('Error deleting selected services:', error);
       setIsDeleteConfirmModalVisible(false);
-      message.error('Failed to delete selected services. Please try again.');
+      toast.error(`Failed to delete services: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
+    } finally {
+      setIsDeleteLoading(false);
     }
   };
 
@@ -408,7 +545,9 @@ const ServiceManagerContent = () => {
         // No changes, just exit edit mode
         setIsEditMode(false);
         setSelectedRowKeys([]);
-        message.info('Edit mode closed');
+        toast('Edit mode closed', {
+          icon: 'ℹ️',
+        });
       }
     } else {
       // Enter edit mode directly and clear any previous pending changes
@@ -425,29 +564,44 @@ const ServiceManagerContent = () => {
     setIsEditMode(false);
     setSelectedRowKeys([]);
     await loadServices(); // Reload original data from database
-    message.info('Changes discarded');
+    toast('Changes discarded', {
+      icon: 'ℹ️',
+    });
   };
 
   const confirmDoneEditing = async () => {
+    setIsDoneEditingLoading(true);
     try {
+      console.log('=== Starting confirmDoneEditing ===');
+      console.log('Pending changes:', pendingChanges);
+      
       // Check if there are any pending changes
       if (Object.keys(pendingChanges).length === 0) {
+        console.log('No changes to save');
         setIsEditMode(false);
         setSelectedRowKeys([]);
         setIsDoneEditingConfirmModalVisible(false);
-        message.info('No changes to save');
+        toast('No changes to save', {
+          icon: 'ℹ️',
+          duration: 3000,
+          position: 'top-center',
+        });
+        setIsDoneEditingLoading(false);
         return;
       }
 
-      console.log('Saving pending changes:', pendingChanges);
+      console.log('Saving', Object.keys(pendingChanges).length, 'service(s)');
 
       // Save all pending changes to the database
       const savePromises = Object.entries(pendingChanges).map(([serviceId, changes]) => {
+        console.log('Updating service', serviceId, 'with:', changes);
         return serviceAPI.update(serviceId, changes);
       });
 
       const results = await Promise.all(savePromises);
+      console.log('Save results:', results);
       const successCount = results.filter(result => result.success).length;
+      console.log('Successfully saved:', successCount, 'of', results.length);
 
       if (successCount === results.length) {
         // All changes saved successfully
@@ -455,15 +609,26 @@ const ServiceManagerContent = () => {
         setSelectedRowKeys([]);
         setIsDoneEditingConfirmModalVisible(false);
         setPendingChanges({}); // Clear pending changes
+        
+        // Show toast BEFORE reloading
+        toast.success('All changes saved successfully!', {
+          duration: 4000,
+          position: 'top-center',
+        });
+        
         await loadServices(); // Reload from database
-        message.success('All changes saved successfully!');
       } else {
         throw new Error('Some changes failed to save');
       }
     } catch (error) {
       console.error('Error saving changes:', error);
       setIsDoneEditingConfirmModalVisible(false);
-      message.error('Failed to save some changes. Please try again.');
+      toast.error(`Failed to save changes: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
+    } finally {
+      setIsDoneEditingLoading(false);
     }
   };
 
@@ -1599,15 +1764,21 @@ const ServiceManagerContent = () => {
             }
           `}
         </style>
-        <Form form={addForm} layout="vertical">
+        <Form 
+          form={addForm} 
+          layout="vertical"
+          scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
+        >
           <Form.Item
             name="interests"
             label="Product/Service Offerings"
-            rules={[{ required: true, message: 'Please select offerings' }]}
+            rules={[{ required: true, message: 'Please select at least one Product/Service Offering' }]}
+            required
+            tooltip="This is a required field"
           >
             <Select
               mode="tags"
-              placeholder="Select or type offerings"
+              placeholder="Select or type offerings (Required)"
               tokenSeparators={[',']}
             >
               {interestList.map(item => (
@@ -1719,6 +1890,8 @@ const ServiceManagerContent = () => {
         okText="Yes"
         cancelText="No"
         centered
+        okButtonProps={{ loading: isAddLoading }}
+        cancelButtonProps={{ disabled: isAddLoading }}
       >
         <p>Are you sure you want to add this service?</p>
       </Modal>
@@ -1732,6 +1905,8 @@ const ServiceManagerContent = () => {
         okText="Yes"
         cancelText="No"
         centered
+        okButtonProps={{ loading: isEditLoading }}
+        cancelButtonProps={{ disabled: isEditLoading }}
       >
         <p>Are you sure you want to update this service?</p>
       </Modal>
@@ -1745,6 +1920,8 @@ const ServiceManagerContent = () => {
         okText="Save"
         cancelText="Discard"
         centered
+        okButtonProps={{ loading: isDoneEditingLoading }}
+        cancelButtonProps={{ disabled: isDoneEditingLoading }}
       >
         <p>Do you want to save all your changes to the database?</p>
         <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
@@ -1761,6 +1938,8 @@ const ServiceManagerContent = () => {
         okText="Yes"
         cancelText="No"
         centered
+        okButtonProps={{ loading: isDeleteLoading }}
+        cancelButtonProps={{ disabled: isDeleteLoading }}
       >
         <p>Are you sure you want to delete {selectedRowKeys.length} selected service(s)?</p>
         <p style={{ fontSize: '12px', color: '#ff4d4f', marginTop: '8px' }}>
@@ -1777,6 +1956,7 @@ const SuggestionsContent = () => {
   const [attachedFile, setAttachedFile] = useState(null);
   const [charCount, setCharCount] = useState(0);
   const [isSending, setIsSending] = useState(false);
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const maxChars = 250;
   const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
 
@@ -1791,22 +1971,38 @@ const SuggestionsContent = () => {
   const handleFileSelect = (file) => {
     // Check file size
     if (file.size > maxFileSize) {
-      message.error('File size must be less than 20MB');
+      toast.error('File size must be less than 20MB', {
+        duration: 4000,
+        position: 'top-center',
+      });
       return false;
     }
     setAttachedFile(file);
-    message.success(`${file.name} attached successfully`);
+    toast.success(`📎 ${file.name} attached successfully`, {
+      duration: 3000,
+      position: 'top-center',
+    });
     return false; // Prevent auto upload
   };
 
   const handleRemoveFile = () => {
     setAttachedFile(null);
-    message.info('Attachment removed');
+    toast('Attachment removed', {
+      icon: 'ℹ️',
+      duration: 2000,
+      position: 'top-center',
+    });
   };
 
   const handleSend = async () => {
+    console.log('=== Starting handleSend (Suggestions) ===');
+    
     if (!suggestionText.trim() && !attachedFile) {
-      message.warning('Please enter a suggestion or attach a file');
+      toast('Please enter a suggestion or attach a file to submit', {
+        icon: '⚠️',
+        duration: 3000,
+        position: 'top-center',
+      });
       return;
     }
 
@@ -1818,23 +2014,33 @@ const SuggestionsContent = () => {
       if (attachedFile) {
         formData.append('attachment', attachedFile);
       }
+      
+      console.log('Sending suggestion with text:', suggestionText, 'and file:', attachedFile?.name);
 
       // Call the backend API
       const response = await suggestionAPI.create(formData);
+      console.log('Suggestion API response:', response);
       
       if (response.success) {
-        message.success('Suggestion sent successfully!');
+        console.log('Suggestion sent successfully - showing success modal');
         
         // Reset form
         setSuggestionText('');
         setCharCount(0);
         setAttachedFile(null);
+        
+        // Show success modal
+        setIsSuccessModalVisible(true);
       } else {
+        console.error('API returned success=false:', response.message);
         throw new Error(response.message || 'Failed to send suggestion');
       }
     } catch (error) {
       console.error('Error sending suggestion:', error);
-      message.error(error.response?.data?.message || 'Failed to send suggestion. Please try again.');
+      toast.error(error.response?.data?.message || `Failed to send suggestion: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
     } finally {
       setIsSending(false);
     }
@@ -1847,6 +2053,18 @@ const SuggestionsContent = () => {
       display: 'flex',
       flexDirection: 'column'
     }}>
+      <style>
+        {`
+          @keyframes bounce {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.1);
+            }
+          }
+        `}
+      </style>
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ 
           margin: '0 0 8px 0', 
@@ -1857,17 +2075,37 @@ const SuggestionsContent = () => {
           Share Your Suggestions
         </h3>
         <p style={{ 
-          margin: '0', 
+          margin: '0 0 8px 0', 
           color: '#666', 
           fontSize: '13px', 
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' 
         }}>
           We'd love to hear your feedback and suggestions for improving our platform.
         </p>
+        {/* <p style={{ 
+          margin: '0', 
+          color: '#1890ff', 
+          fontSize: '12px', 
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          fontStyle: 'italic'
+        }}>
+          💡 You can submit a text suggestion, attach a file, or both. We value your input!
+        </p> */}
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Text Input Area */}
+        <div>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#333',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Your Suggestion
+          </label>
         <div style={{ position: 'relative' }}>
           <TextArea
             value={suggestionText}
@@ -1889,10 +2127,22 @@ const SuggestionsContent = () => {
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
           }}>
             {charCount}/{maxChars}
+            </div>
           </div>
         </div>
 
         {/* File Attachment Section */}
+        <div>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#333',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Attachment (Optional)
+          </label>
         <div style={{
           border: '1px dashed #d9d9d9',
           borderRadius: '4px',
@@ -1962,11 +2212,27 @@ const SuggestionsContent = () => {
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
           }}>
             Supported formats: All file types (Max size: 20MB)
+            </div>
           </div>
         </div>
 
         {/* Send Button */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'auto', paddingTop: '16px' }}>
+        <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+          {/* {(!suggestionText.trim() && !attachedFile) && (
+            <div style={{
+              marginBottom: '12px',
+              padding: '8px 12px',
+              backgroundColor: '#fff7e6',
+              border: '1px solid #ffd666',
+              borderRadius: '4px',
+              fontSize: '12px',
+              color: '#faad14',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            }}>
+              ℹ️ Please enter a suggestion or attach a file to submit
+            </div>
+          )} */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             type="primary"
             icon={<SendOutlined />}
@@ -1983,6 +2249,76 @@ const SuggestionsContent = () => {
           </Button>
         </div>
       </div>
+      </div>
+
+      {/* Success Modal */}
+      <Modal
+        open={isSuccessModalVisible}
+        onOk={() => setIsSuccessModalVisible(false)}
+        onCancel={() => setIsSuccessModalVisible(false)}
+        footer={[
+          <Button 
+            key="ok" 
+            type="primary" 
+            size="large"
+            onClick={() => setIsSuccessModalVisible(false)}
+            style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              minWidth: '120px'
+            }}
+          >
+            Got it!
+          </Button>
+        ]}
+        centered
+        closable={false}
+        width={400}
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ 
+            fontSize: '56px', 
+            marginBottom: '16px',
+            animation: 'bounce 0.5s ease-in-out'
+          }}>
+            ✅
+          </div>
+          <h3 style={{ 
+            fontSize: '22px', 
+            fontWeight: '600', 
+            marginBottom: '12px',
+            color: '#52c41a',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Suggestion Received!
+          </h3>
+          <p style={{ 
+            fontSize: '15px', 
+            color: '#666',
+            marginBottom: '12px',
+            lineHeight: '1.6',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Thank you for sharing your valuable feedback!
+          </p>
+          <div style={{
+            backgroundColor: '#f6ffed',
+            border: '1px solid #b7eb8f',
+            borderRadius: '4px',
+            padding: '12px',
+            marginTop: '16px'
+          }}>
+            <p style={{ 
+              fontSize: '13px', 
+              color: '#52c41a',
+              margin: 0,
+              fontWeight: '500',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            }}>
+              💡 We appreciate your input and will carefully review your suggestion.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -1991,22 +2327,36 @@ const SuggestionsContent = () => {
 const ContactUsContent = () => {
   const [form] = Form.useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
   const isMobile = useMediaQuery({ maxWidth: 768 });
 
   const handleSubmit = async (values) => {
+    console.log('=== Starting handleSubmit (Contact Us) ===');
+    console.log('Form values:', values);
+    
     setIsSubmitting(true);
     try {
       const response = await contactAPI.create(values);
+      console.log('Contact API response:', response);
       
       if (response.success) {
-        message.success('Thank you for contacting us! We will get back to you soon.');
+        console.log('Contact form submitted successfully - showing success modal');
+        
+        // Reset form
         form.resetFields();
+        
+        // Show success modal
+        setIsSuccessModalVisible(true);
       } else {
+        console.error('API returned success=false:', response.message);
         throw new Error(response.message || 'Failed to send message');
       }
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      message.error(error.response?.data?.message || error.message || 'Failed to send message. Please try again.');
+      toast.error(error.response?.data?.message || error.message || `Failed to send message: ${error.message}`, {
+        duration: 4000,
+        position: 'top-center',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -2020,6 +2370,18 @@ const ContactUsContent = () => {
       flexDirection: 'column',
       overflowY: 'auto'
     }}>
+      <style>
+        {`
+          @keyframes bounce {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.1);
+            }
+          }
+        `}
+      </style>
       <div style={{ marginBottom: '24px' }}>
         <h3 style={{ 
           margin: '0 0 8px 0', 
@@ -2043,6 +2405,19 @@ const ContactUsContent = () => {
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
+        onFinishFailed={(errorInfo) => {
+          console.log('Form validation failed:', errorInfo);
+          // Show user-friendly error message
+          if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
+            const firstError = errorInfo.errorFields[0];
+            const errorMessage = firstError.errors[0];
+            toast.error(errorMessage || 'Please fill in all required fields correctly', {
+              duration: 4000,
+              position: 'top-center',
+            });
+          }
+        }}
+        scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
         style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
       >
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2051,10 +2426,12 @@ const ContactUsContent = () => {
               name="firstName"
               label="First Name"
               rules={[{ required: true, message: 'Please enter your first name' }]}
+              required
               style={{ flex: 1, marginBottom: 0 }}
             >
               <Input
                 placeholder="Enter your first name"
+                maxLength={50}
                 style={{
                   fontSize: '13px',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -2066,10 +2443,12 @@ const ContactUsContent = () => {
               name="lastName"
               label="Last Name"
               rules={[{ required: true, message: 'Please enter your last name' }]}
+              required
               style={{ flex: 1, marginBottom: 0 }}
             >
               <Input
                 placeholder="Enter your last name"
+                maxLength={50}
                 style={{
                   fontSize: '13px',
                   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -2083,13 +2462,20 @@ const ContactUsContent = () => {
             label="Your Email"
             rules={[
               { required: true, message: 'Please enter your email' },
-              { type: 'email', message: 'Please enter a valid email address' }
+              { type: 'email', message: 'Please enter a valid email address' },
+              {
+                pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                message: 'Please enter a valid email format (e.g., example@domain.com)'
+              }
             ]}
+            required
+            tooltip="Enter a valid email address"
             style={{ marginBottom: 0 }}
           >
             <Input
               type="email"
-              placeholder="Enter your email address"
+              placeholder="example@domain.com"
+              maxLength={100}
               style={{
                 fontSize: '13px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -2102,12 +2488,29 @@ const ContactUsContent = () => {
             label="Your Number"
             rules={[
               { required: true, message: 'Please enter your phone number' },
-              { pattern: /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/, message: 'Please enter a valid phone number' }
+              { 
+                pattern: /^[0-9+\-\s()]*$/, 
+                message: 'Please enter only numbers' 
+              },
+              {
+                min: 10,
+                message: 'Phone number must be at least 10 digits'
+              }
             ]}
+            required
+            tooltip="Enter your phone number (numbers only)"
             style={{ marginBottom: 0 }}
           >
             <Input
-              placeholder="Enter your phone number"
+              placeholder="Enter your phone number (numbers only)"
+              maxLength={15}
+              onKeyPress={(e) => {
+                // Allow only numbers, +, -, (, ), and space
+                const allowedChars = /[0-9+\-\s()]/;
+                if (!allowedChars.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               style={{
                 fontSize: '13px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -2119,10 +2522,12 @@ const ContactUsContent = () => {
             name="subject"
             label="Subject"
             rules={[{ required: true, message: 'Please enter a subject' }]}
+            required
             style={{ marginBottom: 0 }}
           >
             <Input
               placeholder="Enter the subject"
+              maxLength={200}
               style={{
                 fontSize: '13px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
@@ -2133,12 +2538,19 @@ const ContactUsContent = () => {
           <Form.Item
             name="message"
             label="Message"
-            rules={[{ required: true, message: 'Please enter your message' }]}
+            rules={[
+              { required: true, message: 'Please enter your message' },
+              { min: 10, message: 'Message must be at least 10 characters' }
+            ]}
+            required
+            tooltip="Minimum 10 characters"
             style={{ marginBottom: 0, flex: 1 }}
           >
             <TextArea
               rows={6}
-              placeholder="Enter your message here..."
+              placeholder="Enter your message here... (min 10 characters)"
+              maxLength={1000}
+              showCount
               style={{
                 fontSize: '13px',
                 fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -2164,6 +2576,75 @@ const ContactUsContent = () => {
           </Button>
         </div>
       </Form>
+
+      {/* Success Modal */}
+      <Modal
+        open={isSuccessModalVisible}
+        onOk={() => setIsSuccessModalVisible(false)}
+        onCancel={() => setIsSuccessModalVisible(false)}
+        footer={[
+          <Button 
+            key="ok" 
+            type="primary" 
+            size="large"
+            onClick={() => setIsSuccessModalVisible(false)}
+            style={{
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              minWidth: '120px'
+            }}
+          >
+            Got it!
+          </Button>
+        ]}
+        centered
+        closable={false}
+        width={400}
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ 
+            fontSize: '56px', 
+            marginBottom: '16px',
+            animation: 'bounce 0.5s ease-in-out'
+          }}>
+            ✅
+          </div>
+          <h3 style={{ 
+            fontSize: '22px', 
+            fontWeight: '600', 
+            marginBottom: '12px',
+            color: '#52c41a',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Message Sent Successfully!
+          </h3>
+          <p style={{ 
+            fontSize: '15px', 
+            color: '#666',
+            marginBottom: '12px',
+            lineHeight: '1.6',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}>
+            Thank you for reaching out to us!
+          </p>
+          <div style={{
+            backgroundColor: '#f6ffed',
+            border: '1px solid #b7eb8f',
+            borderRadius: '4px',
+            padding: '12px',
+            marginTop: '16px'
+          }}>
+            <p style={{ 
+              fontSize: '13px', 
+              color: '#52c41a',
+              margin: 0,
+              fontWeight: '500',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+            }}>
+              📬 Our team will review your message and get back to you shortly.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

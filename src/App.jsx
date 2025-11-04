@@ -7,6 +7,7 @@ import ContactUs from "./components/ContactUs";
 import OTPScreen from "./components/OTPScreen";
 import FormFlow from "./components/FormFlow";
 import AutoLogin from "./components/AutoLogin";
+import UpgradePlans from "./components/UpgradePlans";
 import { GOOGLE_CLIENT_ID } from './config';
 import "./styles/global.css";
 import "antd/dist/reset.css";
@@ -37,37 +38,38 @@ export default function App() {
       <div className="app">
         <Router>
           <AutoLogin>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/contact-us" element={<ContactUs />} />
-              <Route path="/login" element={<Navigate to="/" replace />} />
-              <Route path="/otp" element={<OTPScreen />} />
-              <Route 
-                path="/company-details" 
-                element={
-                  <ProtectedRoute>
-                    <FormFlow />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/service-details" 
-                element={
-                  <ProtectedRoute>
-                    <FormFlow />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/results" 
-                element={
-                  <ProtectedRoute>
-                    <FormFlow />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/upgrade-plans" element={<UpgradePlans />} />
+                <Route path="/login" element={<Navigate to="/" replace />} />
+                <Route path="/otp" element={<OTPScreen />} />
+                <Route 
+                  path="/company-details" 
+                  element={
+                    <ProtectedRoute>
+                      <FormFlow />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/service-details" 
+                  element={
+                    <ProtectedRoute>
+                      <FormFlow />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/results" 
+                  element={
+                    <ProtectedRoute>
+                      <FormFlow />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AutoLogin>
         </Router>

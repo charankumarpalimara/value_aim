@@ -6,7 +6,7 @@ import "./AboutUs.css";
 
 // High-quality professional images from Unsplash - AI/Data Analytics themed
 const aiAnalyticsImage = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop&q=85"; // Data visualization
-const predictiveImage = "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=600&h=500&fit=crop&q=85"; // AI technology concept
+const predictiveImage = "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=700&h=400&fit=crop&q=85"; // AI/Technology workspace
 const platformDashboard = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=700&h=800&fit=crop&q=85"; // Business analytics screen
 const dataInsights = "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=700&h=400&fit=crop&q=85"; // Professional team meeting
 
@@ -30,7 +30,8 @@ function AboutUs() {
               <path d="m256 16c-10.7 220.5-19.5 229.3-240 240 220.5 10.7 229.3 19.5 240 240 10.7-220.5 19.5-229.3 240-240-220.5-10.7-229.3-19.5-240-240z"/>
             </svg>
           </div>
-          <h1 className="hero-main-title">ValueAIM: Redefining B2B Account Intelligence with AI</h1>
+          <h1 className="hero-main-title">Redefining B2B Account Intelligence with AI</h1>
+          {/* <br/> */}
           <p className="hero-subtitle">Innovate Your Sales Process with Data-Driven Excellence. Let's Shape Your Growth Journey.</p>
           <div className="hero-decorator hero-decorator-right">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -45,19 +46,20 @@ function AboutUs() {
             <div className="two-column-header">
               <h2 className="section-heading">Transforming Sales Intelligence for Modern Businesses</h2>
               <p className="section-description">
-                In today's complex and competitive B2B landscape, sales success depends on one thing – precision. Traditional sales processes rely heavily on intuition and fragmented data, often leading to missed opportunities and inefficiencies. ValueAIM transforms that reality.
+                In today's complex and competitive B2B landscape, sales success depends on one thing precision. Traditional sales processes rely heavily on intuition and fragmented data, often leading to missed opportunities and inefficiencies. ValueAIM transforms that reality.
               </p>
             </div>
             
             <div className="solutions-two-col-grid">
               <div className="solution-col-item">
                 <div className="solution-card-with-icon">
-                  <div className="solution-icon-svg">
-                    🎯
-                  </div>
+                  <svg className="solution-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
                   <h4 className="solution-card-title">AI-Driven Customer Understanding</h4>
                   <p className="solution-card-text">
-                    ValueAIM consolidates public data, market signals, and third-party research to create a 360° view of every potential customer. The platform continuously learns from patterns in buying behavior, company growth trends, and digital footprints — identifying who's ready to buy, when, and why.
+                    ValueAIM consolidates public data, market signals, and third-party research to create a 360° view of every potential customer. The platform continuously learns from patterns in buying behavior, company growth trends, and digital footprints identifying who's ready to buy, when, and why. Make data-driven decisions with confidence.
                   </p>
                 </div>
               </div>
@@ -82,12 +84,12 @@ function AboutUs() {
 
               <div className="solution-col-item">
                 <div className="solution-card-with-icon">
-                  <div className="solution-icon-svg">
-                    🔮
-                  </div>
+                  <svg className="solution-icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                  </svg>
                   <h4 className="solution-card-title">Opportunity Prediction & Targeting</h4>
                   <p className="solution-card-text">
-                    Using predictive analytics and proprietary AI models, ValueAIM scores and prioritizes leads based on likelihood to convert, strategic fit, and revenue potential. It enables account teams to focus on the right opportunities, not just more opportunities.
+                    Using predictive analytics and proprietary AI models, ValueAIM scores and prioritizes leads based on likelihood to convert, strategic fit, and revenue potential. It enables account teams to focus on the right opportunities, not just more opportunities. Maximize your team's efficiency and ROI with intelligent lead scoring and prioritization.
                   </p>
                 </div>
               </div>
@@ -167,6 +169,8 @@ function AboutUs() {
                 <h2 className="section-heading">Powered by Advanced AI Technology</h2>
                 <p className="masters-description">
                   ValueAIM is an AI-powered B2B sales intelligence platform that empowers account managers, client partners, and business leaders to identify, prioritize, and close high-value opportunities faster. It integrates real-time market intelligence, customer intent data, and AI-driven insights to help teams make smarter, faster, and more confident sales decisions.
+                  <br/><br/>
+                  Our advanced machine learning algorithms continuously analyze market trends, competitive landscapes, and customer behavior patterns to deliver actionable intelligence. With ValueAIM, sales teams gain a strategic advantage through predictive analytics and data-driven recommendations that transform how they engage with prospects and grow their accounts.
                 </p>
               </div>
 
@@ -196,7 +200,7 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">Intelligent Account Insights</h4>
-                    <p className="team-role">The system surfaces deep account intelligence — from leadership changes to technology adoption and industry shifts — helping sales teams tailor their approach and engage in meaningful, data-backed conversations with clients.</p>
+                    <p className="team-role">The system surfaces deep account intelligence from leadership changes to technology adoption and industry shifts helping sales teams tailor their approach and engage in meaningful, data-backed conversations with clients.</p>
                   </div>
                 </div>
               </div>
@@ -228,7 +232,7 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">Business Impact</h4>
-                    <p className="team-role">ValueAIM replaces guesswork with guided precision — ensuring every customer interaction delivers measurable value and drives tangible results for your sales organization.</p>
+                    <p className="team-role">ValueAIM replaces guesswork with guided precision ensuring every customer interaction delivers measurable value and drives tangible results for your sales organization.</p>
                   </div>
                 </div>
               </div>
@@ -244,7 +248,7 @@ function AboutUs() {
                   </div>
                   <div className="team-info">
                     <h4 className="team-name">For Sales Leaders</h4>
-                    <p className="team-role">Gain real-time visibility into account health, pipeline efficiency, and forecast accuracy — empowering data-driven decisions at every level of your organization.</p>
+                    <p className="team-role">Gain real-time visibility into account health, pipeline efficiency, and forecast accuracy empowering data-driven decisions at every level of your organization.</p>
                   </div>
                 </div>
               </div>
@@ -270,9 +274,9 @@ function AboutUs() {
                 <div className="metric-label">Improvement in client engagement outcomes</div>
               </div>
             </div>
-            <p className="metrics-description">
-              ValueAIM replaces guesswork with guided precision — ensuring every customer interaction delivers measurable value.
-            </p>
+            {/* <p className="metrics-description">
+              ValueAIM replaces guesswork with guided precision ensuring every customer interaction delivers measurable value.
+            </p> */}
           </div>
         </section>
 
@@ -315,9 +319,9 @@ function AboutUs() {
             </svg>
           </div>
           <div className="final-cta-container">
-            <h2 className="final-cta-heading">Where Data Meets Account Growth</h2>
-            <p className="final-cta-description">
-              With ValueAIM, enterprises move beyond traditional sales methods — transforming insights into action and relationships into revenue.
+            <h2 className="hero-main-title">Where Data Meets Account Growth</h2>
+            <p className="hero-subtitle">
+              With ValueAIM, enterprises move beyond traditional sales methods transforming insights into action and relationships into revenue.
             </p>
             <button className="final-cta-button" onClick={() => setShowLoginModal(true)}>
               Get Started

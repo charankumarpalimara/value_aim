@@ -44,8 +44,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 30px;
-  padding-bottom: 40px;
+  padding: 100px 30px 40px;
   background: #FFFFFF;
   border-radius: 10px;
   scrollbar-width: thin;

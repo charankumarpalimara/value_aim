@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message } from 'antd';
+import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch } from 'antd';
 import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
+import toast, { Toaster } from 'react-hot-toast';
 import { serviceAPI } from '../utils/api';
 import './ServiceDetailsForm.css';
 import logo from '../assets/Amplify-Value-as-subtitle-3.png';
@@ -160,7 +161,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         // No changes, just exit edit mode
         setIsEditMode(false);
         setSelectedRowKeys([]);
-        message.info('Edit mode closed');
+        toast('Edit mode closed', {
+          icon: 'ℹ️',
+        });
       }
     } else {
       // Enter edit mode directly and clear any previous pending changes
@@ -177,7 +180,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsEditMode(false);
     setSelectedRowKeys([]);
     // Reload original data - in this case, we'll just reset from a backup or reload
-    message.info('Changes discarded');
+    toast('Changes discarded', {
+      icon: 'ℹ️',
+    });
   };
 
   const confirmDoneEditing = () => {
@@ -187,7 +192,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         setIsEditMode(false);
         setSelectedRowKeys([]);
         setIsDoneEditingConfirmModalVisible(false);
-        message.info('No changes to save');
+        toast('No changes to save', {
+          icon: 'ℹ️',
+        });
         return;
       }
 
@@ -206,11 +213,11 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       setSelectedRowKeys([]);
       setIsDoneEditingConfirmModalVisible(false);
       setPendingChanges({});
-      message.success('All changes saved successfully!');
+      toast.success('All changes saved successfully!');
     } catch (error) {
       console.error('Error saving changes:', error);
       setIsDoneEditingConfirmModalVisible(false);
-      message.error('Failed to save some changes. Please try again.');
+      toast.error('Failed to save some changes. Please try again.');
     }
   };
 
@@ -239,12 +246,14 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsModalVisible(false);
     setIsAddConfirmModalVisible(false);
     setSelectedRowKeys([]);
-    message.success('Service added successfully!');
+    toast.success('Service added successfully!');
   };
 
   const handleSelectedDelete = () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select services to delete');
+      toast('Please select services to delete', {
+        icon: '⚠️',
+      });
       return;
     }
     setIsMultiDeleteConfirmModalVisible(true);
@@ -254,7 +263,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     const newData = dataSource.filter(item => !selectedRowKeys.includes(item.key));
     setDataSource(newData);
     setIsMultiDeleteConfirmModalVisible(false);
-    message.success(`${selectedRowKeys.length} service(s) deleted successfully!`);
+    toast.success(`${selectedRowKeys.length} service(s) deleted successfully!`);
     setSelectedRowKeys([]);
   };
 
@@ -279,7 +288,9 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       // Check if there's any data to save
       if (dataSource.length === 0) {
         console.log('No service data to save, proceeding with empty data');
-        message.info('No services to save, proceeding to next step');
+        toast('No services to save, proceeding to next step', {
+          icon: 'ℹ️',
+        });
         
         // Save empty data to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
@@ -301,7 +312,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       
       if (response.success) {
         console.log('Services saved successfully:', response.data);
-        message.warning('Services saved successfully!');
+        toast.success('Services saved successfully!');
         
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
@@ -320,7 +331,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       }
     } catch (error) {
       console.error('Error saving services:', error);
-      message.error('Failed to save services. Please try again.');
+      toast.error('Failed to save services. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -651,9 +662,48 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   ];
 
   return (
-    <div className="service-details-page">
-      {/* Header */}
-      <div className="service-header">
+    <>
+      <Toaster 
+        position="top-center"
+        reverseOrder={false}
+        containerStyle={{
+          top: 24,
+        }}
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#fff',
+            color: 'rgba(0, 0, 0, 0.85)',
+            padding: '10px 16px',
+            borderRadius: '2px',
+            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
+            fontSize: '14px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            maxWidth: '400px',
+          },
+          success: {
+            iconTheme: {
+              primary: '#52c41a',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ff4d4f',
+              secondary: '#fff',
+            },
+            style: {
+              background: '#fff',
+            },
+          },
+        }}
+      />
+      <div className="service-details-page">
+        {/* Header */}
+        <div className="service-header">
         <div className="service-logo-section">
           <img src={logo} alt="Logo" className="service-logo-image" />
         </div>
@@ -977,6 +1027,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         </Modal>
       </div>
     </div>
+    </>
   );
 };
 
