@@ -325,6 +325,14 @@ function CompanyDetailsPage({ onNext }) {
         console.log('Company details saved successfully:', response.data);
         toast.success(isUpdating ? 'Company details updated successfully!' : 'Company details saved successfully!');
         
+        // Mark user as having completed company details
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          user.companyDetailsCompleted = true;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+        
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
         formFlowData.companyDetails = companyData;

@@ -292,6 +292,16 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
           icon: 'ℹ️',
         });
         
+        // Mark user as having completed onboarding even with no services
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          user.hasCompletedOnboarding = true;
+          user.isFirstLogin = false;
+          user.serviceDetailsCompleted = true;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
+        
         // Save empty data to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');
         formFlowData.serviceDetails = { services: [] };
@@ -313,6 +323,16 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       if (response.success) {
         console.log('Services saved successfully:', response.data);
         toast.success('Services saved successfully!');
+        
+        // Mark user as having completed onboarding
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          user.hasCompletedOnboarding = true;
+          user.isFirstLogin = false;
+          user.serviceDetailsCompleted = true;
+          localStorage.setItem('user', JSON.stringify(user));
+        }
         
         // Also save to session storage for form flow
         const formFlowData = JSON.parse(sessionStorage.getItem('formFlowData') || '{}');

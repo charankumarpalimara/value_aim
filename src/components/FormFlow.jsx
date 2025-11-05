@@ -16,6 +16,34 @@ const FormFlow = () => {
     };
   });
 
+  // Check user onboarding status and redirect appropriately
+  useEffect(() => {
+    const checkOnboardingStatus = () => {
+      const storedUser = localStorage.getItem('user');
+      if (!storedUser) return;
+      
+      try {
+        const user = JSON.parse(storedUser);
+        const isNewUser = user.isFirstLogin === true;
+        const hasCompletedOnboarding = user.hasCompletedOnboarding === true;
+        
+        console.log('User onboarding status:', { isNewUser, hasCompletedOnboarding });
+        
+        // If existing user (not first login) and trying to access onboarding pages
+        if (!isNewUser || hasCompletedOnboarding) {
+          if (location.pathname === '/company-details' || location.pathname === '/service-details') {
+            console.log('Existing user detected, redirecting to results');
+            navigate('/results', { replace: true });
+          }
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [location.pathname, navigate]);
+
   // Save form data to sessionStorage whenever it changes
   useEffect(() => {
     sessionStorage.setItem('formFlowData', JSON.stringify(formData));
