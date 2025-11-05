@@ -173,6 +173,15 @@ const UpgradePlans = () => {
       <div className="upgrade-plans-page">
         {/* Logo Section */}
         <div className="upgrade-logo-header">
+          <Button 
+            type="text" 
+            icon={<ArrowLeftOutlined />} 
+            onClick={() => navigate(-1)}
+            className="back-button"
+            size="large"
+          >
+            Back
+          </Button>
           <img 
             src={logoImage} 
             alt="Value AIM Logo" 

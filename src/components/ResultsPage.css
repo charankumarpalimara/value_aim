@@ -169,7 +169,7 @@ html, body {
   position: fixed;
   top: 0;
   left: 0;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease, left 0.3s ease;
 }
@@ -221,7 +221,8 @@ html, body {
   padding-top: 12px;
   padding-bottom: 0;
   transition: padding 0.3s ease;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: visible;
 }
 
 .sidebar.collapsed .sidebar-inner {
@@ -278,50 +279,50 @@ html, body {
   border-radius: 4px;
 }
 
-/* Collapse Button for Desktop */
-.collapse-btn-desktop {
-  position: absolute;
-  top: 5%;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-  flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+/* Sidebar Collapse Toggle Button - Now outside sidebar for guaranteed clickability */
+.sidebar-collapse-toggle {
+  position: fixed !important;
+  top: 20px !important;
+  left: 222px !important;
+  width: 32px !important;
+  height: 32px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #201F47 !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  z-index: 999999999 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: left 0.3s ease, transform 0.2s ease !important;
+  user-select: none !important;
+  pointer-events: auto !important;
 }
 
-.collapse-btn-desktop svg {
-  display: block;
-  flex-shrink: 0;
+.sidebar-collapse-toggle:hover {
+  background: #15143a !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  transform: scale(1.1) !important;
 }
 
-.collapse-btn-desktop:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.sidebar-collapse-toggle:active {
+  transform: scale(0.95) !important;
 }
 
-.sidebar.collapsed .collapse-btn-desktop {
-  right: auto;
-  left: 16px;
-  top: 5%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+.sidebar-collapse-toggle svg {
+  display: block !important;
+  width: 16px !important;
+  height: 16px !important;
+  pointer-events: none !important;
 }
 
-.sidebar.collapsed .collapse-btn-desktop:hover {
-  background: rgba(255, 255, 255, 1);
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+.sidebar-collapse-toggle svg path {
+  stroke: #ffffff !important;
+}
+
+/* When sidebar is collapsed, move button to left */
+.sidebar-collapse-toggle.collapsed {
+  left: 22px !important;
 }
 
 /* New Chat Button */
@@ -855,7 +856,7 @@ html, body {
     height: 60px;
   }
 
-  .collapse-btn-desktop {
+  .sidebar-collapse-toggle {
     display: none !important;
   }
 
@@ -890,7 +891,7 @@ html, body {
     display: block !important;
   }
 
-  .collapse-btn-desktop {
+  .sidebar-collapse-toggle {
     display: none !important;
   }
 

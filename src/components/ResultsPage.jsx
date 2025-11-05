@@ -476,20 +476,30 @@ function ResultsPage() {
 
       {/* Main Container */}
       <div className="page-container">
+        {/* Collapse Toggle Button - Outside sidebar */}
+        {!isMainPopupVisible && (
+          <div 
+            className={`sidebar-collapse-toggle ${isSidebarCollapsed ? 'collapsed' : ''}`}
+            onClick={toggleSidebarCollapse}
+            role="button"
+            tabIndex={0}
+            aria-label="Toggle sidebar"
+            onKeyPress={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleSidebarCollapse(); }}
+          >
+          {isSidebarCollapsed ? (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3L11 8L6 13" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 3L5 8L10 13" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+          </div>
+        )}
+
         {/* Sidebar */}
         <aside className={`sidebar ${isSidebarOpen ? 'open' : ''} ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-          <button className="collapse-btn-desktop" onClick={toggleSidebarCollapse} aria-label="Toggle sidebar">
-            {isSidebarCollapsed ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 4L13 10L7 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M13 4L7 10L13 16" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </button>
-
           <div className="sidebar-inner">
             <div className="sidebar-top">
               <img 
