@@ -25,7 +25,8 @@ const UpgradePlans = () => {
       ],
       buttonText: 'Current Plan',
       buttonDisabled: true,
-      highlighted: false
+      highlighted: false,
+      primaryButton: false
     },
     {
       name: 'Professional',
@@ -44,7 +45,8 @@ const UpgradePlans = () => {
       ],
       buttonText: 'Upgrade to Professional',
       buttonDisabled: false,
-      highlighted: true
+      highlighted: true,
+      primaryButton: true
     },
     {
       name: 'Enterprise',
@@ -61,7 +63,8 @@ const UpgradePlans = () => {
       ],
       buttonText: 'Upgrade to Enterprise',
       buttonDisabled: false,
-      highlighted: false
+      highlighted: false,
+      primaryButton: true
     }
   ];
 
@@ -230,12 +233,12 @@ const UpgradePlans = () => {
                 ))}
               </ul>
               <Button
-                type={plan.highlighted ? "primary" : "default"}
+                type={plan.primaryButton ? "primary" : "default"}
                 size="large"
                 block
                 disabled={plan.buttonDisabled}
                 onClick={() => handleUpgrade(plan.name)}
-                className={`plan-button ${plan.highlighted ? 'primary-button' : ''}`}
+                className={`plan-button ${plan.primaryButton ? 'primary-button' : ''}`}
               >
                 {plan.buttonText}
               </Button>
@@ -276,12 +279,12 @@ const UpgradePlans = () => {
                 ))}
               </ul>
               <Button
-                type={plan.highlighted ? "primary" : "default"}
+                type={plan.primaryButton ? "primary" : "default"}
                 size="large"
                 block
                 disabled={plan.buttonDisabled}
                 onClick={() => handleUpgrade(plan.name)}
-                className={`plan-button ${plan.highlighted ? 'primary-button' : ''}`}
+                className={`plan-button ${plan.primaryButton ? 'primary-button' : ''}`}
               >
                 {plan.buttonText}
               </Button>

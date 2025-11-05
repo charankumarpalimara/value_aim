@@ -511,7 +511,6 @@ function ResultsPage() {
                 alt="Logo" 
                 className="sidebar-logo" 
                 onClick={handleLogoClick}
-                style={{ cursor: 'pointer' }}
               />
               <div className="sidebar-icon-collapsed">
                 <img 

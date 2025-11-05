@@ -172,6 +172,7 @@ html, body {
   overflow: visible;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   transition: width 0.3s ease, left 0.3s ease;
+  z-index: 101;
 }
 
 .sidebar.collapsed {
@@ -223,6 +224,8 @@ html, body {
   transition: padding 0.3s ease;
   overflow-y: auto;
   overflow-x: visible;
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar.collapsed .sidebar-inner {
@@ -245,7 +248,15 @@ html, body {
   width: auto;
   object-fit: contain;
   transition: all 0.3s ease;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  user-select: none;
 }
+
+/* .sidebar-logo:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+} */
 
 .sidebar-icon-collapsed {
   display: none;
