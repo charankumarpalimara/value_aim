@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-/**
- * AutoLogin Component
- * Automatically logs in users if they have a valid token (within 7 days)
- * and redirects them to the appropriate page based on their onboarding status
- */
 const AutoLogin = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
