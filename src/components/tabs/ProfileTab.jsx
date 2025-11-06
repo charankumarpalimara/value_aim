@@ -330,6 +330,7 @@ const ProfileTab = () => {
       <Toaster 
         position="top-center"
         reverseOrder={false}
+        gutter={8}
         containerStyle={{
           top: 24,
         }}
@@ -346,6 +347,7 @@ const ProfileTab = () => {
             maxWidth: '400px',
           },
           success: {
+            duration: 3000,
             iconTheme: {
               primary: '#52c41a',
               secondary: '#fff',
@@ -355,6 +357,7 @@ const ProfileTab = () => {
             },
           },
           error: {
+            duration: 4000,
             iconTheme: {
               primary: '#ff4d4f',
               secondary: '#fff',
