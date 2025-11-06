@@ -20,7 +20,7 @@ export const APPLE_CONFIG = {
 };
 
 // API Base URL
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://value-aim-backend.onrender.com/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.valueaim.com/api';
 
 // App Configuration
 export const APP_CONFIG = {
