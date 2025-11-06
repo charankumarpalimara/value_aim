@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Form, Input, Select, Button, Card, Row, Col, Modal } from 'antd';
+import { Form, Input, Select, Button, Card, Row, Col, Modal, message } from 'antd';
 import { SaveOutlined, BankOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import toast, { Toaster } from 'react-hot-toast';
 import { API_BASE_URL } from '../../config';
 
 const { TextArea } = Input;
@@ -123,10 +122,7 @@ const OrganizationDetailsTab = () => {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
         console.error('No auth token found');
-        toast.error('Please log in to save organization details', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error('Please log in to save organization details');
         setIsConfirmModalVisible(false);
         return;
       }
@@ -186,26 +182,17 @@ const OrganizationDetailsTab = () => {
         }
         
         // Show success notification
-        toast.success('Organization details saved successfully!', {
-          duration: 3000,
-          position: 'top-center',
-        });
+        message.success('Organization details saved successfully!');
       } else {
         const errorData = await response.json();
         console.error('Error response:', errorData);
-        toast.error(errorData.message || 'Failed to save organization details.', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error(errorData.message || 'Failed to save organization details.');
       }
     } catch (error) {
       console.error('Error saving organization details:', error);
-      // Only show toast if it's a network error (not a handled error response)
+      // Only show message if it's a network error (not a handled error response)
       if (error.message && !error.response) {
-        toast.error('Failed to save. Please check your connection and try again.', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error('Failed to save. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);
@@ -213,50 +200,7 @@ const OrganizationDetailsTab = () => {
   };
 
   return (
-    <>
-      <Toaster 
-        position="top-center"
-        reverseOrder={false}
-        gutter={8}
-        containerStyle={{
-          top: 24,
-          zIndex: 10000,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: 'rgba(0, 0, 0, 0.85)',
-            padding: '10px 16px',
-            borderRadius: '2px',
-            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            fontSize: '14px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            maxWidth: '400px',
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#52c41a',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-          error: {
-            duration: 4000,
-            iconTheme: {
-              primary: '#ff4d4f',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-        }}
-      />
-      <div style={{ 
+    <div style={{ 
         padding: '24px',
       height: '100%',
       overflowY: 'auto'
@@ -532,7 +476,6 @@ const OrganizationDetailsTab = () => {
         <p>Are you sure you want to save these organization details?</p>
       </Modal>
     </div>
-    </>
   );
 };
 

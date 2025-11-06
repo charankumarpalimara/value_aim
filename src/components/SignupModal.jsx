@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Modal, Button } from 'antd';
-import toast, { Toaster } from 'react-hot-toast';
+import { Modal, Button, message } from 'antd';
 import { authAPI } from '../utils/api';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "./SignupModal.css";
@@ -190,46 +189,6 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
 
     return (
         <>
-        <Toaster 
-            position="top-center"
-            reverseOrder={false}
-            containerStyle={{
-                top: 24,
-                zIndex: 10001,
-            }}
-            toastOptions={{
-                duration: 3000,
-                style: {
-                    background: '#fff',
-                    color: 'rgba(0, 0, 0, 0.85)',
-                    padding: '10px 16px',
-                    borderRadius: '2px',
-                    boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-                    fontSize: '14px',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-                    maxWidth: '400px',
-                    zIndex: 10001,
-                },
-                success: {
-                    iconTheme: {
-                        primary: '#52c41a',
-                        secondary: '#fff',
-                    },
-                    style: {
-                        background: '#fff',
-                    },
-                },
-                error: {
-                    iconTheme: {
-                        primary: '#ff4d4f',
-                        secondary: '#fff',
-                    },
-                    style: {
-                        background: '#fff',
-                    },
-                },
-            }}
-        />
         {isOpen && (
         <div className="signup-modal-overlay" onClick={handleClose}>
             <div className="signup-modal" onClick={(e) => e.stopPropagation()} style={{ position: 'relative' }}>
@@ -854,11 +813,8 @@ function SignupModal({ isOpen, onClose, onLoginClick }) {
                                             }));
                                             localStorage.setItem('token', response.data.token);
                                             
-                                            // Show success toast notification
-                                            toast.success('Account created successfully! Welcome to Value Aim! 🎉', {
-                                                duration: 4000,
-                                                position: 'top-center',
-                                            });
+                                            // Show success message notification
+                                            message.success('Account created successfully! Welcome to Value Aim! 🎉');
                                             
                                             // Show success modal
                                             setIsSuccessModalVisible(true);

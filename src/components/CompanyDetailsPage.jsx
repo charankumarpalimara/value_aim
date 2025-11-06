@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Modal } from 'antd';
-import toast, { Toaster } from 'react-hot-toast';
+import { Modal, message } from 'antd';
 import { companyAPI } from "../utils/api";
 import Header from "./Header";
 import "./CompanyDetailsPage.css";
@@ -146,7 +145,7 @@ function CompanyDetailsPage({ onNext }) {
         console.error('Error loading company data:', error);
         // If no data exists, that's fine - user will create new
         if (error.response?.status !== 404) {
-          toast.error('Failed to load company data');
+          message.error('Failed to load company data');
         }
       } finally {
         setIsLoading(false);
@@ -294,7 +293,7 @@ function CompanyDetailsPage({ onNext }) {
       // Check if user is authenticated
       const token = localStorage.getItem('token');
       if (!token) {
-        toast.error('You are not logged in. Please log in again.');
+        message.error('You are not logged in. Please log in again.');
         navigate('/login');
         return;
       }
@@ -323,7 +322,7 @@ function CompanyDetailsPage({ onNext }) {
       
       if (response.success) {
         console.log('Company details saved successfully:', response.data);
-        toast.success(isUpdating ? 'Company details updated successfully!' : 'Company details saved successfully!');
+        message.success(isUpdating ? 'Company details updated successfully!' : 'Company details saved successfully!');
         
         // Mark user as having completed company details
         const storedUser = localStorage.getItem('user');
@@ -354,12 +353,12 @@ function CompanyDetailsPage({ onNext }) {
       console.error('Error status:', error.response?.status);
       
       if (error.response?.status === 401) {
-        toast.error('Your session has expired. Please log in again.');
+        message.error('Your session has expired. Please log in again.');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         navigate('/login');
       } else {
-        toast.error(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
+        message.error(`Failed to save company details: ${error.response?.data?.message || error.message || 'Unknown error'}`);
       }
     } finally {
       setIsSubmitting(false);
@@ -371,46 +370,7 @@ function CompanyDetailsPage({ onNext }) {
   // };
 
   return (
-    <>
-      <Toaster 
-        position="top-center"
-        reverseOrder={false}
-        containerStyle={{
-          top: 24,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: 'rgba(0, 0, 0, 0.85)',
-            padding: '10px 16px',
-            borderRadius: '2px',
-            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            fontSize: '14px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            maxWidth: '400px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#52c41a',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ff4d4f',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-        }}
-      />
-      <div className="company-page">
+    <div className="company-page">
         <Header showOnlyLogout={true} disableLogoNavigation={true} />
       
       <div className="company-content">
@@ -691,7 +651,6 @@ function CompanyDetailsPage({ onNext }) {
         </Modal>
       </div>
     </div>
-    </>
   );
 }
 

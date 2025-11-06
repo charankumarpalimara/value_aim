@@ -3,7 +3,6 @@ import { Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
-import toast, { Toaster } from 'react-hot-toast';
 import logoImage from '../assets/Amplify-Value-as-subtitle-3.png';
 import './UpgradePlans.css';
 

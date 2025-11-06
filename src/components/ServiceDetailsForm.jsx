@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch } from 'antd';
+import { Table, Button, Input, Select, Tag, Space, Form, Modal, Switch, message } from 'antd';
 import { PlusOutlined, EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import toast, { Toaster } from 'react-hot-toast';
 import { serviceAPI } from '../utils/api';
 import Header from './Header';
 import './ServiceDetailsForm.css';
@@ -161,9 +160,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         // No changes, just exit edit mode
         setIsEditMode(false);
         setSelectedRowKeys([]);
-        toast('Edit mode closed', {
-          icon: 'ℹ️',
-        });
+        message.info('Edit mode closed');
       }
     } else {
       // Enter edit mode directly and clear any previous pending changes
@@ -180,9 +177,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsEditMode(false);
     setSelectedRowKeys([]);
     // Reload original data - in this case, we'll just reset from a backup or reload
-    toast('Changes discarded', {
-      icon: 'ℹ️',
-    });
+    message.info('Changes discarded');
   };
 
   const confirmDoneEditing = () => {
@@ -192,9 +187,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         setIsEditMode(false);
         setSelectedRowKeys([]);
         setIsDoneEditingConfirmModalVisible(false);
-        toast('No changes to save', {
-          icon: 'ℹ️',
-        });
+        message.info('No changes to save');
         return;
       }
 
@@ -213,11 +206,11 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       setSelectedRowKeys([]);
       setIsDoneEditingConfirmModalVisible(false);
       setPendingChanges({});
-      toast.success('All changes saved successfully!');
+      message.success('All changes saved successfully!');
     } catch (error) {
       console.error('Error saving changes:', error);
       setIsDoneEditingConfirmModalVisible(false);
-      toast.error('Failed to save some changes. Please try again.');
+      message.error('Failed to save some changes. Please try again.');
     }
   };
 
@@ -246,14 +239,12 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     setIsModalVisible(false);
     setIsAddConfirmModalVisible(false);
     setSelectedRowKeys([]);
-    toast.success('Service added successfully!');
+    message.success('Service added successfully!');
   };
 
   const handleSelectedDelete = () => {
     if (selectedRowKeys.length === 0) {
-      toast('Please select services to delete', {
-        icon: '⚠️',
-      });
+      message.warning('Please select services to delete');
       return;
     }
     setIsMultiDeleteConfirmModalVisible(true);
@@ -263,7 +254,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
     const newData = dataSource.filter(item => !selectedRowKeys.includes(item.key));
     setDataSource(newData);
     setIsMultiDeleteConfirmModalVisible(false);
-    toast.success(`${selectedRowKeys.length} service(s) deleted successfully!`);
+    message.success(`${selectedRowKeys.length} service(s) deleted successfully!`);
     setSelectedRowKeys([]);
   };
 
@@ -288,9 +279,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       // Check if there's any data to save
       if (dataSource.length === 0) {
         console.log('No service data to save, proceeding with empty data');
-        toast('No services to save, proceeding to next step', {
-          icon: 'ℹ️',
-        });
+        message.info('No services to save, proceeding to next step');
         
         // Mark user as having completed onboarding even with no services
         const storedUser = localStorage.getItem('user');
@@ -322,7 +311,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       
       if (response.success) {
         console.log('Services saved successfully:', response.data);
-        toast.success('Services saved successfully!');
+        message.success('Services saved successfully!');
         
         // Mark user as having completed onboarding
         const storedUser = localStorage.getItem('user');
@@ -351,7 +340,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
       }
     } catch (error) {
       console.error('Error saving services:', error);
-      toast.error('Failed to save services. Please try again.');
+      message.error('Failed to save services. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -682,46 +671,7 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
   ];
 
   return (
-    <>
-      <Toaster 
-        position="top-center"
-        reverseOrder={false}
-        containerStyle={{
-          top: 24,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: 'rgba(0, 0, 0, 0.85)',
-            padding: '10px 16px',
-            borderRadius: '2px',
-            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            fontSize: '14px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            maxWidth: '400px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#52c41a',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ff4d4f',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-        }}
-      />
-      <div className="service-details-page">
+    <div className="service-details-page">
         {/* Header */}
         <Header showOnlyLogout={true} disableLogoNavigation={true} />
 
@@ -1043,7 +993,6 @@ const ServiceDetailsForm = ({ onNext, onBack }) => {
         </Modal>
       </div>
     </div>
-    </>
   );
 };
 

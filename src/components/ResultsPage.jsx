@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiPlus, HiMicrophone, HiArrowUp } from "react-icons/hi2";
 import { useMediaQuery } from 'react-responsive';
-import { Modal } from 'antd';
-import toast, { Toaster } from 'react-hot-toast';
+import { Modal, message } from 'antd';
 import logoImage from "../assets/Amplify-Value-as-subtitle-3.png";
 import valueAimImage from "../assets/value_aim_icon_transparent.png";
 // import faviconImage from "../assets/va_fav.png";
@@ -379,7 +378,7 @@ function ResultsPage() {
     window.dispatchEvent(new Event('localStorageCleared'));
     
     // Show success message
-    toast.success('Logged out successfully!');
+    message.success('Logged out successfully!');
     
     // Close modal
     setIsLogoutModalVisible(false);
@@ -392,46 +391,7 @@ function ResultsPage() {
 
 
   return (
-    <>
-      <Toaster 
-        position="top-center"
-        reverseOrder={false}
-        containerStyle={{
-          top: 24,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: 'rgba(0, 0, 0, 0.85)',
-            padding: '10px 16px',
-            borderRadius: '2px',
-            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            fontSize: '14px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            maxWidth: '400px',
-          },
-          success: {
-            iconTheme: {
-              primary: '#52c41a',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ff4d4f',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-        }}
-      />
-      <div className="results-page">
+    <div className="results-page">
         {/* Header */}
       <header className={`page-header ${isScrolled ? 'scrolled' : ''}`}>
         {/* <button 
@@ -1220,7 +1180,6 @@ function ResultsPage() {
         <p>Are you sure you want to logout?</p>
       </Modal>
     </div>
-    </>
   );
 }
 

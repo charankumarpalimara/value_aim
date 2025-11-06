@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Avatar, Upload, Divider, Space, Modal } from 'antd';
+import { Form, Input, Button, Card, Avatar, Upload, Divider, Space, Modal, message } from 'antd';
 import { UserOutlined, MailOutlined, LockOutlined, UploadOutlined, SaveOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import toast, { Toaster } from 'react-hot-toast';
 import { API_BASE_URL } from '../../config';
 import { userAPI } from '../../utils/api';
 import './ProfileTab.css';
@@ -102,7 +101,7 @@ const ProfileTab = () => {
       console.log('Token from localStorage:', token ? 'Present' : 'Missing');
       
       if (!token) {
-        toast.error('Please log in to update profile');
+        message.error('Please log in to update profile');
         setLoading(false);
         setIsConfirmModalVisible(false);
         setPendingFormValues(null);
@@ -204,7 +203,7 @@ const ProfileTab = () => {
         
         // Show success notification
         console.log('Showing success notification...');
-        toast.success('Your profile has been updated successfully!');
+        message.success('Your profile has been updated successfully!');
         console.log('Success notification called');
       } else {
         console.log('=== BACKEND ERROR ===');
@@ -217,17 +216,18 @@ const ProfileTab = () => {
         
         const errorData = await response.json();
         console.log('Error data:', errorData);
-        toast.error(errorData.message || 'Failed to update profile. Please try again.');
+        message.error(errorData.message || 'Failed to update profile. Please try again.');
       }
     } catch (error) {
       // Close confirmation modal
       setIsConfirmModalVisible(false);
       setPendingFormValues(null);
       
-      toast.error('Failed to update profile. Please check your connection and try again.');
       console.error('Profile update error:', error);
       console.error('Error details:', error.message);
-      console.error('Error stack:', error.stack);
+      
+      // Show error message with explicit configuration
+      message.error('Failed to update profile. Please check your connection and try again.');
     } finally {
       setLoading(false);
       console.log('Loading set to false');
@@ -245,7 +245,7 @@ const ProfileTab = () => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       if (!token) {
-        toast.error('Please log in to change password');
+        message.error('Please log in to change password');
         setLoading(false);
         setIsPasswordConfirmModalVisible(false);
         setPendingPasswordValues(null);
@@ -261,12 +261,12 @@ const ProfileTab = () => {
       });
 
       if (result.success) {
-        toast.success('Your password has been changed successfully!');
+        message.success('Your password has been changed successfully!');
         passwordForm.resetFields();
         setIsPasswordConfirmModalVisible(false);
         setPendingPasswordValues(null);
       } else {
-        toast.error(result.message || 'Failed to change password. Please try again.');
+        message.error(result.message || 'Failed to change password. Please try again.');
         setIsPasswordConfirmModalVisible(false);
         setPendingPasswordValues(null);
       }
@@ -274,7 +274,7 @@ const ProfileTab = () => {
       // Handle axios error responses
       const errorMessage = error.response?.data?.message || error.message || 'Failed to change password. Please check your connection and try again.';
       
-      toast.error(errorMessage);
+      message.error(errorMessage);
       console.error('Password change error:', error);
       console.error('Error response:', error.response);
       setIsPasswordConfirmModalVisible(false);
@@ -296,13 +296,13 @@ const ProfileTab = () => {
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        toast.error('Please select an image file');
+        message.error('Please select an image file');
         return;
       }
       
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Image size must be less than 5MB');
+        message.error('Image size must be less than 5MB');
         return;
       }
       
@@ -312,7 +312,7 @@ const ProfileTab = () => {
       setHasNewImage(true);
       console.log('✅ Image selected and stored');
       console.log('✅ Image preview set and hasNewImage flag set to true');
-      toast.success('Image selected successfully');
+      message.success('Image selected successfully');
     }
   };
 
@@ -320,56 +320,11 @@ const ProfileTab = () => {
     setImagePreview(null);
     setSelectedFile(null);
     setHasNewImage(false);
-    toast('Image removed', {
-      icon: 'ℹ️',
-    });
+    message.info('Image removed');
   };
 
   return (
-    <>
-      <Toaster 
-        position="top-center"
-        reverseOrder={false}
-        gutter={8}
-        containerStyle={{
-          top: 24,
-          zIndex: 10000,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: '#fff',
-            color: 'rgba(0, 0, 0, 0.85)',
-            padding: '10px 16px',
-            borderRadius: '2px',
-            boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-            fontSize: '14px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-            maxWidth: '400px',
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#52c41a',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-          error: {
-            duration: 4000,
-            iconTheme: {
-              primary: '#ff4d4f',
-              secondary: '#fff',
-            },
-            style: {
-              background: '#fff',
-            },
-          },
-        }}
-      />
-      <div style={{ 
+    <div style={{ 
         maxWidth: '100%', 
         margin: '0', 
         padding: isMobile ? '16px' : '24px',
@@ -744,7 +699,7 @@ const ProfileTab = () => {
         open={isDeleteAccountModalVisible}
         onOk={() => {
           // TODO: Implement account deletion
-          toast.error('Account deletion is not yet implemented');
+          message.error('Account deletion is not yet implemented');
           setIsDeleteAccountModalVisible(false);
         }}
         onCancel={() => setIsDeleteAccountModalVisible(false)}
@@ -759,7 +714,6 @@ const ProfileTab = () => {
         </p>
       </Modal>
     </div>
-    </>
   );
 };
 

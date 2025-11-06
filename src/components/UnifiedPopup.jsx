@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Table, Button, Input, Tag, Space, Form, Select, Switch, Upload } from 'antd';
+import { Modal, Table, Button, Input, Tag, Space, Form, Select, Switch, Upload, message } from 'antd';
 import { EditOutlined, SaveOutlined, SearchOutlined, DeleteOutlined, PlusOutlined, PaperClipOutlined, SendOutlined, CloseOutlined } from '@ant-design/icons';
 import { useMediaQuery } from 'react-responsive';
-import toast, { Toaster } from 'react-hot-toast';
 import { serviceAPI, suggestionAPI, contactAPI } from '../utils/api';
 
 const { TextArea } = Input;
@@ -184,51 +183,6 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
         </div>
       </div>
     </Modal>
-    
-    {/* Toaster placed outside Modal to ensure proper visibility */}
-    <Toaster 
-      position="top-center"
-      reverseOrder={false}
-      gutter={8}
-      containerStyle={{
-        top: 24,
-        zIndex: 10000,
-      }}
-      toastOptions={{
-        duration: 3000,
-        style: {
-          background: '#fff',
-          color: 'rgba(0, 0, 0, 0.85)',
-          padding: '10px 16px',
-          borderRadius: '2px',
-          boxShadow: '0 3px 6px -4px rgba(0, 0, 0, 0.12), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 9px 28px 8px rgba(0, 0, 0, 0.05)',
-          fontSize: '14px',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          maxWidth: '400px',
-          // zIndex: 10000,
-        },
-        success: {
-          duration: 3000,
-          iconTheme: {
-            primary: '#52c41a',
-            secondary: '#fff',
-          },
-          style: {
-            background: '#fff',
-          },
-        },
-        error: {
-          duration: 4000,
-          iconTheme: {
-            primary: '#ff4d4f',
-            secondary: '#fff',
-          },
-          style: {
-            background: '#fff',
-          },
-        },
-      }}
-    />
     </>
   );
 };
@@ -278,17 +232,11 @@ const ServiceManagerContent = () => {
         setDataSource(servicesWithKeys);
       } else {
         console.error('Failed to load services:', response.message);
-        toast.error(`Failed to load services: ${response.message}`, {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error(`Failed to load services: ${response.message}`);
       }
     } catch (error) {
       console.error('Error loading services:', error);
-      toast.error(`Error loading services: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(`Error loading services: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -346,15 +294,9 @@ const ServiceManagerContent = () => {
         console.log('Field with error:', fieldName);
         console.log('Error message:', errorMessage);
         
-        toast.error(errorMessage || 'Please fill in all required fields', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error(errorMessage || 'Please fill in all required fields');
       } else {
-        toast.error('Please fill in all required fields', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        message.error('Please fill in all required fields');
       }
     }
   };
@@ -377,11 +319,8 @@ const ServiceManagerContent = () => {
         setEditingService(null);
         setSelectedRowKeys([]);
         
-        // Show toast BEFORE reloading
-        toast.success('Service added successfully!', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        // Show message BEFORE reloading
+        message.success('Service added successfully!');
         
         // Reload services from database
         await loadServices();
@@ -392,10 +331,7 @@ const ServiceManagerContent = () => {
     } catch (error) {
       console.error('Error adding service:', error);
       setIsAddConfirmModalVisible(false);
-      toast.error(`Failed to add service: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(`Failed to add service: ${error.message}`);
     } finally {
       setIsAddLoading(false);
     }
@@ -419,11 +355,8 @@ const ServiceManagerContent = () => {
         setEditingService(null);
         setSelectedRowKeys([]);
         
-        // Show toast BEFORE reloading
-        toast.success('Service updated successfully!', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        // Show message BEFORE reloading
+        message.success('Service updated successfully!');
         
         // Reload services from database
         await loadServices();
@@ -434,10 +367,7 @@ const ServiceManagerContent = () => {
     } catch (error) {
       console.error('Error updating service:', error);
       setIsEditConfirmModalVisible(false);
-      toast.error(`Failed to update service: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(`Failed to update service: ${error.message}`);
     } finally {
       setIsEditLoading(false);
     }
@@ -447,9 +377,7 @@ const ServiceManagerContent = () => {
 
   const handleSelectedDelete = () => {
     if (selectedRowKeys.length === 0) {
-      toast('Please select services to delete', {
-        icon: '⚠️',
-      });
+      message.warning('Please select services to delete');
       return;
     }
     setIsDeleteConfirmModalVisible(true);
@@ -477,11 +405,8 @@ const ServiceManagerContent = () => {
         setSelectedRowKeys([]);
         setIsDeleteConfirmModalVisible(false);
         
-        // Show toast BEFORE reloading
-        toast.success(`${successCount} service(s) deleted successfully!`, {
-          duration: 4000,
-          position: 'top-center',
-        });
+        // Show message BEFORE reloading
+        message.success(`${successCount} service(s) deleted successfully!`);
         
         // Reload services from database
         await loadServices();
@@ -491,10 +416,7 @@ const ServiceManagerContent = () => {
     } catch (error) {
       console.error('Error deleting selected services:', error);
       setIsDeleteConfirmModalVisible(false);
-      toast.error(`Failed to delete services: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(`Failed to delete services: ${error.message}`);
     } finally {
       setIsDeleteLoading(false);
     }
@@ -548,9 +470,7 @@ const ServiceManagerContent = () => {
         // No changes, just exit edit mode
         setIsEditMode(false);
         setSelectedRowKeys([]);
-        toast('Edit mode closed', {
-          icon: 'ℹ️',
-        });
+        message.info('Edit mode closed');
       }
     } else {
       // Enter edit mode directly and clear any previous pending changes
@@ -567,9 +487,7 @@ const ServiceManagerContent = () => {
     setIsEditMode(false);
     setSelectedRowKeys([]);
     await loadServices(); // Reload original data from database
-    toast('Changes discarded', {
-      icon: 'ℹ️',
-    });
+    message.info('Changes discarded');
   };
 
   const confirmDoneEditing = async () => {
@@ -584,11 +502,7 @@ const ServiceManagerContent = () => {
         setIsEditMode(false);
         setSelectedRowKeys([]);
         setIsDoneEditingConfirmModalVisible(false);
-        toast('No changes to save', {
-          icon: 'ℹ️',
-          duration: 3000,
-          position: 'top-center',
-        });
+        message.info('No changes to save');
         setIsDoneEditingLoading(false);
         return;
       }
@@ -613,11 +527,8 @@ const ServiceManagerContent = () => {
         setIsDoneEditingConfirmModalVisible(false);
         setPendingChanges({}); // Clear pending changes
         
-        // Show toast BEFORE reloading
-        toast.success('All changes saved successfully!', {
-          duration: 4000,
-          position: 'top-center',
-        });
+        // Show message BEFORE reloading
+        message.success('All changes saved successfully!');
         
         await loadServices(); // Reload from database
       } else {
@@ -626,10 +537,7 @@ const ServiceManagerContent = () => {
     } catch (error) {
       console.error('Error saving changes:', error);
       setIsDoneEditingConfirmModalVisible(false);
-      toast.error(`Failed to save changes: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(`Failed to save changes: ${error.message}`);
     } finally {
       setIsDoneEditingLoading(false);
     }
@@ -1974,38 +1882,24 @@ const SuggestionsContent = () => {
   const handleFileSelect = (file) => {
     // Check file size
     if (file.size > maxFileSize) {
-      toast.error('File size must be less than 20MB', {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error('File size must be less than 20MB');
       return false;
     }
     setAttachedFile(file);
-    toast.success(`📎 ${file.name} attached successfully`, {
-      duration: 3000,
-      position: 'top-center',
-    });
+    message.success(`📎 ${file.name} attached successfully`);
     return false; // Prevent auto upload
   };
 
   const handleRemoveFile = () => {
     setAttachedFile(null);
-    toast('Attachment removed', {
-      icon: 'ℹ️',
-      duration: 2000,
-      position: 'top-center',
-    });
+    message.info('Attachment removed');
   };
 
   const handleSend = async () => {
     console.log('=== Starting handleSend (Suggestions) ===');
     
     if (!suggestionText.trim() && !attachedFile) {
-      toast('Please enter a suggestion or attach a file to submit', {
-        icon: '⚠️',
-        duration: 3000,
-        position: 'top-center',
-      });
+      message.warning('Please enter a suggestion or attach a file to submit');
       return;
     }
 
@@ -2040,10 +1934,7 @@ const SuggestionsContent = () => {
       }
     } catch (error) {
       console.error('Error sending suggestion:', error);
-      toast.error(error.response?.data?.message || `Failed to send suggestion: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(error.response?.data?.message || `Failed to send suggestion: ${error.message}`);
     } finally {
       setIsSending(false);
     }
@@ -2356,10 +2247,7 @@ const ContactUsContent = () => {
       }
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      toast.error(error.response?.data?.message || error.message || `Failed to send message: ${error.message}`, {
-        duration: 4000,
-        position: 'top-center',
-      });
+      message.error(error.response?.data?.message || error.message || `Failed to send message: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -2414,10 +2302,7 @@ const ContactUsContent = () => {
           if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
             const firstError = errorInfo.errorFields[0];
             const errorMessage = firstError.errors[0];
-            toast.error(errorMessage || 'Please fill in all required fields correctly', {
-              duration: 4000,
-              position: 'top-center',
-            });
+            message.error(errorMessage || 'Please fill in all required fields correctly');
           }
         }}
         scrollToFirstError={{ behavior: 'smooth', block: 'center' }}
