@@ -189,6 +189,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
     <Toaster 
       position="top-center"
       reverseOrder={false}
+      gutter={8}
       containerStyle={{
         top: 24,
         zIndex: 10000,
@@ -204,9 +205,10 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
           fontSize: '14px',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
           maxWidth: '400px',
-          zIndex: 10000,
+          // zIndex: 10000,
         },
         success: {
+          duration: 3000,
           iconTheme: {
             primary: '#52c41a',
             secondary: '#fff',
@@ -216,6 +218,7 @@ const UnifiedPopup = ({ isVisible, onClose, activeScreen, onScreenChange }) => {
           },
         },
         error: {
+          duration: 4000,
           iconTheme: {
             primary: '#ff4d4f',
             secondary: '#fff',

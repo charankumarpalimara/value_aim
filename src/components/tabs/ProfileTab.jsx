@@ -333,6 +333,7 @@ const ProfileTab = () => {
         gutter={8}
         containerStyle={{
           top: 24,
+          zIndex: 10000,
         }}
         toastOptions={{
           duration: 3000,

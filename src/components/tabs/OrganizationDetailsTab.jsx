@@ -192,17 +192,21 @@ const OrganizationDetailsTab = () => {
         });
       } else {
         const errorData = await response.json();
+        console.error('Error response:', errorData);
         toast.error(errorData.message || 'Failed to save organization details.', {
-          duration: 5000,
+          duration: 4000,
           position: 'top-center',
         });
       }
     } catch (error) {
       console.error('Error saving organization details:', error);
-      toast.error('Failed to save organization details. Please check your connection and try again.', {
-        duration: 5000,
-        position: 'top-center',
-      });
+      // Only show toast if it's a network error (not a handled error response)
+      if (error.message && !error.response) {
+        toast.error('Failed to save. Please check your connection and try again.', {
+          duration: 4000,
+          position: 'top-center',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -213,6 +217,7 @@ const OrganizationDetailsTab = () => {
       <Toaster 
         position="top-center"
         reverseOrder={false}
+        gutter={8}
         containerStyle={{
           top: 24,
           zIndex: 10000,
@@ -228,9 +233,9 @@ const OrganizationDetailsTab = () => {
             fontSize: '14px',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             maxWidth: '400px',
-            zIndex: 10000,
           },
           success: {
+            duration: 3000,
             iconTheme: {
               primary: '#52c41a',
               secondary: '#fff',
@@ -240,6 +245,7 @@ const OrganizationDetailsTab = () => {
             },
           },
           error: {
+            duration: 4000,
             iconTheme: {
               primary: '#ff4d4f',
               secondary: '#fff',
