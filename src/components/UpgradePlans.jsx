@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery } from 'react-responsive';
@@ -109,13 +109,9 @@ const UpgradePlans = () => {
 
   const handleUpgrade = (planName) => {
     if (planName === 'Professional' || planName === 'Enterprise') {
-      toast('Redirecting to checkout...', {
-        icon: 'ℹ️',
-      });
+      message.info('Redirecting to checkout...');
     } else if (planName === 'Business Team' || planName === 'Business Enterprise') {
-      toast('Our sales team will contact you shortly.', {
-        icon: 'ℹ️',
-      });
+      message.info('Our sales team will contact you shortly.');
     }
   };
 
